@@ -44,9 +44,9 @@ export function AnimateLogo1({ logo, sx, ...other }: AnimateLogoProps) {
       >
         {logo ??
           (theme.palette.mode === 'dark' ? (
-            <Image src="/assets/images/logos/logo-white.png" alt="Logo" width={150} height={40} />
+            <Image src="/assets/images/logos/logo-white.png" alt="Logo" width={150} height={30} />
           ) : (
-            <Image src="/assets/images/logos/logo-dark.png" alt="Logo" width={150} height={40} />
+            <Image src="/assets/images/logos/logo-dark.png" alt="Logo" width={150} height={30} />
           ))}
       </Box>
 

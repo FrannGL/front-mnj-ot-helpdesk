@@ -77,7 +77,7 @@ export function NavVertical({
             direction="row"
             justifyContent="space-between"
             alignItems="center"
-            sx={{ px: 1 }}
+            sx={{ px: 1, mb: 1 }}
           >
             <SearchBar />
             <TaskFilterMenu />
@@ -97,7 +97,7 @@ export function NavVertical({
   const renderNavMini = (
     <>
       {slots?.topArea ?? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5, border: '1px solid red' }}>
           {theme.palette.mode === 'dark' ? (
             <Image
               src="/assets/images/logos/logo-white-mini.png"
