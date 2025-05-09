@@ -1,7 +1,7 @@
 import Stack from '@mui/material/Stack';
 import { useTheme } from '@mui/material/styles';
 
-import { TaskList } from 'src/components/TaskList';
+import { TaskList } from 'src/modules/tasks/components/TaskList';
 
 import { NavUl } from '../styles';
 import { navSectionClasses } from '../classes';

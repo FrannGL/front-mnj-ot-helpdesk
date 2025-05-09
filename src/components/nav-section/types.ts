@@ -1,4 +1,4 @@
-import type { Task } from 'src/types/interfaces';
+import type { Task } from 'src/modules/tasks/interfaces';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 import type { Theme, SxProps, CSSObject } from '@mui/material/styles';
 

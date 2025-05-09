@@ -1,10 +1,10 @@
-import type { Task } from 'src/types/interfaces';
-
 import { m } from 'framer-motion';
 
 import { Box, Typography } from '@mui/material';
 
-import { TaskStatus } from 'src/types/enums';
+import { TaskStatus } from '../enums';
+
+import type { Task } from '../interfaces';
 
 interface TaskRowProps {
   task: Task;

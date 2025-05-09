@@ -1,8 +1,8 @@
-import type { Task } from 'src/types/interfaces';
-
 import { Box } from '@mui/material';
 
 import { TaskRow } from './TaskRow';
+
+import type { Task } from '../interfaces';
 
 interface TaskListProps {
   tasks: Task[];

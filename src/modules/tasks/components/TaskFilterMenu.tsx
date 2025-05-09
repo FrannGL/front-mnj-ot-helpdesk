@@ -21,12 +21,24 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import { TaskStatus, TaskPriority } from 'src/types/enums';
+import { TaskStatus, TaskPriority } from '../enums';
 
-export default function TaskFilterMenu() {
+interface TaskFilterMenuProps {
+  selectedStatuses: number[];
+  selectedPriorities: number[];
+  onStatusChange: (statuses: number[]) => void;
+  onPriorityChange: (priorities: number[]) => void;
+  onClear: () => void;
+}
+
+export function TaskFilterMenu({
+  selectedStatuses,
+  selectedPriorities,
+  onStatusChange,
+  onPriorityChange,
+  onClear,
+}: TaskFilterMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedStatuses, setSelectedStatuses] = useState<number[]>([]);
-  const [selectedPriorities, setSelectedPriorities] = useState<number[]>([]);
   const open = Boolean(anchorEl);
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -38,20 +50,21 @@ export default function TaskFilterMenu() {
   };
 
   const handleStatusToggle = (value: number) => {
-    setSelectedStatuses((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    const newStatuses = selectedStatuses.includes(value)
+      ? selectedStatuses.filter((v) => v !== value)
+      : [...selectedStatuses, value];
+    onStatusChange(newStatuses);
   };
 
   const handlePriorityToggle = (value: number) => {
-    setSelectedPriorities((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value]
-    );
+    const newPriorities = selectedPriorities.includes(value)
+      ? selectedPriorities.filter((v) => v !== value)
+      : [...selectedPriorities, value];
+    onPriorityChange(newPriorities);
   };
 
   const handleClearFilters = () => {
-    setSelectedStatuses([]);
-    setSelectedPriorities([]);
+    onClear();
   };
 
   const totalSelected = selectedStatuses.length + selectedPriorities.length;

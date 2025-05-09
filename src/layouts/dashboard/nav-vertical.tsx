@@ -1,19 +1,21 @@
-import type { Task } from 'src/types/interfaces';
 import type { Breakpoint } from '@mui/material/styles';
+import type { Task } from 'src/modules/tasks/interfaces';
 import type { NavSectionProps } from 'src/components/nav-section';
+import type { TaskStatus, TaskPriority } from 'src/modules/tasks/enums';
 
 import Image from 'next/image';
+import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import { varAlpha, hideScrollY } from 'src/theme/styles';
+import { filterTasks } from 'src/modules/tasks/utils/filterTask';
+import { SearchBar } from 'src/modules/tasks/components/TaskSearchBar';
+import { TaskList, TaskFilterMenu } from 'src/modules/tasks/components';
 
-import { TaskList } from 'src/components/TaskList';
 import { Scrollbar } from 'src/components/scrollbar';
-import { SearchBar } from 'src/components/TaskSearchBar';
-import TaskFilterMenu from 'src/components/TaskFilterMenu';
 import { NavSectionMini } from 'src/components/nav-section';
 
 import { NavToggleButton } from '../components/nav-toggle-button';
@@ -41,7 +43,25 @@ export function NavVertical({
   onToggleNav,
   ...other
 }: NavVerticalProps) {
+  const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
+  const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
+
+  const filteredTasks = filterTasks(tasks, selectedStatuses, selectedPriorities);
+
   const theme = useTheme();
+
+  const handleStatusChange = (statuses: number[]) => {
+    setSelectedStatuses(statuses);
+  };
+
+  const handlePriorityChange = (priorities: number[]) => {
+    setSelectedPriorities(priorities);
+  };
+
+  const handleClearFilters = () => {
+    setSelectedStatuses([]);
+    setSelectedPriorities([]);
+  };
 
   const renderNavVertical = (
     <>
@@ -80,13 +100,19 @@ export function NavVertical({
             sx={{ px: 1, mb: 1 }}
           >
             <SearchBar />
-            <TaskFilterMenu />
+            <TaskFilterMenu
+              selectedStatuses={selectedStatuses}
+              selectedPriorities={selectedPriorities}
+              onStatusChange={handleStatusChange}
+              onPriorityChange={handlePriorityChange}
+              onClear={handleClearFilters}
+            />
           </Stack>
         </Box>
       )}
 
       <Scrollbar fillContent>
-        <TaskList tasks={tasks} isNavMini={isNavMini} />
+        <TaskList tasks={filteredTasks} isNavMini={isNavMini} />
         {/* <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} />
 
         {slots?.bottomArea ?? <NavUpgrade />} */}

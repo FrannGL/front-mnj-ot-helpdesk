@@ -4,10 +4,3 @@ export enum TaskStatus {
   'RESUELTO' = 3,
   'CANCELADO' = 4,
 }
-
-export enum TaskPriority {
-  'BAJA' = 1,
-  'MEDIA' = 2,
-  'ALTA' = 3,
-  'CRITICA' = 4,
-}
