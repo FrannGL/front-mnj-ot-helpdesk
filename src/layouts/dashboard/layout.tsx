@@ -4,9 +4,10 @@ import type { SettingsState } from 'src/components/settings';
 import type { NavSectionProps } from 'src/components/nav-section';
 import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 
 import Alert from '@mui/material/Alert';
+import { GlobalStyles } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
@@ -15,6 +16,7 @@ import { useBoolean } from 'src/hooks/use-boolean';
 import { _contacts } from 'src/_mock';
 import { varAlpha, stylesMode } from 'src/theme/styles';
 import { mockTasks } from 'src/modules/tasks/data/mock';
+import { useTaskActions } from 'src/store/useTaskStore';
 
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
@@ -59,8 +61,38 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
 
   const isNavVertical = isNavMini || settings.navLayout === 'vertical';
 
+  const { setTasks } = useTaskActions();
+
+  useEffect(() => {
+    setTasks(mockTasks);
+  }, [setTasks]);
+
   return (
     <>
+      <GlobalStyles
+        styles={{
+          '*::-webkit-scrollbar': {
+            width: '8px',
+            height: '8px',
+          },
+          '*::-webkit-scrollbar-track': {
+            background: 'transparent',
+          },
+          '*::-webkit-scrollbar-thumb': {
+            backgroundColor: '#1976d2',
+            borderRadius: '8px',
+            border: '2px solid transparent',
+            backgroundClip: 'content-box',
+          },
+          '*::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: '#1565c0',
+          },
+          '*': {
+            scrollbarColor: '#1976d2 transparent',
+            scrollbarWidth: 'thin',
+          },
+        }}
+      />
       <NavMobile
         tasks={mockTasks}
         isNavMini={isNavMini}

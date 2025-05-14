@@ -1,19 +1,16 @@
 import type { Breakpoint } from '@mui/material/styles';
 import type { Task } from 'src/modules/tasks/interfaces';
 import type { NavSectionProps } from 'src/components/nav-section';
-import type { TaskStatus, TaskPriority } from 'src/modules/tasks/enums';
 
 import Image from 'next/image';
-import { useState } from 'react';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
+import { TaskList } from 'src/modules/tasks/components';
 import { varAlpha, hideScrollY } from 'src/theme/styles';
-import { filterTasks } from 'src/modules/tasks/utils/filterTask';
-import { SearchBar } from 'src/modules/tasks/components/TaskSearchBar';
-import { TaskList, TaskFilterMenu } from 'src/modules/tasks/components';
+import { useFilteredTasks } from 'src/store/useTaskStore';
 
 import { Scrollbar } from 'src/components/scrollbar';
 import { NavSectionMini } from 'src/components/nav-section';
@@ -43,25 +40,11 @@ export function NavVertical({
   onToggleNav,
   ...other
 }: NavVerticalProps) {
-  const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
-  const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
+  const filteredTasks = useFilteredTasks();
 
-  const filteredTasks = filterTasks(tasks, selectedStatuses, selectedPriorities);
+  console.log(filteredTasks);
 
   const theme = useTheme();
-
-  const handleStatusChange = (statuses: number[]) => {
-    setSelectedStatuses(statuses);
-  };
-
-  const handlePriorityChange = (priorities: number[]) => {
-    setSelectedPriorities(priorities);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedStatuses([]);
-    setSelectedPriorities([]);
-  };
 
   const renderNavVertical = (
     <>
@@ -99,14 +82,14 @@ export function NavVertical({
             alignItems="center"
             sx={{ px: 1, mb: 1 }}
           >
-            <SearchBar />
-            <TaskFilterMenu
+            {/* <SearchBar /> */}
+            {/* <TaskFilterMenu
               selectedStatuses={selectedStatuses}
               selectedPriorities={selectedPriorities}
               onStatusChange={handleStatusChange}
               onPriorityChange={handlePriorityChange}
               onClear={handleClearFilters}
-            />
+            /> */}
           </Stack>
         </Box>
       )}
@@ -123,7 +106,7 @@ export function NavVertical({
   const renderNavMini = (
     <>
       {slots?.topArea ?? (
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5, border: '1px solid red' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 2.5 }}>
           {theme.palette.mode === 'dark' ? (
             <Image
               src="/assets/images/logos/logo-white-mini.png"

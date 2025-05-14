@@ -1,28 +1,23 @@
 'use client';
 
-import { DashboardContent } from 'src/layouts/dashboard';
+import { Stack, Typography } from '@mui/material';
+
+import { useTaskStore } from 'src/store/useTaskStore';
+import { mockTasks } from 'src/modules/tasks/data/mock';
+import { TaskChatView } from 'src/modules/tasks/components/TaskChatView';
+import { FiltersContainer } from 'src/modules/tasks/components/FiltersContainer';
 
 // ----------------------------------------------------------------------
 
-type Props = {
-  title?: string;
-};
+export function BlankView() {
+  const { selectedTask } = useTaskStore();
 
-export function BlankView({ title = 'Blank' }: Props) {
+  if (!selectedTask) return <Typography>Selecciona una tarea para ver el chat.</Typography>;
+
   return (
-    <DashboardContent maxWidth="xl">
-      {/* <Typography variant="h4"> {title} </Typography>
-
-      <Box
-        sx={{
-          mt: 5,
-          width: 1,
-          height: 320,
-          borderRadius: 2,
-          bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.04),
-          border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-        }}
-      /> */}
-    </DashboardContent>
+    <Stack direction="column" sx={{ px: 5 }}>
+      <FiltersContainer tasks={mockTasks} />
+      <TaskChatView task={selectedTask} />
+    </Stack>
   );
 }

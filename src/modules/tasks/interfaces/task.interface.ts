@@ -1,5 +1,12 @@
 import type { TaskStatus, TaskPriority } from '../enums';
 
+interface Message {
+  id: string;
+  senderId: string;
+  content: string;
+  timestamp: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -10,4 +17,5 @@ export interface Task {
   priority: TaskPriority;
   createdBy: string;
   assignedTo: string;
+  messages: Message[];
 }

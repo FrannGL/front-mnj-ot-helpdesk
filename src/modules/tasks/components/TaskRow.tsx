@@ -1,6 +1,8 @@
 import { m } from 'framer-motion';
 
-import { Box, Typography } from '@mui/material';
+import { Box, alpha, useTheme, Typography } from '@mui/material';
+
+import { useTaskActions, useSelectedTask } from 'src/store/useTaskStore';
 
 import { TaskStatus } from '../enums';
 
@@ -19,28 +21,46 @@ const statusColorMap: Record<TaskStatus, string> = {
 };
 
 export function TaskRow({ task, isNavMini }: TaskRowProps) {
+  const { setSelectedTask } = useTaskActions();
+  const selectedTask = useSelectedTask();
+  const theme = useTheme();
+
   const color = statusColorMap[task.status];
+  const isSelected = selectedTask?.id === task.id;
 
   return (
     <Box
-      display="flex"
-      alignItems="center"
-      gap={1.5}
-      py={1}
-      sx={{ borderBottom: (theme) => `dashed 1px ${theme.vars.palette.divider}` }}
+      component="button"
+      onClick={() => setSelectedTask(task)}
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1.5,
+        py: 1,
+        width: '100%',
+        border: 'none',
+        background: 'none',
+        textAlign: 'left',
+        cursor: 'pointer',
+        color: isSelected ? '#fff' : 'inherit',
+        borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
+        bgcolor: isSelected ? theme.palette.primary.main : 'transparent',
+        borderRadius: 1,
+        '&:hover': {
+          bgcolor: isSelected
+            ? alpha(theme.palette.primary.main, 0.2)
+            : theme.vars.palette.action.hover,
+        },
+        transition: theme.transitions.create('background-color', {
+          duration: theme.transitions.duration.shortest,
+        }),
+      }}
     >
       <Box position="relative" width={16} height={16} flexShrink={0}>
         <Box
           component={m.div}
-          animate={{
-            scale: [1, 1.6, 1],
-            opacity: [0.4, 0.1, 0.4],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: 'circIn',
-          }}
+          animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0.1, 0.4] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'circIn' }}
           sx={{
             position: 'absolute',
             top: 0,
@@ -58,11 +78,7 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
         <Box
           component={m.div}
           animate={{ opacity: [1, 0.3, 1] }}
-          transition={{
-            duration: 1.5,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
           sx={{
             position: 'absolute',
             top: '50%',
@@ -81,6 +97,7 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
         variant="body2"
         sx={{
           pl: 2,
+          fontWeight: isSelected ? 600 : 'normal',
           ...(isNavMini && {
             whiteSpace: 'nowrap',
             overflow: 'hidden',
