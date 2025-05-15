@@ -24,14 +24,14 @@ export function TaskChatView({ task }: Props) {
   return (
     <Stack>
       <Typography variant="h4" sx={{ mb: 3 }}>
-        {task.title}
+        {task.titulo}
       </Typography>
 
       <Paper
         elevation={2}
         sx={{
           p: 2,
-          height: '68vh',
+          height: '60vh',
           bgcolor: theme.vars.palette.background.paper,
           borderRadius: 2,
           overflowY: 'auto',
@@ -41,7 +41,7 @@ export function TaskChatView({ task }: Props) {
         }}
       >
         {task.messages?.map((msg) => {
-          const isClient = msg.senderId === task.createdBy;
+          const isClient = msg.usuario.id === task.cliente.id;
 
           return (
             <Box
@@ -71,7 +71,7 @@ export function TaskChatView({ task }: Props) {
                       maxWidth: 400,
                     }}
                   >
-                    <Typography variant="body2">{msg.content}</Typography>
+                    <Typography variant="body2">{msg.texto}</Typography>
                   </Paper>
 
                   <Typography
@@ -83,7 +83,7 @@ export function TaskChatView({ task }: Props) {
                       display: 'block',
                     }}
                   >
-                    {new Date(msg.timestamp).toLocaleTimeString([], {
+                    {new Date(msg.createdAt).toLocaleTimeString([], {
                       hour: '2-digit',
                       minute: '2-digit',
                     })}

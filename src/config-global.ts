@@ -12,6 +12,7 @@ export type ConfigValue = {
     assetURL: string;
     basePath: string;
     version: string;
+    serverJST: string;
   };
   auth: {
     method: 'jwt' | 'amplify' | 'firebase' | 'supabase' | 'auth0';
@@ -41,6 +42,7 @@ export const CONFIG: ConfigValue = {
   site: {
     name: 'Minimals',
     serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
+    serverJST: process.env.NEXT_PUBLIC_JST_SERVER ?? '',
     assetURL: process.env.NEXT_PUBLIC_ASSET_URL ?? '',
     basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
     version: packageJson.version,

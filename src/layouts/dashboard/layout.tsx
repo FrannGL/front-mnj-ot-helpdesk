@@ -11,6 +11,7 @@ import { GlobalStyles } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
+import { useTasks } from 'src/hooks/useTasks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { _contacts } from 'src/_mock';
@@ -43,6 +44,8 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
+  const { data: tasksResults } = useTasks();
+
   const theme = useTheme();
 
   const mobileNavOpen = useBoolean();
@@ -64,8 +67,10 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
   const { setTasks } = useTaskActions();
 
   useEffect(() => {
-    setTasks(mockTasks);
-  }, [setTasks]);
+    if (tasksResults?.results) {
+      setTasks(tasksResults.results);
+    }
+  }, [tasksResults, setTasks]);
 
   return (
     <>

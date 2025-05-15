@@ -25,7 +25,7 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
   const selectedTask = useSelectedTask();
   const theme = useTheme();
 
-  const color = statusColorMap[task.status];
+  const color = statusColorMap[task.estado];
   const isSelected = selectedTask?.id === task.id;
 
   return (
@@ -106,7 +106,7 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
           }),
         }}
       >
-        {task.title}
+        {task.titulo}
       </Typography>
     </Box>
   );

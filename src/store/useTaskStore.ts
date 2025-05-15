@@ -1,8 +1,9 @@
 import type { Task } from 'src/modules/tasks/interfaces';
-import type { TaskStatus, TaskPriority } from 'src/modules/tasks/enums';
 
 import { useMemo } from 'react';
 import { create } from 'zustand';
+
+import { TaskStatus, TaskPriority } from 'src/modules/tasks/enums';
 
 export interface TaskFilters {
   status: TaskStatus | null;
@@ -18,23 +19,39 @@ interface TaskStoreState {
   actions: {
     setTasks: (tasks: Task[]) => void;
     addTask: (task: Task) => void;
-    updateTask: (id: string, updates: Partial<Task>) => void;
+    updateTask: (id: number, updates: Partial<Task>) => void;
     setFilters: (filters: Partial<TaskFilters>) => void;
     resetFilters: () => void;
     setSelectedTask: (task: Task | null) => void;
-    getTaskById: (id: string) => Task | undefined;
+    getTaskById: (id: number) => Task | undefined;
   };
 }
 
 const applyFilters = (tasks: Task[], filters: TaskFilters): Task[] =>
   tasks.filter((task) => {
-    const matchesStatus = !filters.status || task.status === filters.status;
-    const matchesPriority = !filters.priority || task.priority === filters.priority;
-    const matchesAssignedTo = !filters.assignedTo || task.assignedTo === filters.assignedTo;
+    const searchTerm = filters.searchTerm?.toLowerCase() || '';
+
+    const matchesStatus = !filters.status || task.estado === filters.status;
+    const matchesPriority = !filters.priority || task.prioridad === filters.priority;
+    const matchesAssignedTo =
+      !filters.assignedTo || task.agentes.some((agente) => agente.username === filters.assignedTo);
+
     const matchesSearch =
-      !filters.searchTerm ||
-      task.title.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-      task.description.toLowerCase().includes(filters.searchTerm.toLowerCase());
+      !searchTerm ||
+      task.titulo.toLowerCase().includes(searchTerm) ||
+      task.agentes.some(
+        (agente) =>
+          agente.username.toLowerCase().includes(searchTerm) ||
+          agente.username?.toLowerCase().includes(searchTerm)
+      ) ||
+      Object.entries(TaskPriority)
+        .find(([key, value]) => value === task.prioridad)?.[0]
+        .toLowerCase()
+        .includes(searchTerm) ||
+      Object.entries(TaskStatus)
+        .find(([key, value]) => value === task.estado)?.[0]
+        .toLowerCase()
+        .includes(searchTerm);
 
     return matchesStatus && matchesPriority && matchesAssignedTo && matchesSearch;
   });

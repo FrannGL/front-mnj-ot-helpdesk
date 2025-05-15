@@ -9,7 +9,7 @@ type Props = {
   children: React.ReactNode;
 };
 
-export default function Layout({ children }: Props) {
+export default async function Layout({ children }: Props) {
   if (CONFIG.auth.skip) {
     return <DashboardLayout>{children}</DashboardLayout>;
   }

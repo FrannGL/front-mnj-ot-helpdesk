@@ -7,9 +7,9 @@ export function filterTasks(
   selectedPriorities: TaskPriority[]
 ): Task[] {
   return tasks.filter((task) => {
-    const statusMatch = selectedStatuses.length === 0 || selectedStatuses.includes(task.status);
+    const statusMatch = selectedStatuses.length === 0 || selectedStatuses.includes(task.estado);
     const priorityMatch =
-      selectedPriorities.length === 0 || selectedPriorities.includes(task.priority);
+      selectedPriorities.length === 0 || selectedPriorities.includes(task.prioridad);
     return statusMatch && priorityMatch;
   });
 }

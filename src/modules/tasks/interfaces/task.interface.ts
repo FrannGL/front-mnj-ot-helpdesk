@@ -1,21 +1,20 @@
-import type { TaskStatus, TaskPriority } from '../enums';
+import type { User } from 'src/modules/users/interfaces';
 
-interface Message {
-  id: string;
-  senderId: string;
-  content: string;
-  timestamp: string;
-}
+import type { Message } from './messages.interface';
+import type { TaskStatus, TaskPriority } from '../enums';
+import type { StatusType, PriorityType } from '../types';
 
 export interface Task {
-  id: string;
-  title: string;
-  description: string;
-  status: TaskStatus;
+  id: number;
+  cliente: User;
+  agentes: User[];
+  titulo: string;
+  estado: TaskStatus;
+  estado_display: StatusType;
+  prioridad: TaskPriority;
+  prioridad_display: PriorityType;
   createdAt: string;
+  updatedAt: string;
   closedAt: string | null;
-  priority: TaskPriority;
-  createdBy: string;
-  assignedTo: string;
   messages: Message[];
 }

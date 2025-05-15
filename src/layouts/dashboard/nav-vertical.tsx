@@ -42,8 +42,6 @@ export function NavVertical({
 }: NavVerticalProps) {
   const filteredTasks = useFilteredTasks();
 
-  console.log(filteredTasks);
-
   const theme = useTheme();
 
   const renderNavVertical = (

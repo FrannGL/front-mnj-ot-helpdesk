@@ -2,8 +2,19 @@
 
 import { useState } from 'react';
 
-import { Box, Menu, Stack, Button, MenuItem } from '@mui/material';
+import { GridSearchIcon } from '@mui/x-data-grid';
 import {
+  Box,
+  Menu,
+  Stack,
+  Button,
+  Tooltip,
+  MenuItem,
+  TextField,
+  InputAdornment,
+} from '@mui/material';
+import {
+  Info as InfoIcon,
   Person as AssigneeIcon,
   Assignment as StatusIcon,
   PriorityHigh as PriorityIcon,
@@ -29,11 +40,14 @@ export function FiltersContainer({ tasks }: Props) {
   const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
   const [anchorPriority, setAnchorPriority] = useState<null | HTMLElement>(null);
   const [anchorAssignedTo, setAnchorAssignedTo] = useState<null | HTMLElement>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const filters = useFilters();
-  const { setFilters, resetFilters } = useTaskActions();
+  const { setFilters, resetFilters, setSelectedTask } = useTaskActions();
 
-  const uniqueAgents = Array.from(new Set(tasks.map((t) => t.assignedTo))).sort();
+  const uniqueAgents = Array.from(
+    new Set(tasks.flatMap((task) => task.agentes.map((agente) => agente.username)))
+  ).sort();
 
   const handleFilterChange = <K extends keyof typeof filters>(
     key: K,
@@ -53,9 +67,13 @@ export function FiltersContainer({ tasks }: Props) {
     setAnchorStatus(null);
     setAnchorPriority(null);
     setAnchorAssignedTo(null);
+    setSelectedTask(null);
+    setSearchTerm('');
   };
 
-  const hasActiveFilters = Boolean(filters.status || filters.priority || filters.assignedTo);
+  const hasActiveFilters = Boolean(
+    filters.status || filters.priority || filters.assignedTo || searchTerm
+  );
   const statusButtonText = filters.status ? getStatusLabel(filters.status) : 'Estado';
   const priorityButtonText = filters.priority ? getPriorityLabel(filters.priority) : 'Prioridad';
   const assignedButtonText = filters.assignedTo ? filters.assignedTo : 'Asignado a';
@@ -179,6 +197,44 @@ export function FiltersContainer({ tasks }: Props) {
               </MenuItem>
             ))}
           </Menu>
+        </div>
+
+        <div>
+          <TextField
+            variant="standard"
+            size="small"
+            value={filters.searchTerm}
+            placeholder="Buscar"
+            onChange={(e) => handleFilterChange('searchTerm', e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <GridSearchIcon fontSize="small" />
+                </InputAdornment>
+              ),
+              endAdornment: (
+                <InputAdornment position="end">
+                  <Tooltip title="Buscar por título, agente, estado o prioridad">
+                    <InfoIcon
+                      fontSize="small"
+                      sx={{
+                        color: 'text.secondary',
+                      }}
+                    />
+                  </Tooltip>
+                </InputAdornment>
+              ),
+            }}
+            sx={{
+              minWidth: 200,
+              '& .MuiInput-underline:after': {
+                borderBottomColor: 'primary.light',
+              },
+              '& .MuiInputBase-input:focus': {
+                color: 'primary.light',
+              },
+            }}
+          />
         </div>
 
         {hasActiveFilters && (
