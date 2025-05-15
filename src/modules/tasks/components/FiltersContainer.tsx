@@ -23,6 +23,7 @@ import {
 import { useFilters, useTaskActions } from 'src/store/useTaskStore';
 
 import { TaskStatus, TaskPriority } from '../enums';
+import { CreateOrderButton } from './CreateOrderButton';
 
 import type { Task } from '../interfaces';
 
@@ -79,7 +80,15 @@ export function FiltersContainer({ tasks }: Props) {
   const assignedButtonText = filters.assignedTo ? filters.assignedTo : 'Asignado a';
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <Box
+      sx={{
+        width: '100%',
+        mb: 2,
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+      }}
+    >
       <Stack direction="row" spacing={2} alignItems="center">
         <div>
           <Button
@@ -252,6 +261,9 @@ export function FiltersContainer({ tasks }: Props) {
             Limpiar Filtros
           </Button>
         )}
+      </Stack>
+      <Stack>
+        <CreateOrderButton />
       </Stack>
     </Box>
   );

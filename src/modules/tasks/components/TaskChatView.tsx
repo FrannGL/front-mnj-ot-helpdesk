@@ -12,6 +12,8 @@ import {
   IconButton,
 } from '@mui/material';
 
+import { fDate } from 'src/utils/format-time';
+
 import type { Task } from '../interfaces';
 
 type Props = {
@@ -38,61 +40,69 @@ export function TaskChatView({ task }: Props) {
           display: 'flex',
           flexDirection: 'column',
           gap: 2,
+          border: '1px solid rgba(81, 81, 81, 0.1)',
+          justifyContent: task.mensajes?.length ? 'flex-start' : 'center',
+          alignItems: task.mensajes?.length ? 'stretch' : 'center',
         }}
       >
-        {task.messages?.map((msg) => {
-          const isClient = msg.usuario.id === task.cliente.id;
+        {task.mensajes?.length ? (
+          task.mensajes.map((msg) => {
+            const isClient = msg.usuario.id === task.cliente.id;
 
-          return (
-            <Box
-              key={msg.id}
-              sx={{
-                display: 'flex',
-                flexDirection: isClient ? 'row' : 'row-reverse',
-                alignItems: 'flex-end',
-                gap: 1.5,
-              }}
-            >
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Avatar
-                  src={isClient ? '/avatars/client.png' : '/avatars/agent.png'}
-                  alt={isClient ? 'Cliente' : 'Agente'}
-                />
+            return (
+              <Box
+                key={msg.id}
+                sx={{
+                  display: 'flex',
+                  flexDirection: isClient ? 'row-reverse' : 'row',
+                  alignItems: 'flex-end',
+                  gap: 1.5,
+                }}
+              >
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Avatar
+                    src={isClient ? '/avatars/client.png' : '/avatars/agent.png'}
+                    alt={isClient ? 'Cliente' : 'Agente'}
+                  />
 
-                <Box>
-                  <Paper
-                    elevation={1}
-                    sx={{
-                      p: 1.5,
-                      mt: 2,
-                      bgcolor: theme.vars.palette.background.neutral,
-                      color: theme.vars.palette.text.primary,
-                      borderRadius: 2,
-                      maxWidth: 400,
-                    }}
-                  >
-                    <Typography variant="body2">{msg.texto}</Typography>
-                  </Paper>
+                  <Box>
+                    <Paper
+                      elevation={1}
+                      sx={{
+                        p: 1.5,
+                        mt: 2,
+                        bgcolor: theme.vars.palette.background.neutral,
+                        color: theme.vars.palette.text.primary,
+                        borderRadius: 2,
+                        maxWidth: 400,
+                      }}
+                    >
+                      <Typography variant="body2">{msg.texto}</Typography>
+                    </Paper>
 
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      mt: 1,
-                      ml: isClient ? 1 : 'auto',
-                      textAlign: isClient ? 'left' : 'right',
-                      display: 'block',
-                    }}
-                  >
-                    {new Date(msg.createdAt).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}
-                  </Typography>
-                </Box>
-              </Stack>
-            </Box>
-          );
-        })}
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        mt: 1,
+                        ml: isClient ? 1 : 'auto',
+                        textAlign: 'right',
+                        display: 'block',
+                        fontSize: 10,
+                        color: theme.vars.palette.text.secondary,
+                      }}
+                    >
+                      {fDate(msg.created_at, 'DD-MM-YYYY h:mm a')}
+                    </Typography>
+                  </Box>
+                </Stack>
+              </Box>
+            );
+          })
+        ) : (
+          <Typography variant="body1" color="textSecondary">
+            No hay mensajes disponibles.
+          </Typography>
+        )}
       </Paper>
 
       <Box
@@ -109,6 +119,7 @@ export function TaskChatView({ task }: Props) {
           borderRadius: 2,
           bgcolor: theme.vars.palette.background.paper,
           boxShadow: theme.shadows[1],
+          border: '1px solid rgba(81, 81, 81, 0.1)',
           height: '80px',
         }}
       >

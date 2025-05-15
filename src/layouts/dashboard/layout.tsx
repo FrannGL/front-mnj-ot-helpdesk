@@ -44,7 +44,7 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
-  const { data: tasksResults } = useTasks();
+  const { data: taskData } = useTasks();
 
   const theme = useTheme();
 
@@ -67,10 +67,10 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
   const { setTasks } = useTaskActions();
 
   useEffect(() => {
-    if (tasksResults?.results) {
-      setTasks(tasksResults.results);
+    if (taskData?.results) {
+      setTasks(taskData.results);
     }
-  }, [tasksResults, setTasks]);
+  }, [taskData, setTasks]);
 
   return (
     <>

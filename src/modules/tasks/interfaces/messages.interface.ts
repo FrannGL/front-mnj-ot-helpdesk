@@ -4,7 +4,7 @@ export interface Message {
   id: string;
   texto: string;
   usuario: User;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
   adjuntos: string[];
 }

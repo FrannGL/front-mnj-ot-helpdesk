@@ -13,6 +13,7 @@ export type ConfigValue = {
     basePath: string;
     version: string;
     serverJST: string;
+    apiBase: string;
   };
   auth: {
     method: 'jwt' | 'amplify' | 'firebase' | 'supabase' | 'auth0';
@@ -45,6 +46,7 @@ export const CONFIG: ConfigValue = {
     serverJST: process.env.NEXT_PUBLIC_JST_SERVER ?? '',
     assetURL: process.env.NEXT_PUBLIC_ASSET_URL ?? '',
     basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? '',
+    apiBase: process.env.NEXT_PUBLIC_API_BASE ?? '',
     version: packageJson.version,
   },
   isStaticExport: JSON.parse(`${process.env.BUILD_STATIC_EXPORT}`),

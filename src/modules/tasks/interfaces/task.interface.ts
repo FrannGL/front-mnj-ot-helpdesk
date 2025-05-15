@@ -16,5 +16,5 @@ export interface Task {
   createdAt: string;
   updatedAt: string;
   closedAt: string | null;
-  messages: Message[];
+  mensajes: Message[];
 }

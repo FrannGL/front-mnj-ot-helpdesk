@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { m } from 'framer-motion';
 
-import { Box, alpha, useTheme, Typography } from '@mui/material';
+import { MoreVert } from '@mui/icons-material';
+import { Box, Menu, alpha, useTheme, MenuItem, Typography, IconButton } from '@mui/material';
 
 import { useTaskActions, useSelectedTask } from 'src/store/useTaskStore';
 
@@ -24,9 +26,28 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
   const { setSelectedTask } = useTaskActions();
   const selectedTask = useSelectedTask();
   const theme = useTheme();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const color = statusColorMap[task.estado];
   const isSelected = selectedTask?.id === task.id;
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleEdit = () => {
+    // Lógica para editar la tarea
+    handleMenuClose();
+  };
+
+  const handleDelete = () => {
+    // Lógica para eliminar la tarea
+    handleMenuClose();
+  };
 
   return (
     <Box
@@ -98,16 +119,23 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
         sx={{
           pl: 2,
           fontWeight: isSelected ? 600 : 'normal',
-          ...(isNavMini && {
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: 100,
-          }),
+          whiteSpace: 'nowrap',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          maxWidth: 250,
         }}
       >
         {task.titulo}
       </Typography>
+
+      <IconButton onClick={handleMenuOpen} sx={{ ml: 'auto' }}>
+        <MoreVert />
+      </IconButton>
+
+      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+        <MenuItem onClick={handleEdit}>Editar</MenuItem>
+        <MenuItem onClick={handleDelete}>Eliminar</MenuItem>
+      </Menu>
     </Box>
   );
 }

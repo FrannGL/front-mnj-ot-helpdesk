@@ -1,6 +1,6 @@
 'use client';
 
-import type { Theme } from 'src/theme/types';
+import type { Theme } from '@mui/material';
 
 import { styled, MenuItem } from '@mui/material';
 
@@ -16,18 +16,18 @@ export const buttonStyles = {
 
 export const inputStyles = (theme: Theme) => ({
   '& .MuiInputLabel-root.Mui-focused': {
-    color: `${theme.palette.primary.darker} !important`,
+    color: `${theme.palette.primary.light} !important`,
   },
   '& .MuiOutlinedInput-root': {
     boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.10)',
     '&:hover fieldset': {
-      borderColor: theme.palette.primary.darker,
+      borderColor: theme.palette.primary.light,
     },
     '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.darker,
+      borderColor: theme.palette.primary.light,
     },
     '&.Mui-focused .MuiInputBase-input': {
-      color: theme.palette.primary.darker,
+      color: theme.palette.primary.light,
     },
     '&.Mui-disabled:hover fieldset': {
       borderColor: 'transparent',
@@ -41,20 +41,20 @@ export const inputStyles = (theme: Theme) => ({
 export const inputSelectStyles = (theme: Theme, disabled: boolean) => ({
   width: '100%',
   '& .MuiInputLabel-root.Mui-focused': {
-    color: theme.palette.primary.darker,
+    color: theme.palette.primary.main,
   },
   '& .MuiOutlinedInput-root': {
     boxShadow: disabled ? 'none' : '0px 2px 8px rgba(0, 0, 0, 0.10)',
     '&:hover fieldset': {
-      borderColor: disabled ? 'transparent' : theme.palette.primary.darker,
+      borderColor: disabled ? 'transparent' : theme.palette.primary.main,
     },
     '&.Mui-focused fieldset': {
-      borderColor: theme.palette.primary.darker,
+      borderColor: theme.palette.primary.main,
     },
   },
   '& .MuiSelect-root': {
     '&:focus': {
-      borderColor: theme.palette.primary.darker,
+      borderColor: theme.palette.primary.main,
     },
   },
   '& .MuiInputBase-root:hover': {
@@ -62,7 +62,7 @@ export const inputSelectStyles = (theme: Theme, disabled: boolean) => ({
   },
   '& .MuiInput-root': {
     '&.Mui-focused': {
-      color: theme.palette.primary.darker,
+      color: theme.palette.primary.main,
     },
   },
 });
