@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { m } from 'framer-motion';
 
 import {
   SwapVert,
@@ -22,6 +23,7 @@ import {
 } from '@mui/material';
 
 import { TaskStatus, TaskPriority } from '../enums';
+import { statusColorMap } from '../utils/statusColorMap';
 
 interface TaskFilterMenuProps {
   selectedStatuses: number[];
@@ -145,24 +147,63 @@ export function TaskFilterMenu({
               <FormGroup sx={{ gap: 1 }}>
                 {Object.entries(TaskStatus)
                   .filter(([k]) => Number.isNaN(Number(k)))
-                  .map(([label, value]) => (
-                    <FormControlLabel
-                      key={value}
-                      label={<Typography variant="body2">{label.replace('_', ' ')}</Typography>}
-                      control={
-                        <Checkbox
-                          checked={selectedStatuses.includes(value as number)}
-                          onChange={() => handleStatusToggle(value as number)}
-                          size="small"
-                          color="primary"
-                        />
-                      }
-                      sx={{
-                        m: 0,
-                        '&:hover': { backgroundColor: 'action.hover', borderRadius: 1 },
-                      }}
-                    />
-                  ))}
+                  .map(([label, value]) => {
+                    const color = statusColorMap[value as TaskStatus];
+
+                    return (
+                      <FormControlLabel
+                        key={value}
+                        label={
+                          <Box display="flex" alignItems="center" gap={1}>
+                            <Box position="relative" width={12} height={12} flexShrink={0}>
+                              <Box
+                                component={m.div}
+                                animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0.1, 0.4] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: 'circIn' }}
+                                sx={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: '50%',
+                                  width: 12,
+                                  height: 12,
+                                  borderRadius: '50%',
+                                  backgroundColor: color,
+                                  transform: 'translate(-50%, -50%)',
+                                  filter: 'blur(4px)',
+                                  zIndex: 0,
+                                }}
+                              />
+                              <Box
+                                component={m.div}
+                                animate={{ opacity: [1, 0.3, 1] }}
+                                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                                sx={{
+                                  position: 'absolute',
+                                  top: '50%',
+                                  left: '100%',
+                                  width: 8,
+                                  height: 8,
+                                  borderRadius: '50%',
+                                  bgcolor: color,
+                                  transform: 'translate(-50%, -50%)',
+                                  zIndex: 1,
+                                }}
+                              />
+                            </Box>
+                            <Typography variant="body2">{label.replace('_', ' ')}</Typography>
+                          </Box>
+                        }
+                        control={
+                          <Checkbox
+                            checked={selectedStatuses.includes(value as number)}
+                            onChange={() => handleStatusToggle(value as number)}
+                            size="small"
+                            color="primary"
+                          />
+                        }
+                      />
+                    );
+                  })}
               </FormGroup>
             </Box>
 

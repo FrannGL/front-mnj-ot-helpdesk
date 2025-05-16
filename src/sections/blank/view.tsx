@@ -1,42 +1,42 @@
 'use client';
 
-import { Box, Stack, Typography } from '@mui/material';
+import { useState, useEffect } from 'react';
 
-import { varAlpha } from 'src/theme/styles';
+import { Box, Stack } from '@mui/material';
+
 import { useTaskStore } from 'src/store/useTaskStore';
 import { mockTasks } from 'src/modules/tasks/data/mock';
+import { TaskList } from 'src/modules/tasks/components/TaskList';
 import { TaskChatView } from 'src/modules/tasks/components/TaskChatView';
 import { FiltersContainer } from 'src/modules/tasks/components/FiltersContainer';
 
 // ----------------------------------------------------------------------
 
-export function BlankView() {
+export function OrdenesView() {
+  const [openDialog, setOpenDialog] = useState(false);
+
   const { selectedTask } = useTaskStore();
 
+  useEffect(() => {
+    if (selectedTask) setOpenDialog(true);
+  }, [selectedTask]);
+
   return (
-    <Stack direction="column" sx={{ px: 5 }}>
-      <FiltersContainer tasks={mockTasks} />
-      {selectedTask ? (
-        <TaskChatView task={selectedTask} />
-      ) : (
-        <Box
-          sx={{
-            mt: 2,
-            width: '100%',
-            height: '72vh',
-            borderRadius: 2,
-            bgcolor: (theme) => varAlpha(theme.vars.palette.grey['500Channel'], 0.04),
-            border: (theme) => `dashed 1px ${theme.vars.palette.divider}`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
-            px: 5,
-          }}
-        >
-          <Typography>Selecciona una tarea para ver el chat.</Typography>
+    <Stack direction="row" spacing={2} sx={{ px: 4 }}>
+      <Stack direction="column" sx={{ flex: 1 }}>
+        <FiltersContainer tasks={mockTasks} />
+        <Box sx={{ width: '100%', pt: 4 }}>
+          <TaskList tasks={mockTasks} open={openDialog} />
         </Box>
-      )}
+
+        {selectedTask && (
+          <TaskChatView
+            task={selectedTask}
+            open={openDialog}
+            onClose={() => setOpenDialog(false)}
+          />
+        )}
+      </Stack>
     </Stack>
   );
 }

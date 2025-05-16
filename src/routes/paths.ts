@@ -3,6 +3,8 @@
 const ROOTS = {
   AUTH: '/auth',
   DASHBOARD: '/dashboard',
+  ORDENES: '/ordenes',
+  ADMIN: '/admin',
 };
 
 // ----------------------------------------------------------------------
@@ -43,12 +45,17 @@ export const paths = {
   // DASHBOARD
   dashboard: {
     root: ROOTS.DASHBOARD,
-    two: `${ROOTS.DASHBOARD}/two`,
-    three: `${ROOTS.DASHBOARD}/three`,
-    group: {
-      root: `${ROOTS.DASHBOARD}/group`,
-      five: `${ROOTS.DASHBOARD}/group/five`,
-      six: `${ROOTS.DASHBOARD}/group/six`,
-    },
+  },
+  // ORDENES
+  ordenesuser: {
+    root: ROOTS.ORDENES,
+  },
+  // ADMIN
+  admin: {
+    root: ROOTS.ADMIN,
+    ordenes: `${ROOTS.ADMIN}/ordenes`,
+    usuarios: `${ROOTS.ADMIN}/usuarios`,
+    grupos: `${ROOTS.ADMIN}/grupos`,
+    mensajes: `${ROOTS.ADMIN}/mensajes`,
   },
 };

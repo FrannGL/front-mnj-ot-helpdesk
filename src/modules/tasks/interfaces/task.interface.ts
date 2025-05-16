@@ -13,8 +13,8 @@ export interface Task {
   estado_display: StatusType;
   prioridad: TaskPriority;
   prioridad_display: PriorityType;
-  createdAt: string;
-  updatedAt: string;
-  closedAt: string | null;
+  created_at: string;
+  updated_at: string;
+  closed_at: string | null;
   mensajes: Message[];
 }

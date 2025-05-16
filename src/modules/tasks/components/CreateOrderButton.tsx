@@ -3,7 +3,7 @@ import { useState } from 'react';
 import Fab from '@mui/material/Fab';
 import { Add as AddIcon } from '@mui/icons-material';
 
-import { CreateTaskModal } from './CreateTaskModal';
+import { TaskModal } from './TaskModal';
 
 export function CreateOrderButton() {
   const [open, setOpen] = useState(false);
@@ -28,7 +28,7 @@ export function CreateOrderButton() {
         <AddIcon />
       </Fab>
 
-      <CreateTaskModal open={open} onClose={handleClose} />
+      <TaskModal open={open} onClose={handleClose} />
     </>
   );
 }

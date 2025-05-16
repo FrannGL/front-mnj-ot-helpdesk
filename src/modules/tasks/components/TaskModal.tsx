@@ -1,28 +1,32 @@
-import { useForm, Controller } from 'react-hook-form';
+import { toast } from 'sonner';
+import { useEffect } from 'react';
+import Dropzone from 'react-dropzone';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
 
-import { Task, Group, Message, PriorityHigh } from '@mui/icons-material';
+import { Task, Group, PriorityHigh } from '@mui/icons-material';
 import {
   Box,
-  Grid,
   Chip,
-  Dialog,
+  Grid,
   Button,
+  Dialog,
   Select,
   MenuItem,
+  useTheme,
   TextField,
   InputLabel,
   DialogTitle,
   FormControl,
-  DialogContent,
   DialogActions,
+  DialogContent,
   OutlinedInput,
-  InputAdornment,
   FormHelperText,
+  InputAdornment,
 } from '@mui/material';
 
-import { useUsers } from 'src/hooks/useUsers';
 import { useTasks } from 'src/hooks/useTasks';
+import { useUsers } from 'src/hooks/useUsers';
 
 import { inputStyles } from 'src/utils/shared-styles';
 
@@ -32,11 +36,16 @@ import { createTaskSchema, type CreateTaskType } from '../schemas/task.schema';
 interface Props {
   open: boolean;
   onClose: () => void;
+  defaultValues?: Partial<CreateTaskType>;
+  type?: 'post' | 'edit';
+  taskId: number;
 }
 
-export function CreateTaskModal({ open, onClose }: Props) {
+export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props) {
   const { data: users } = useUsers();
-  const { createMutation } = useTasks();
+  const { createMutation, updateMutation } = useTasks();
+
+  const theme = useTheme();
 
   const {
     control,
@@ -46,11 +55,12 @@ export function CreateTaskModal({ open, onClose }: Props) {
   } = useForm<CreateTaskType>({
     resolver: zodResolver(createTaskSchema),
     defaultValues: {
-      cliente: 1,
+      cliente: undefined,
       agentes: [],
       titulo: '',
       estado: TaskStatus.PENDIENTE,
       prioridad: TaskPriority.MEDIA,
+      ...defaultValues,
     },
   });
 
@@ -61,16 +71,38 @@ export function CreateTaskModal({ open, onClose }: Props) {
 
   const onSubmit = async (data: CreateTaskType) => {
     try {
-      await createMutation.mutateAsync(data);
+      if (type === 'edit') {
+        await updateMutation.mutateAsync({ taskId, updatedTask: data });
+        toast.success('Orden actualizada exitosamente.');
+      } else {
+        await createMutation.mutateAsync(data);
+        toast.success('Orden creada exitosamente.');
+      }
       handleClose();
     } catch (error) {
-      console.error('Error al crear la tarea:', error);
+      console.error('Error:', error);
+      toast.error('Ocurrió un error al guardar la orden.');
     }
   };
 
+  useEffect(() => {
+    if (open && type === 'edit') {
+      reset({
+        cliente: 1,
+        agentes: [],
+        titulo: '',
+        estado: TaskStatus.PENDIENTE,
+        prioridad: TaskPriority.MEDIA,
+        ...defaultValues,
+      });
+    }
+  }, [open, defaultValues, type, reset]);
+
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-      <DialogTitle sx={{ pb: 1 }}>Crear Nueva Orden</DialogTitle>
+      <DialogTitle sx={{ pb: 3 }}>
+        {type === 'edit' ? 'Editar Orden' : 'Crear Nueva Orden'}{' '}
+      </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
@@ -91,6 +123,9 @@ export function CreateTaskModal({ open, onClose }: Props) {
                         </InputAdornment>
                       }
                     >
+                      <MenuItem value="" disabled>
+                        Seleccione cliente
+                      </MenuItem>
                       {users?.results.map((user) => (
                         <MenuItem key={user.id} value={user.id}>
                           {user.username}
@@ -140,6 +175,9 @@ export function CreateTaskModal({ open, onClose }: Props) {
                         </Box>
                       )}
                     >
+                      <MenuItem value="" disabled>
+                        Seleccione los agentes asignados
+                      </MenuItem>
                       {users?.results.map((user) => (
                         <MenuItem key={user.id} value={user.id}>
                           {user.username}
@@ -163,6 +201,7 @@ export function CreateTaskModal({ open, onClose }: Props) {
                       {...field}
                       label="Estado"
                       placeholder="Seleccione un estado"
+                      disabled
                       startAdornment={
                         <InputAdornment position="start">
                           <Task />
@@ -224,22 +263,69 @@ export function CreateTaskModal({ open, onClose }: Props) {
                   <TextField
                     {...field}
                     fullWidth
-                    label="Título"
+                    label="Título de la Orden"
                     error={!!errors.titulo}
                     helperText={errors.titulo?.message}
                     sx={inputStyles}
                     multiline
                     rows={4}
                     placeholder="Ingrese el título de la tarea"
-                    InputProps={{
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <Message />
-                        </InputAdornment>
-                      ),
-                    }}
                   />
                 )}
+              />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Controller
+                name="archivo"
+                control={control}
+                render={({ field }) => {
+                  const { onChange, value } = field;
+                  return (
+                    <Box
+                      sx={{
+                        border: `2px dashed ${theme.palette.primary.light}`,
+                        padding: 3,
+                        textAlign: 'center',
+                        borderRadius: 2,
+                        cursor: 'pointer',
+                        bgcolor: theme.palette.background.paper,
+                        color: theme.palette.text.secondary,
+                      }}
+                    >
+                      <Dropzone
+                        onDrop={(acceptedFiles) => {
+                          if (acceptedFiles.length > 0) {
+                            onChange(acceptedFiles[0]);
+                          }
+                        }}
+                        accept={{
+                          'application/pdf': ['.pdf'],
+                          'image/jpeg': ['.jpeg', '.jpg'],
+                          'image/png': ['.png'],
+                        }}
+                        multiple={false}
+                      >
+                        {({ getRootProps, getInputProps }) => (
+                          <div {...getRootProps()}>
+                            <input {...getInputProps()} />
+                            {value ? (
+                              <p>{value.name}</p>
+                            ) : (
+                              <p>
+                                Arrastre y suelte un archivo aquí o haga clic para seleccionar uno
+                                (PDF, PNG, JPEG)
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </Dropzone>
+                      {errors.archivo && (
+                        <FormHelperText error>{errors.archivo.message as string}</FormHelperText>
+                      )}
+                    </Box>
+                  );
+                }}
               />
             </Grid>
           </Grid>

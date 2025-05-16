@@ -42,31 +42,38 @@ const ICONS = {
 // ----------------------------------------------------------------------
 
 export const navData = [
-  /**
-   * Overview
-   */
   {
-    subheader: 'Órdenes de Trabajo',
-    items: [
-      { title: 'One', path: paths.dashboard.root, icon: ICONS.dashboard },
-      { title: 'Two', path: paths.dashboard.two, icon: ICONS.ecommerce },
-      { title: 'Three', path: paths.dashboard.three, icon: ICONS.analytics },
-    ],
-  },
-  /**
-   * Management
-   */
-  {
-    subheader: 'Management',
+    subheader: 'Home',
     items: [
       {
-        title: 'Group',
-        path: paths.dashboard.group.root,
-        icon: ICONS.user,
+        title: 'Dashboard',
+        path: paths.dashboard.root,
+        icon: ICONS.dashboard,
+      },
+    ],
+  },
+  {
+    subheader: 'Ordenes de Trabajo',
+    items: [
+      {
+        title: 'Ordenes',
+        path: paths.ordenesuser.root,
+        icon: ICONS.analytics,
+      },
+    ],
+  },
+  {
+    subheader: 'Administración',
+    items: [
+      {
+        title: 'Admin',
+        path: paths.admin.root,
+        icon: ICONS.lock,
         children: [
-          { title: 'Four', path: paths.dashboard.group.root },
-          { title: 'Five', path: paths.dashboard.group.five },
-          { title: 'Six', path: paths.dashboard.group.six },
+          { title: 'Ordenes', path: paths.admin.ordenes },
+          { title: 'Usuarios', path: paths.admin.usuarios },
+          { title: 'Grupos', path: paths.admin.grupos },
+          { title: 'Mensajes', path: paths.admin.mensajes },
         ],
       },
     ],

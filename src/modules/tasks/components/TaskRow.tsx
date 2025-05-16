@@ -1,35 +1,41 @@
+import type { User } from 'src/modules/users/interfaces';
+
+import { toast } from 'sonner';
 import { useState } from 'react';
 import { m } from 'framer-motion';
 
-import { MoreVert } from '@mui/icons-material';
-import { Box, Menu, alpha, useTheme, MenuItem, Typography, IconButton } from '@mui/material';
+import { Edit, Delete, MoreVert } from '@mui/icons-material';
+import { Box, Menu, useTheme, MenuItem, Typography, IconButton } from '@mui/material';
 
-import { useTaskActions, useSelectedTask } from 'src/store/useTaskStore';
+import { useTasks } from 'src/hooks/useTasks';
 
-import { TaskStatus } from '../enums';
+import { useTaskActions } from 'src/store/useTaskStore';
+
+import { ConfirmationModal } from 'src/components/ConfirmationModal';
+
+import { TaskModal } from './TaskModal';
+import { statusColorMap } from '../utils/statusColorMap';
 
 import type { Task } from '../interfaces';
+import type { CreateTaskType } from '../schemas/task.schema';
 
 interface TaskRowProps {
   task: Task;
-  isNavMini: boolean;
+  open: boolean;
 }
 
-const statusColorMap: Record<TaskStatus, string> = {
-  [TaskStatus.PENDIENTE]: '#FFC107',
-  [TaskStatus['EN PROCESO']]: '#2196F3',
-  [TaskStatus.RESUELTO]: '#4CAF50',
-  [TaskStatus.CANCELADO]: '#F44336',
-};
-
-export function TaskRow({ task, isNavMini }: TaskRowProps) {
-  const { setSelectedTask } = useTaskActions();
-  const selectedTask = useSelectedTask();
-  const theme = useTheme();
+export function TaskRow({ task, open }: TaskRowProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [editTaskData, setEditTaskData] = useState<Partial<CreateTaskType> | null>(null);
+
+  const { setSelectedTask } = useTaskActions();
+  const { deleteMutation } = useTasks();
+
+  const theme = useTheme();
 
   const color = statusColorMap[task.estado];
-  const isSelected = selectedTask?.id === task.id;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -40,12 +46,31 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
   };
 
   const handleEdit = () => {
-    // Lógica para editar la tarea
+    setEditTaskData({
+      ...task,
+      cliente: task.cliente.id,
+      agentes: task.agentes.map((agente: User) => agente.id),
+      titulo: task.titulo,
+      estado: task.estado,
+      prioridad: task.prioridad,
+    });
+    setModalOpen(true);
     handleMenuClose();
   };
 
   const handleDelete = () => {
-    // Lógica para eliminar la tarea
+    setConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteMutation.mutate(task.id, {
+      onSuccess: (response) => {
+        if (response.status === 200) {
+          toast.success('Orden eliminada exitosamente.');
+        }
+      },
+    });
+    setConfirmationOpen(false);
     handleMenuClose();
   };
 
@@ -63,15 +88,9 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
         background: 'none',
         textAlign: 'left',
         cursor: 'pointer',
-        color: isSelected ? '#fff' : 'inherit',
+        color: 'inherit',
         borderBottom: `dashed 1px ${theme.vars.palette.divider}`,
-        bgcolor: isSelected ? theme.palette.primary.main : 'transparent',
         borderRadius: 1,
-        '&:hover': {
-          bgcolor: isSelected
-            ? alpha(theme.palette.primary.main, 0.2)
-            : theme.vars.palette.action.hover,
-        },
         transition: theme.transitions.create('background-color', {
           duration: theme.transitions.duration.shortest,
         }),
@@ -118,11 +137,10 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
         variant="body2"
         sx={{
           pl: 2,
-          fontWeight: isSelected ? 600 : 'normal',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
-          maxWidth: 250,
+          maxWidth: '70%',
         }}
       >
         {task.titulo}
@@ -133,9 +151,29 @@ export function TaskRow({ task, isNavMini }: TaskRowProps) {
       </IconButton>
 
       <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleEdit}>Editar</MenuItem>
-        <MenuItem onClick={handleDelete}>Eliminar</MenuItem>
+        <MenuItem onClick={handleEdit}>
+          <Edit sx={{ mr: 1 }} />
+          Editar
+        </MenuItem>
+        <MenuItem onClick={handleDelete}>
+          <Delete sx={{ mr: 1 }} color="error" />
+          Eliminar
+        </MenuItem>
       </Menu>
+
+      <TaskModal
+        open={isModalOpen}
+        onClose={() => setModalOpen(false)}
+        defaultValues={editTaskData ?? undefined}
+        taskId={task.id}
+        type="edit"
+      />
+
+      <ConfirmationModal
+        open={confirmationOpen}
+        onClose={() => setConfirmationOpen(false)}
+        onConfirm={handleConfirmDelete}
+      />
     </Box>
   );
 }

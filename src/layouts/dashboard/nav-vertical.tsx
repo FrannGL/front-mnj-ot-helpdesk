@@ -3,17 +3,17 @@ import type { Task } from 'src/modules/tasks/interfaces';
 import type { NavSectionProps } from 'src/components/nav-section';
 
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
-import { TaskList } from 'src/modules/tasks/components';
 import { varAlpha, hideScrollY } from 'src/theme/styles';
 import { useFilteredTasks } from 'src/store/useTaskStore';
 
 import { Scrollbar } from 'src/components/scrollbar';
-import { NavSectionMini } from 'src/components/nav-section';
+import { NavSectionMini, NavSectionVertical } from 'src/components/nav-section';
 
 import { NavToggleButton } from '../components/nav-toggle-button';
 
@@ -43,6 +43,8 @@ export function NavVertical({
   const filteredTasks = useFilteredTasks();
 
   const theme = useTheme();
+
+  const pathname = usePathname();
 
   const renderNavVertical = (
     <>
@@ -93,10 +95,9 @@ export function NavVertical({
       )}
 
       <Scrollbar fillContent>
-        <TaskList tasks={filteredTasks} isNavMini={isNavMini} />
-        {/* <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} />
+        <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} />
 
-        {slots?.bottomArea ?? <NavUpgrade />} */}
+        {/* {slots?.bottomArea ?? <NavUpgrade />} */}
       </Scrollbar>
     </>
   );

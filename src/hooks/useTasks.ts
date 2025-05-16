@@ -35,7 +35,7 @@ async function updateTask({
   updatedTask,
 }: {
   taskId: number;
-  updatedTask: Partial<Task>;
+  updatedTask: CreateTaskType;
 }): Promise<Task> {
   const response = await request(`/ordenes/${taskId}`, 'PUT', updatedTask);
   if (response.error) {
@@ -44,11 +44,12 @@ async function updateTask({
   return response.data;
 }
 
-async function deleteTask(taskId: number): Promise<void> {
+async function deleteTask(taskId: number) {
   const response = await request(`/ordenes/${taskId}`, 'DELETE');
   if (response.error) {
     throw new Error(response.error);
   }
+  return response;
 }
 
 export function useTasks() {

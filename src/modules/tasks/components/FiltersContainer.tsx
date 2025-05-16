@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { m } from 'framer-motion';
 
 import { GridSearchIcon } from '@mui/x-data-grid';
 import {
@@ -11,79 +11,52 @@ import {
   Tooltip,
   MenuItem,
   TextField,
+  Typography,
   InputAdornment,
 } from '@mui/material';
 import {
+  Clear,
   Info as InfoIcon,
   Person as AssigneeIcon,
   Assignment as StatusIcon,
   PriorityHigh as PriorityIcon,
 } from '@mui/icons-material';
 
-import { useFilters, useTaskActions } from 'src/store/useTaskStore';
-
 import { TaskStatus, TaskPriority } from '../enums';
 import { CreateOrderButton } from './CreateOrderButton';
+import { statusColorMap } from '../utils/statusColorMap';
+import { useFilterHandlers } from '../hooks/useFilterHandlers';
 
 import type { Task } from '../interfaces';
-
-const getEnumKeyByValue = <T extends Record<string, any>>(
-  enumObj: T,
-  value: number
-): keyof T | undefined =>
-  Object.keys(enumObj).find((key) => enumObj[key] === value) as keyof T | undefined;
 
 type Props = {
   tasks: Task[];
 };
 
 export function FiltersContainer({ tasks }: Props) {
-  const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
-  const [anchorPriority, setAnchorPriority] = useState<null | HTMLElement>(null);
-  const [anchorAssignedTo, setAnchorAssignedTo] = useState<null | HTMLElement>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filters = useFilters();
-  const { setFilters, resetFilters, setSelectedTask } = useTaskActions();
-
-  const uniqueAgents = Array.from(
-    new Set(tasks.flatMap((task) => task.agentes.map((agente) => agente.username)))
-  ).sort();
-
-  const handleFilterChange = <K extends keyof typeof filters>(
-    key: K,
-    value: (typeof filters)[K] | null
-  ) => {
-    setFilters({ [key]: value } as Partial<typeof filters>);
-  };
-
-  const getStatusLabel = (value: number | null) =>
-    value ? getEnumKeyByValue(TaskStatus, value) : null;
-
-  const getPriorityLabel = (value: number | null) =>
-    value ? getEnumKeyByValue(TaskPriority, value) : null;
-
-  const handleResetAllFilters = () => {
-    resetFilters();
-    setAnchorStatus(null);
-    setAnchorPriority(null);
-    setAnchorAssignedTo(null);
-    setSelectedTask(null);
-    setSearchTerm('');
-  };
-
-  const hasActiveFilters = Boolean(
-    filters.status || filters.priority || filters.assignedTo || searchTerm
-  );
-  const statusButtonText = filters.status ? getStatusLabel(filters.status) : 'Estado';
-  const priorityButtonText = filters.priority ? getPriorityLabel(filters.priority) : 'Prioridad';
-  const assignedButtonText = filters.assignedTo ? filters.assignedTo : 'Asignado a';
+  const {
+    filters,
+    anchorStatus,
+    anchorPriority,
+    anchorAssignedTo,
+    setAnchorStatus,
+    setAnchorPriority,
+    setAnchorAssignedTo,
+    handleFilterChange,
+    handleResetAllFilters,
+    hasActiveFilters,
+    statusButtonText,
+    priorityButtonText,
+    assignedButtonText,
+    uniqueAgents,
+  } = useFilterHandlers(tasks);
 
   return (
     <Box
       sx={{
         width: '100%',
         mb: 2,
+        pl: 2,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -115,18 +88,66 @@ export function FiltersContainer({ tasks }: Props) {
             </MenuItem>
             {Object.entries(TaskStatus)
               .filter(([key]) => Number.isNaN(Number(key)))
-              .map(([key, value]) => (
-                <MenuItem
-                  key={value}
-                  selected={filters.status === value}
-                  onClick={() => {
-                    handleFilterChange('status', value as number);
-                    setAnchorStatus(null);
-                  }}
-                >
-                  {key}
-                </MenuItem>
-              ))}
+              .map(([key, value]) => {
+                const color = statusColorMap[value as TaskStatus];
+
+                return (
+                  <MenuItem
+                    key={value}
+                    selected={filters.status === value}
+                    onClick={() => {
+                      handleFilterChange('status', value as number);
+                      setAnchorStatus(null);
+                    }}
+                  >
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Box position="relative" width={16} height={16} flexShrink={0}>
+                        <Box
+                          component={m.div}
+                          animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0.1, 0.4] }}
+                          transition={{ duration: 2, repeat: Infinity, ease: 'circIn' }}
+                          sx={{
+                            position: 'absolute',
+                            top: 0,
+                            left: '50%',
+                            width: 16,
+                            height: 16,
+                            borderRadius: '50%',
+                            backgroundColor: color,
+                            transform: 'translate(-50%, -50%)',
+                            filter: 'blur(4px)',
+                            zIndex: 0,
+                          }}
+                        />
+                        <Box
+                          component={m.div}
+                          animate={{ opacity: [1, 0.3, 1] }}
+                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                          sx={{
+                            position: 'absolute',
+                            top: '50%',
+                            left: '100%',
+                            width: 10,
+                            height: 10,
+                            borderRadius: '50%',
+                            bgcolor: color,
+                            transform: 'translate(-50%, -50%)',
+                            zIndex: 1,
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        variant="subtitle2"
+                        sx={{
+                          ml: 3,
+                        }}
+                      >
+                        {key}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                );
+              })}
           </Menu>
         </div>
 
@@ -223,19 +244,23 @@ export function FiltersContainer({ tasks }: Props) {
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <Tooltip title="Buscar por título, agente, estado o prioridad">
-                    <InfoIcon
-                      fontSize="small"
-                      sx={{
-                        color: 'text.secondary',
-                      }}
-                    />
-                  </Tooltip>
+                  <Box display="flex" alignItems="center" gap={0.5}>
+                    {filters.searchTerm && (
+                      <Clear
+                        fontSize="small"
+                        sx={{ cursor: 'pointer', color: 'text.secondary' }}
+                        onClick={() => handleFilterChange('searchTerm', '')}
+                      />
+                    )}
+                    <Tooltip title="Buscar por título, agente, estado o prioridad">
+                      <InfoIcon fontSize="small" sx={{ color: 'text.secondary' }} />
+                    </Tooltip>
+                  </Box>
                 </InputAdornment>
               ),
             }}
             sx={{
-              minWidth: 200,
+              width: 250,
               '& .MuiInput-underline:after': {
                 borderBottomColor: 'primary.light',
               },

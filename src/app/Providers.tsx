@@ -1,5 +1,6 @@
 'use client';
 
+import { Toaster } from 'sonner';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 import { ThemeProvider } from 'src/theme/theme-provider';
@@ -23,6 +24,7 @@ export function Providers({ children, settings, caches }: ProvidersProps) {
       <SettingsProvider settings={settings} caches={caches}>
         <ThemeProvider>
           <MotionLazy>
+            <Toaster />
             <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
           </MotionLazy>
         </ThemeProvider>

@@ -101,7 +101,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
       <NavMobile
         tasks={mockTasks}
         isNavMini={isNavMini}
-        data={[]}
+        data={navData}
         open={mobileNavOpen.value}
         onClose={mobileNavOpen.onFalse}
         cssVars={navColorVars.section}
@@ -196,7 +196,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
         sidebarSection={
           isNavHorizontal ? null : (
             <NavVertical
-              data={[]}
+              data={navData}
               tasks={mockTasks}
               isNavMini={isNavMini}
               layoutQuery={layoutQuery}
