@@ -2,8 +2,6 @@ import { m } from 'framer-motion';
 
 import { Box, Chip, Stack, Divider, useTheme, Typography } from '@mui/material';
 
-import { useTaskActions } from 'src/store/useTaskStore';
-
 import { priorityChipColorMap } from '../utils';
 import { statusColorMap } from '../utils/statusColorsMap';
 
@@ -11,16 +9,16 @@ import type { Task } from '../interfaces';
 
 interface TaskRowProps {
   task: Task;
+  onTaskClick?: (id: number) => void;
 }
 
-export function TaskRow({ task }: TaskRowProps) {
-  const { setSelectedTask } = useTaskActions();
+export function TaskRow({ task, onTaskClick }: TaskRowProps) {
   const theme = useTheme();
   const color = statusColorMap[task.estado];
 
   return (
     <Box
-      onClick={() => setSelectedTask(task)}
+      onClick={() => onTaskClick?.(task.id)}
       sx={{
         display: 'flex',
         alignItems: 'center',

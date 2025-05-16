@@ -18,9 +18,9 @@ import {
   InputLabel,
   DialogTitle,
   FormControl,
+  Autocomplete,
   DialogActions,
   DialogContent,
-  OutlinedInput,
   FormHelperText,
   InputAdornment,
 } from '@mui/material';
@@ -112,27 +112,41 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
                 control={control}
                 render={({ field }) => (
                   <FormControl error={!!errors.cliente} fullWidth>
-                    <InputLabel>Cliente</InputLabel>
-                    <Select
+                    <Autocomplete
                       {...field}
-                      label="Cliente"
-                      placeholder="Seleccione cliente"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <Group />
-                        </InputAdornment>
-                      }
-                    >
-                      <MenuItem value="" disabled>
-                        Seleccione cliente
-                      </MenuItem>
-                      {users?.results.map((user) => (
-                        <MenuItem key={user.id} value={user.id}>
-                          {user.username}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.cliente && <FormHelperText>{errors.cliente.message}</FormHelperText>}
+                      disablePortal
+                      options={users?.results || []}
+                      getOptionLabel={(option) => {
+                        if (!option) return '';
+                        if (typeof option === 'number') {
+                          return users?.results.find((u) => u.id === option)?.username || '';
+                        }
+                        return option.username || '';
+                      }}
+                      value={users?.results.find((user) => user.id === field.value) || null}
+                      onChange={(_, newValue) => {
+                        field.onChange(newValue?.id || '');
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Cliente"
+                          error={!!errors.cliente}
+                          helperText={errors.cliente?.message}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <Group />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
                   </FormControl>
                 )}
               />
@@ -144,47 +158,53 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
                 control={control}
                 render={({ field }) => (
                   <FormControl error={!!errors.agentes} fullWidth>
-                    <InputLabel id="agentes-label">Agentes</InputLabel>
-                    <Select
+                    <Autocomplete
                       {...field}
-                      labelId="agentes-label"
                       multiple
-                      value={field.value || []}
-                      onChange={(e) => {
-                        field.onChange(e.target.value);
+                      disableCloseOnSelect
+                      options={users?.results || []}
+                      getOptionLabel={(option) => {
+                        if (!option) return '';
+                        if (typeof option === 'number') {
+                          return users?.results.find((u) => u.id === option)?.username || '';
+                        }
+                        return option.username || '';
                       }}
-                      input={<OutlinedInput label="Agentes" />}
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <Group />
-                        </InputAdornment>
+                      value={
+                        field.value?.map((id) => users?.results.find((u) => u.id === id)) || []
                       }
-                      renderValue={(selected) => (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                          {selected.map((id) => {
-                            const user = users?.results.find((u) => u.id === id);
-                            return (
-                              <Chip
-                                key={id}
-                                label={user?.username ?? id}
-                                onMouseDown={(event) => event.stopPropagation()}
-                                onDelete={() => field.onChange(field.value.filter((v) => v !== id))}
-                              />
-                            );
-                          })}
-                        </Box>
+                      onChange={(_, newValue) => {
+                        field.onChange(newValue.map((item) => item?.id));
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Agentes"
+                          error={!!errors.agentes}
+                          helperText={errors.agentes?.message}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <Group />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
+                        />
                       )}
-                    >
-                      <MenuItem value="" disabled>
-                        Seleccione los agentes asignados
-                      </MenuItem>
-                      {users?.results.map((user) => (
-                        <MenuItem key={user.id} value={user.id}>
-                          {user.username}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                    {errors.agentes && <FormHelperText>{errors.agentes.message}</FormHelperText>}
+                      renderTags={(tagValue, getTagProps) =>
+                        tagValue.map((option, index) => (
+                          <Chip
+                            label={option?.username}
+                            {...getTagProps({ index })}
+                            onMouseDown={(event) => event.stopPropagation()}
+                          />
+                        ))
+                      }
+                    />
                   </FormControl>
                 )}
               />

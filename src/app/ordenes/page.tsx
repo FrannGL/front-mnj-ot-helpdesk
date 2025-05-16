@@ -1,4 +1,4 @@
-import { OrdenesView } from 'src/sections/blank/view';
+import { OrdenesView } from 'src/modules/user-ordenes/view';
 
 export default function Page() {
   return <OrdenesView />;

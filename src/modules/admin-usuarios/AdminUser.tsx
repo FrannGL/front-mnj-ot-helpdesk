@@ -36,6 +36,7 @@ import { useUsers } from 'src/hooks/useUsers';
 import { CreateButton } from 'src/components/CreateButton';
 import { ConfirmationModal } from 'src/components/ConfirmationModal';
 
+import { UserGroups } from '../users/enums';
 import { UserModal } from '../users/components/UserModal';
 
 import type { User } from '../users/interfaces';
@@ -53,7 +54,7 @@ export function AdminUser() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
-    group: '',
+    group: '' as unknown as UserGroups | '',
     searchTerm: '',
   });
 
@@ -95,7 +96,7 @@ export function AdminUser() {
     if (!data?.results) return [];
 
     return data.results.filter((user) => {
-      const matchesGroup = !filters.group || user.groups.includes(filters.group);
+      const matchesGroup = !filters.group || user.groups.some((group) => group === filters.group);
       const matchesSearch =
         !filters.searchTerm ||
         user.username.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -110,7 +111,8 @@ export function AdminUser() {
 
   const uniqueGroups = useMemo(() => {
     if (!data?.results) return [];
-    return Array.from(new Set(data.results.flatMap((user) => user.groups)));
+    const groups = Array.from(new Set(data.results.flatMap((user) => user.groups)));
+    return groups.filter((group) => Object.values(UserGroups).includes(group));
   }, [data?.results]);
 
   if (isLoading) {
@@ -144,7 +146,12 @@ export function AdminUser() {
           <Select
             value={filters.group}
             label="Filtrar por Grupo"
-            onChange={(e) => setFilters((prev) => ({ ...prev, group: e.target.value }))}
+            onChange={(e) =>
+              setFilters((prev) => ({
+                ...prev,
+                group: e.target.value as UserGroups | '',
+              }))
+            }
             startAdornment={
               <InputAdornment position="start">
                 <Group />
@@ -268,7 +275,11 @@ export function AdminUser() {
                   )}
                 </TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleEdit(user)} color="primary" size="small">
+                  <IconButton
+                    onClick={() => handleEdit(user)}
+                    color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
+                    size="small"
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton onClick={() => handleDelete(user.id)} color="error" size="small">
@@ -303,7 +314,7 @@ export function AdminUser() {
         defaultValues={{
           username: selectedUser?.username,
           email: selectedUser?.email,
-          groups: selectedUser?.groups?.map((group) => parseInt(group, 10)),
+          groups: selectedUser?.groups,
         }}
       />
 

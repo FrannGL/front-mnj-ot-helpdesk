@@ -117,9 +117,12 @@ export function AdminTask() {
 
   if (!data?.results.length) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-        <Typography>No hay tareas disponibles</Typography>
-      </Box>
+      <>
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+          <Typography>No hay tareas disponibles</Typography>
+        </Box>
+        <CreateButton type="task" />
+      </>
     );
   }
 
@@ -206,7 +209,11 @@ export function AdminTask() {
                 </TableCell>
                 <TableCell> {fDate(task.created_at, 'DD-MM-YYYY h:mm a')} </TableCell>
                 <TableCell>
-                  <IconButton onClick={() => handleEdit(task)} color="primary" size="small">
+                  <IconButton
+                    onClick={() => handleEdit(task)}
+                    color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
+                    size="small"
+                  >
                     <Edit />
                   </IconButton>
                   <IconButton onClick={() => handleDelete(task.id)} color="error" size="small">
