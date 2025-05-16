@@ -1,16 +1,14 @@
 import type { Breakpoint } from '@mui/material/styles';
-import type { Task } from 'src/modules/tasks/interfaces';
+import type { Order } from 'src/modules/orders/interfaces';
 import type { NavSectionProps } from 'src/components/nav-section';
 
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
 
 import Box from '@mui/material/Box';
 import { Stack } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 
 import { varAlpha, hideScrollY } from 'src/theme/styles';
-import { useFilteredTasks } from 'src/store/useTaskStore';
 
 import { Scrollbar } from 'src/components/scrollbar';
 import { NavSectionMini, NavSectionVertical } from 'src/components/nav-section';
@@ -20,7 +18,7 @@ import { NavToggleButton } from '../components/nav-toggle-button';
 // ----------------------------------------------------------------------
 
 export type NavVerticalProps = NavSectionProps & {
-  tasks: Task[];
+  orders: Order[];
   isNavMini: boolean;
   layoutQuery: Breakpoint;
   onToggleNav: () => void;
@@ -31,7 +29,7 @@ export type NavVerticalProps = NavSectionProps & {
 };
 
 export function NavVertical({
-  tasks,
+  orders,
   sx,
   data,
   slots,
@@ -40,11 +38,7 @@ export function NavVertical({
   onToggleNav,
   ...other
 }: NavVerticalProps) {
-  const filteredTasks = useFilteredTasks();
-
   const theme = useTheme();
-
-  const pathname = usePathname();
 
   const renderNavVertical = (
     <>
@@ -83,7 +77,7 @@ export function NavVertical({
             sx={{ px: 1, mb: 1 }}
           >
             {/* <SearchBar /> */}
-            {/* <TaskFilterMenu
+            {/* <OrderFilterMenu
               selectedStatuses={selectedStatuses}
               selectedPriorities={selectedPriorities}
               onStatusChange={handleStatusChange}
@@ -125,7 +119,7 @@ export function NavVertical({
       )}
 
       <NavSectionMini
-        tasks={tasks}
+        orders={orders}
         isNavMini={isNavMini}
         data={[]}
         sx={{ pb: 2, px: 0.5, ...hideScrollY, flex: '1 1 auto', overflowY: 'auto' }}

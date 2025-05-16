@@ -4,18 +4,16 @@ import type { SettingsState } from 'src/components/settings';
 import type { NavSectionProps } from 'src/components/nav-section';
 import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
 
-import { useMemo, useEffect } from 'react';
+import { useMemo } from 'react';
 
 import Alert from '@mui/material/Alert';
 import { GlobalStyles } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
-import { useTasks } from 'src/hooks/useTasks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { _contacts } from 'src/_mock';
-import { useTaskActions } from 'src/store/useTaskStore';
 import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { bulletColor } from 'src/components/nav-section';
@@ -43,8 +41,6 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
-  const { data: taskData } = useTasks();
-
   const theme = useTheme();
 
   const mobileNavOpen = useBoolean();
@@ -62,14 +58,6 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
   const isNavHorizontal = settings.navLayout === 'horizontal';
 
   const isNavVertical = isNavMini || settings.navLayout === 'vertical';
-
-  const { setTasks } = useTaskActions();
-
-  useEffect(() => {
-    if (taskData?.results) {
-      setTasks(taskData.results);
-    }
-  }, [taskData, setTasks]);
 
   return (
     <>
@@ -98,7 +86,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
         }}
       />
       <NavMobile
-        tasks={taskData?.results}
+        orders={[]}
         isNavMini={isNavMini}
         data={navData}
         open={mobileNavOpen.value}
@@ -196,7 +184,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
           isNavHorizontal ? null : (
             <NavVertical
               data={navData}
-              tasks={taskData?.results ?? []}
+              orders={[]}
               isNavMini={isNavMini}
               layoutQuery={layoutQuery}
               cssVars={navColorVars.section}

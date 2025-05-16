@@ -4,6 +4,8 @@ import axios from 'axios';
 
 import { CONFIG } from 'src/config-global';
 
+const { apiBase } = CONFIG.site;
+
 export const request = async (
   endpoint: string,
   method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
@@ -24,7 +26,6 @@ export const request = async (
     //     error: 'Token is missing. Authorization required.',
     //   };
     // }
-    const { apiBase } = CONFIG.site;
 
     const url = `${apiBase}/${endpoint}`;
 

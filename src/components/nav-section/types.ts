@@ -1,4 +1,4 @@
-import type { Task } from 'src/modules/tasks/interfaces';
+import type { Order } from 'src/modules/orders/interfaces';
 import type { ButtonBaseProps } from '@mui/material/ButtonBase';
 import type { Theme, SxProps, CSSObject } from '@mui/material/styles';
 
@@ -71,7 +71,7 @@ export type NavGroupProps = Omit<NavListProps, 'data' | 'depth'> & {
 
 export type NavSectionProps = Omit<NavListProps, 'data' | 'depth'> & {
   sx?: SxProps<Theme>;
-  tasks?: Task[];
+  orders?: Order[];
   isNavMini?: boolean;
   data: {
     subheader?: string;

@@ -3,10 +3,10 @@ import { useState } from 'react';
 import Fab from '@mui/material/Fab';
 import { Add as AddIcon } from '@mui/icons-material';
 
-import { TaskModal } from '../modules/tasks/components/TaskModal';
 import { UserModal } from '../modules/users/components/UserModal';
+import { OrderModal } from '../modules/orders/components/OrderModal';
 
-type ModalType = 'task' | 'user';
+type ModalType = 'order' | 'user';
 
 interface Props {
   type: ModalType;
@@ -20,8 +20,8 @@ export function CreateButton({ type, label = 'Crear' }: Props) {
 
   const renderModal = () => {
     switch (type) {
-      case 'task':
-        return <TaskModal open={open} onClose={handleClose} />;
+      case 'order':
+        return <OrderModal open={open} onClose={handleClose} />;
       case 'user':
         return <UserModal open={open} onClose={handleClose} type="post" disabled={false} />;
       default:

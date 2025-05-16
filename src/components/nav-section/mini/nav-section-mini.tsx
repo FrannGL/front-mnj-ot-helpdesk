@@ -10,7 +10,7 @@ import type { NavSectionProps } from '../types';
 // ----------------------------------------------------------------------
 
 export function NavSectionMini({
-  tasks,
+  orders,
   isNavMini,
   sx,
   data,
@@ -29,7 +29,7 @@ export function NavSectionMini({
   return (
     <Stack component="nav" className={navSectionClasses.mini.root} sx={{ ...cssVars, ...sx }}>
       <NavUl sx={{ flex: '1 1 auto', gap: 'var(--nav-item-gap)' }}>
-        {/* <TaskList tasks={tasks ?? []} isNavMini={isNavMini ?? false} /> */}
+        {/* <OrderList orders={orders ?? []} isNavMini={isNavMini ?? false} /> */}
       </NavUl>
     </Stack>
   );

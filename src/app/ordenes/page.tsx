@@ -1,5 +1,5 @@
-import { OrdenesView } from 'src/modules/user-ordenes/view';
+import { OrdersView } from 'src/modules/user-orders/view';
 
 export default function Page() {
-  return <OrdenesView />;
+  return <OrdersView />;
 }

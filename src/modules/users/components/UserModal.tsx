@@ -20,9 +20,9 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { useUsers } from 'src/hooks/useUsers';
-
 import { inputStyles } from 'src/utils/shared-styles';
+
+import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 import { createUserSchema, type CreateUserType } from '../schemas/user.schema';
 

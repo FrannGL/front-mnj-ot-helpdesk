@@ -1,5 +1,5 @@
 import type { NavSectionProps } from 'src/components/nav-section';
-import type { TaskStatus, TaskPriority } from 'src/modules/tasks/enums';
+import type { OrderStatusEnum, OrderPriorityEnum } from 'src/modules/orders/enums';
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
@@ -10,7 +10,7 @@ import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
 import { usePathname } from 'src/routes/hooks';
 
-import { SearchBar, TaskFilterMenu } from 'src/modules/tasks/components';
+import { OrderSearchBar, OrdersFiltersMenu } from 'src/modules/orders/components';
 
 import { Scrollbar } from 'src/components/scrollbar';
 
@@ -26,7 +26,7 @@ type NavMobileProps = NavSectionProps & {
 };
 
 export function NavMobile({
-  tasks = [],
+  orders = [],
   isNavMini,
   data,
   open,
@@ -35,10 +35,10 @@ export function NavMobile({
   sx,
   ...other
 }: NavMobileProps) {
-  const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
-  const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
+  const [selectedStatuses, setSelectedStatuses] = useState<OrderStatusEnum[]>([]);
+  const [selectedPriorities, setSelectedPriorities] = useState<OrderPriorityEnum[]>([]);
 
-  // const filteredTasks = filterTasks(tasks, selectedStatuses, selectedPriorities);
+  // const filteredOrders = filteredOrders(orders, selectedStatuses, selectedPriorities);
 
   const pathname = usePathname();
   const theme = useTheme();
@@ -92,8 +92,8 @@ export function NavMobile({
             alignItems="center"
             sx={{ px: 1, mb: 1 }}
           >
-            <SearchBar />
-            <TaskFilterMenu
+            <OrderSearchBar />
+            <OrdersFiltersMenu
               selectedStatuses={selectedStatuses}
               selectedPriorities={selectedPriorities}
               onStatusChange={handleStatusChange}
@@ -105,7 +105,7 @@ export function NavMobile({
       )}
 
       <Scrollbar fillContent>
-        {/* <TaskList tasks={filteredTasks ?? []} isNavMini={isNavMini ?? false} /> */}
+        {/* <OrderList orders={filteredorders ?? []} isNavMini={isNavMini ?? false} /> */}
       </Scrollbar>
 
       {slots?.bottomArea}

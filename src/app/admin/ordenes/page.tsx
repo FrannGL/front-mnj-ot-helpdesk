@@ -1,5 +1,5 @@
-import { AdminTask } from 'src/modules/admin-ordenes/AdminTask';
+import { AdminOrders } from 'src/modules/admin-orders/AdminOrders';
 
 export default function Page() {
-  return <AdminTask />;
+  return <AdminOrders />;
 }
