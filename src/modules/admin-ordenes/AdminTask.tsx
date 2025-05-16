@@ -2,6 +2,7 @@
 
 import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
+import { Fira_Sans } from 'next/font/google';
 
 import { Edit, Delete, SupportAgent } from '@mui/icons-material';
 import {
@@ -11,6 +12,7 @@ import {
   Paper,
   Stack,
   TableRow,
+  useTheme,
   TableBody,
   TableCell,
   TableHead,
@@ -25,11 +27,11 @@ import { useTasks } from 'src/hooks/useTasks';
 
 import { fDate } from 'src/utils/format-time';
 
+import { CreateButton } from 'src/components/CreateButton';
 import { ConfirmationModal } from 'src/components/ConfirmationModal';
 
 import { TaskModal } from '../tasks/components/TaskModal';
 import { FiltersContainer } from '../tasks/components/FiltersContainer';
-import { CreateOrderButton } from '../tasks/components/CreateOrderButton';
 import {
   applyFilters,
   getStatusIcon,
@@ -41,6 +43,11 @@ import {
 import type { Task } from '../tasks/interfaces';
 import type { TaskStatus } from '../tasks/enums';
 import type { TaskFilters } from '../tasks/types';
+
+const firaSans = Fira_Sans({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+});
 
 export function AdminTask() {
   const { data, isLoading, deleteMutation } = useTasks();
@@ -57,6 +64,8 @@ export function AdminTask() {
   });
 
   const rowsPerPage = 10;
+
+  const theme = useTheme();
 
   const handleFiltersChange = (newFilters: TaskFilters) => {
     setFilters(newFilters);
@@ -119,7 +128,11 @@ export function AdminTask() {
 
   return (
     <Stack sx={{ px: 3 }} spacing={1}>
-      <Typography variant="h4" sx={{ pl: 1 }} gutterBottom>
+      <Typography
+        variant="h4"
+        sx={{ fontFamily: `${firaSans.style.fontFamily} !important`, lineHeight: 1.3, pl: 1 }}
+        gutterBottom
+      >
         Administrar Tareas
       </Typography>
       <FiltersContainer tasks={data.results} onFiltersChange={handleFiltersChange} />
@@ -138,7 +151,16 @@ export function AdminTask() {
           </TableHead>
           <TableBody>
             {paginatedTasks.map((task) => (
-              <TableRow key={task.id}>
+              <TableRow
+                key={task.id}
+                sx={{
+                  '&:hover': {
+                    bgcolor: theme.palette.action.hover,
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s ease',
+                  },
+                }}
+              >
                 <TableCell
                   sx={{
                     maxWidth: 200,
@@ -228,7 +250,7 @@ export function AdminTask() {
         onConfirm={handleConfirmDelete}
       />
 
-      <CreateOrderButton />
+      <CreateButton type="task" />
     </Stack>
   );
 }

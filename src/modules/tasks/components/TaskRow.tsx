@@ -1,78 +1,22 @@
-import type { User } from 'src/modules/users/interfaces';
-
-import { toast } from 'sonner';
-import { useState } from 'react';
 import { m } from 'framer-motion';
 
-import { Edit, Delete, MoreVert } from '@mui/icons-material';
-import { Box, Menu, useTheme, MenuItem, Typography, IconButton } from '@mui/material';
-
-import { useTasks } from 'src/hooks/useTasks';
+import { Box, Chip, Stack, Divider, useTheme, Typography } from '@mui/material';
 
 import { useTaskActions } from 'src/store/useTaskStore';
 
-import { ConfirmationModal } from 'src/components/ConfirmationModal';
-
-import { TaskModal } from './TaskModal';
+import { priorityChipColorMap } from '../utils';
 import { statusColorMap } from '../utils/statusColorsMap';
 
 import type { Task } from '../interfaces';
-import type { CreateTaskType } from '../schemas/task.schema';
 
 interface TaskRowProps {
   task: Task;
-  open: boolean;
 }
 
-export function TaskRow({ task, open }: TaskRowProps) {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [editTaskData, setEditTaskData] = useState<Partial<CreateTaskType> | null>(null);
-
+export function TaskRow({ task }: TaskRowProps) {
   const { setSelectedTask } = useTaskActions();
-  const { deleteMutation } = useTasks();
-
   const theme = useTheme();
-
   const color = statusColorMap[task.estado];
-
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  const handleEdit = () => {
-    setEditTaskData({
-      ...task,
-      cliente: task.cliente.id,
-      agentes: task.agentes.map((agente: User) => agente.id),
-      titulo: task.titulo,
-      estado: task.estado,
-      prioridad: task.prioridad,
-    });
-    setModalOpen(true);
-    handleMenuClose();
-  };
-
-  const handleDelete = () => {
-    setConfirmationOpen(true);
-  };
-
-  const handleConfirmDelete = () => {
-    deleteMutation.mutate(task.id, {
-      onSuccess: (response) => {
-        if (response.status === 200) {
-          toast.success('Orden eliminada exitosamente.');
-        }
-      },
-    });
-    setConfirmationOpen(false);
-    handleMenuClose();
-  };
 
   return (
     <Box
@@ -135,47 +79,67 @@ export function TaskRow({ task, open }: TaskRowProps) {
         />
       </Box>
 
-      <Typography
-        variant="body2"
-        sx={{
-          pl: 2,
-          whiteSpace: 'nowrap',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          maxWidth: '70%',
-        }}
-      >
-        {task.titulo}
-      </Typography>
+      <Stack width="100%" direction="row" spacing={1} alignItems="center">
+        <Typography
+          variant="caption"
+          sx={{
+            color,
+            fontWeight: 'medium',
+            width: 70,
+            pl: 1.5,
+          }}
+        >
+          {task.estado_display}
+        </Typography>
 
-      <IconButton onClick={handleMenuOpen} sx={{ ml: 'auto' }}>
-        <MoreVert />
-      </IconButton>
+        <Divider
+          orientation="vertical"
+          flexItem
+          sx={{
+            borderStyle: 'dashed',
+            mx: 1,
+          }}
+        />
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleEdit}>
-          <Edit sx={{ mr: 1 }} />
-          Editar
-        </MenuItem>
-        <MenuItem onClick={handleDelete}>
-          <Delete sx={{ mr: 1 }} color="error" />
-          Eliminar
-        </MenuItem>
-      </Menu>
+        <Stack width="100%" direction="column" spacing={0.5}>
+          <Typography
+            variant="body2"
+            sx={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '70%',
+            }}
+          >
+            {task.titulo}
+          </Typography>
 
-      <TaskModal
-        open={isModalOpen}
-        onClose={() => setModalOpen(false)}
-        defaultValues={editTaskData ?? undefined}
-        taskId={task.id}
-        type="edit"
-      />
-
-      <ConfirmationModal
-        open={confirmationOpen}
-        onClose={() => setConfirmationOpen(false)}
-        onConfirm={handleConfirmDelete}
-      />
+          <Stack
+            width="100%"
+            direction="row"
+            spacing={1}
+            justifyContent="flex-start"
+            alignItems="center"
+          >
+            <Typography
+              variant="caption"
+              sx={{
+                color: theme.vars.palette.text.secondary,
+              }}
+            >
+              {task.cliente?.username ?? 'Desconocido'}
+            </Typography>
+            <Chip
+              label={`Prioridad ${task.prioridad_display}`}
+              color={priorityChipColorMap[task.prioridad]}
+              // icon={getPriorityIcon(task.prioridad)}
+              size="small"
+              variant="soft"
+              sx={{ fontSize: 10 }}
+            />
+          </Stack>
+        </Stack>
+      </Stack>
     </Box>
   );
 }

@@ -6,7 +6,7 @@ import { CONFIG } from 'src/config-global';
 
 export const request = async (
   endpoint: string,
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
   body?: any,
   responseType?: 'json' | 'blob' | 'text' | 'formData'
 ): Promise<{
