@@ -38,7 +38,7 @@ interface Props {
   onClose: () => void;
   defaultValues?: Partial<CreateTaskType>;
   type?: 'post' | 'edit';
-  taskId: number;
+  taskId?: number;
 }
 
 export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props) {
@@ -58,7 +58,7 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
       cliente: undefined,
       agentes: [],
       titulo: '',
-      estado: TaskStatus.PENDIENTE,
+      estado: TaskStatus.ABIERTO,
       prioridad: TaskPriority.MEDIA,
       ...defaultValues,
     },
@@ -71,7 +71,7 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
 
   const onSubmit = async (data: CreateTaskType) => {
     try {
-      if (type === 'edit') {
+      if (type === 'edit' && taskId) {
         await updateMutation.mutateAsync({ taskId, updatedTask: data });
         toast.success('Orden actualizada exitosamente.');
       } else {
@@ -91,7 +91,7 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
         cliente: 1,
         agentes: [],
         titulo: '',
-        estado: TaskStatus.PENDIENTE,
+        estado: TaskStatus.ABIERTO,
         prioridad: TaskPriority.MEDIA,
         ...defaultValues,
       });
@@ -112,7 +112,7 @@ export function TaskModal({ open, onClose, defaultValues, type, taskId }: Props)
                 control={control}
                 render={({ field }) => (
                   <FormControl error={!!errors.cliente} fullWidth>
-                    <InputLabel>Agentes</InputLabel>
+                    <InputLabel>Cliente</InputLabel>
                     <Select
                       {...field}
                       label="Cliente"

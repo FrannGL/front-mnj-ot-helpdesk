@@ -10,8 +10,6 @@ import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
 import { usePathname } from 'src/routes/hooks';
 
-import { TaskList } from 'src/modules/tasks/components/TaskList';
-import { filterTasks } from 'src/modules/tasks/utils/filterTask';
 import { SearchBar, TaskFilterMenu } from 'src/modules/tasks/components';
 
 import { Scrollbar } from 'src/components/scrollbar';
@@ -40,7 +38,7 @@ export function NavMobile({
   const [selectedStatuses, setSelectedStatuses] = useState<TaskStatus[]>([]);
   const [selectedPriorities, setSelectedPriorities] = useState<TaskPriority[]>([]);
 
-  const filteredTasks = filterTasks(tasks, selectedStatuses, selectedPriorities);
+  // const filteredTasks = filterTasks(tasks, selectedStatuses, selectedPriorities);
 
   const pathname = usePathname();
   const theme = useTheme();
@@ -107,7 +105,7 @@ export function NavMobile({
       )}
 
       <Scrollbar fillContent>
-        <TaskList tasks={filteredTasks ?? []} isNavMini={isNavMini ?? false} />
+        {/* <TaskList tasks={filteredTasks ?? []} isNavMini={isNavMini ?? false} /> */}
       </Scrollbar>
 
       {slots?.bottomArea}

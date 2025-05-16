@@ -1,52 +1,68 @@
-import type { User } from 'src/modules/users/interfaces';
+'use client';
 
-import { useState } from 'react';
-
-import { useFilters, useTaskActions } from 'src/store/useTaskStore';
+import { useMemo, useState } from 'react';
 
 import { TaskStatus, TaskPriority } from '../enums';
-import { getEnumKeyByValue } from '../utils/getEnumKeyByValue';
 
-export function useFilterHandlers(tasks: any[]) {
-  const [anchorStatus, setAnchorStatus] = useState<null | HTMLElement>(null);
-  const [anchorPriority, setAnchorPriority] = useState<null | HTMLElement>(null);
-  const [anchorAssignedTo, setAnchorAssignedTo] = useState<null | HTMLElement>(null);
+import type { Task } from '../interfaces';
+import type { TaskFilters } from '../types';
 
-  const filters = useFilters();
-  const { setFilters, resetFilters, setSelectedTask } = useTaskActions();
+export const useFilterHandlers = (tasks: Task[]) => {
+  const [filters, setFilters] = useState<TaskFilters>({
+    status: null,
+    priority: null,
+    assignedTo: null,
+    searchTerm: '',
+  });
 
-  const uniqueAgents = Array.from(
-    new Set(tasks.flatMap((task) => task.agentes.map((agente: User) => agente.username)))
-  ).sort();
+  const [anchorStatus, setAnchorStatus] = useState<HTMLElement | null>(null);
+  const [anchorPriority, setAnchorPriority] = useState<HTMLElement | null>(null);
+  const [anchorAssignedTo, setAnchorAssignedTo] = useState<HTMLElement | null>(null);
 
-  const handleFilterChange = <K extends keyof typeof filters>(
-    key: K,
-    value: (typeof filters)[K] | null
-  ) => {
-    setFilters({ [key]: value } as Partial<typeof filters>);
+  const handleFilterChange = (filterName: keyof TaskFilters, value: any) => {
+    setFilters((prev) => ({ ...prev, [filterName]: value }));
   };
-
-  const getStatusLabel = (value: number | null) =>
-    value ? getEnumKeyByValue(TaskStatus, value) : null;
-
-  const getPriorityLabel = (value: number | null) =>
-    value ? getEnumKeyByValue(TaskPriority, value) : null;
 
   const handleResetAllFilters = () => {
-    resetFilters();
-    setAnchorStatus(null);
-    setAnchorPriority(null);
-    setAnchorAssignedTo(null);
-    setSelectedTask(null);
+    setFilters({
+      status: null,
+      priority: null,
+      assignedTo: null,
+      searchTerm: '',
+    });
   };
 
-  const hasActiveFilters = Boolean(
-    filters.status || filters.priority || filters.assignedTo || filters.searchTerm
-  );
+  const statusButtonText =
+    filters.status !== null
+      ? Object.entries(TaskStatus).find(([_, value]) => value === filters.status)?.[0] || 'Estado'
+      : 'Estado';
 
-  const statusButtonText = filters.status ? getStatusLabel(filters.status) : 'Estado';
-  const priorityButtonText = filters.priority ? getPriorityLabel(filters.priority) : 'Prioridad';
-  const assignedButtonText = filters.assignedTo ? filters.assignedTo : 'Asignado a';
+  const priorityButtonText =
+    filters.priority !== null
+      ? Object.entries(TaskPriority).find(([_, value]) => value === filters.priority)?.[0] ||
+        'Prioridad'
+      : 'Prioridad';
+
+  const assignedButtonText = filters.assignedTo !== null ? filters.assignedTo : 'Asignado a';
+
+  const hasActiveFilters =
+    filters.status !== null ||
+    filters.priority !== null ||
+    filters.assignedTo !== null ||
+    filters.searchTerm !== '';
+
+  const uniqueAgents = useMemo(() => {
+    if (!tasks?.length) return [];
+
+    const agentsSet = new Set<string>();
+    tasks.forEach((task) => {
+      task.agentes.forEach((agent) => {
+        agentsSet.add(agent.username);
+      });
+    });
+
+    return Array.from(agentsSet);
+  }, [tasks]);
 
   return {
     filters,
@@ -64,4 +80,4 @@ export function useFilterHandlers(tasks: any[]) {
     assignedButtonText,
     uniqueAgents,
   };
-}
+};

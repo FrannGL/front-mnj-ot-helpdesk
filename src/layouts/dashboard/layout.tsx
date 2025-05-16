@@ -15,9 +15,8 @@ import { useTasks } from 'src/hooks/useTasks';
 import { useBoolean } from 'src/hooks/use-boolean';
 
 import { _contacts } from 'src/_mock';
-import { varAlpha, stylesMode } from 'src/theme/styles';
-import { mockTasks } from 'src/modules/tasks/data/mock';
 import { useTaskActions } from 'src/store/useTaskStore';
+import { varAlpha, stylesMode } from 'src/theme/styles';
 
 import { bulletColor } from 'src/components/nav-section';
 import { useSettingsContext } from 'src/components/settings';
@@ -26,9 +25,9 @@ import { Main } from './main';
 import { NavMobile } from './nav-mobile';
 import { layoutClasses } from '../classes';
 import { NavVertical } from './nav-vertical';
-import { NavHorizontal } from './nav-horizontal';
 import { _account } from '../config-nav-account';
 import { HeaderBase } from '../core/header-base';
+import { NavHorizontal } from './nav-horizontal';
 import { _workspaces } from '../config-nav-workspace';
 import { LayoutSection } from '../core/layout-section';
 import { navData as dashboardNavData } from '../config-nav-dashboard';
@@ -99,7 +98,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
         }}
       />
       <NavMobile
-        tasks={mockTasks}
+        tasks={taskData?.results}
         isNavMini={isNavMini}
         data={navData}
         open={mobileNavOpen.value}
@@ -197,7 +196,7 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
           isNavHorizontal ? null : (
             <NavVertical
               data={navData}
-              tasks={mockTasks}
+              tasks={taskData?.results ?? []}
               isNavMini={isNavMini}
               layoutQuery={layoutQuery}
               cssVars={navColorVars.section}

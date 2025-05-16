@@ -14,7 +14,7 @@ import { useTaskActions } from 'src/store/useTaskStore';
 import { ConfirmationModal } from 'src/components/ConfirmationModal';
 
 import { TaskModal } from './TaskModal';
-import { statusColorMap } from '../utils/statusColorMap';
+import { statusColorMap } from '../utils/statusColorsMap';
 
 import type { Task } from '../interfaces';
 import type { CreateTaskType } from '../schemas/task.schema';
@@ -76,7 +76,6 @@ export function TaskRow({ task, open }: TaskRowProps) {
 
   return (
     <Box
-      component="button"
       onClick={() => setSelectedTask(task)}
       sx={{
         display: 'flex',
@@ -94,6 +93,9 @@ export function TaskRow({ task, open }: TaskRowProps) {
         transition: theme.transitions.create('background-color', {
           duration: theme.transitions.duration.shortest,
         }),
+        '&:hover': {
+          bgcolor: theme.vars.palette.action.hover,
+        },
       }}
     >
       <Box position="relative" width={16} height={16} flexShrink={0}>

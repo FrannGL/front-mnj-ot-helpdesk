@@ -1,7 +1,5 @@
+import { AdminTask } from 'src/modules/admin-ordenes/AdminTask';
+
 export default function Page() {
-  return (
-    <div>
-      <h1>Ordenes Page</h1>
-    </div>
-  );
+  return <AdminTask />;
 }

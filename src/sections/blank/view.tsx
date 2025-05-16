@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from 'react';
 
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, Typography, CircularProgress } from '@mui/material';
+
+import { useTasks } from 'src/hooks/useTasks';
 
 import { useTaskStore } from 'src/store/useTaskStore';
-import { mockTasks } from 'src/modules/tasks/data/mock';
 import { TaskList } from 'src/modules/tasks/components/TaskList';
 import { TaskChatView } from 'src/modules/tasks/components/TaskChatView';
 import { FiltersContainer } from 'src/modules/tasks/components/FiltersContainer';
@@ -13,6 +14,8 @@ import { FiltersContainer } from 'src/modules/tasks/components/FiltersContainer'
 // ----------------------------------------------------------------------
 
 export function OrdenesView() {
+  const { data, isLoading } = useTasks();
+
   const [openDialog, setOpenDialog] = useState(false);
 
   const { selectedTask } = useTaskStore();
@@ -21,12 +24,28 @@ export function OrdenesView() {
     if (selectedTask) setOpenDialog(true);
   }, [selectedTask]);
 
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!data?.results.length) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+        <Typography>No hay tareas disponibles</Typography>
+      </Box>
+    );
+  }
+
   return (
     <Stack direction="row" spacing={2} sx={{ px: 4 }}>
       <Stack direction="column" sx={{ flex: 1 }}>
-        <FiltersContainer tasks={mockTasks} />
+        <FiltersContainer tasks={data.results ?? []} />
         <Box sx={{ width: '100%', pt: 4 }}>
-          <TaskList tasks={mockTasks} open={openDialog} />
+          <TaskList tasks={data.results ?? []} open={openDialog} />
         </Box>
 
         {selectedTask && (

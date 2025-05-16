@@ -23,7 +23,7 @@ import {
 } from '@mui/material';
 
 import { TaskStatus, TaskPriority } from '../enums';
-import { statusColorMap } from '../utils/statusColorMap';
+import { statusColorMap } from '../utils/statusColorsMap';
 
 interface TaskFilterMenuProps {
   selectedStatuses: number[];

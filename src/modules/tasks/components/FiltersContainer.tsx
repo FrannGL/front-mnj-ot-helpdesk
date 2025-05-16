@@ -23,17 +23,18 @@ import {
 } from '@mui/icons-material';
 
 import { TaskStatus, TaskPriority } from '../enums';
-import { CreateOrderButton } from './CreateOrderButton';
-import { statusColorMap } from '../utils/statusColorMap';
+import { statusColorMap } from '../utils/statusColorsMap';
 import { useFilterHandlers } from '../hooks/useFilterHandlers';
 
 import type { Task } from '../interfaces';
+import type { TaskFilters } from '../types';
 
-type Props = {
+type FiltersContainerProps = {
   tasks: Task[];
+  onFiltersChange?: (filters: any) => void;
 };
 
-export function FiltersContainer({ tasks }: Props) {
+export function FiltersContainer({ tasks, onFiltersChange }: FiltersContainerProps) {
   const {
     filters,
     anchorStatus,
@@ -42,8 +43,8 @@ export function FiltersContainer({ tasks }: Props) {
     setAnchorStatus,
     setAnchorPriority,
     setAnchorAssignedTo,
-    handleFilterChange,
-    handleResetAllFilters,
+    handleFilterChange: baseHandleFilterChange,
+    handleResetAllFilters: baseHandleResetAllFilters,
     hasActiveFilters,
     statusButtonText,
     priorityButtonText,
@@ -51,12 +52,33 @@ export function FiltersContainer({ tasks }: Props) {
     uniqueAgents,
   } = useFilterHandlers(tasks);
 
+  const handleFilterChange = (filterName: keyof TaskFilters, value: any) => {
+    baseHandleFilterChange(filterName, value);
+
+    if (onFiltersChange) {
+      const updatedFilters = { ...filters, [filterName]: value };
+      onFiltersChange(updatedFilters);
+    }
+  };
+
+  const handleResetAllFilters = () => {
+    baseHandleResetAllFilters();
+
+    if (onFiltersChange) {
+      onFiltersChange({
+        status: null,
+        priority: null,
+        assignedTo: null,
+        searchTerm: '',
+      });
+    }
+  };
+
   return (
     <Box
       sx={{
         width: '100%',
         mb: 2,
-        pl: 2,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -286,9 +308,6 @@ export function FiltersContainer({ tasks }: Props) {
             Limpiar Filtros
           </Button>
         )}
-      </Stack>
-      <Stack>
-        <CreateOrderButton />
       </Stack>
     </Box>
   );

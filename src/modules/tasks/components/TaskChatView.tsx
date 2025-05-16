@@ -1,24 +1,39 @@
 'use client';
 
-import { Send, Close, AutoAwesome } from '@mui/icons-material';
+import { Fira_Sans } from 'next/font/google';
+
+import { Send, Close, AutoAwesome, SupportAgent } from '@mui/icons-material';
 import {
   Box,
+  Chip,
   Paper,
   Stack,
   Avatar,
   Dialog,
+  Tooltip,
+  Divider,
   useTheme,
   InputBase,
-  Typography,
   IconButton,
+  Typography,
+  DialogTitle,
   DialogContent,
+  DialogActions,
 } from '@mui/material';
 
 import { fDate } from 'src/utils/format-time';
 
 import { useTaskActions } from 'src/store/useTaskStore';
 
+import { getStatusIcon, getPriorityIcon, statusChipColorMap, priorityChipColorMap } from '../utils';
+
 import type { Task } from '../interfaces';
+import type { TaskStatus, TaskPriority } from '../enums';
+
+const firaSans = Fira_Sans({
+  subsets: ['latin'],
+  weight: ['400', '600'],
+});
 
 type Props = {
   task: Task;
@@ -38,7 +53,7 @@ export function TaskChatView({ task, open, onClose }: Props) {
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
-      <DialogContent sx={{ position: 'relative', p: 3 }}>
+      <DialogTitle sx={{ pb: 0 }}>
         <IconButton
           onClick={onClose}
           sx={{
@@ -51,17 +66,72 @@ export function TaskChatView({ task, open, onClose }: Props) {
           <Close />
         </IconButton>
 
-        {/* Título */}
-        <Typography variant="h4" sx={{ mb: 3 }}>
-          {task.titulo}
-        </Typography>
+        <Stack direction="column" sx={{ mb: 2 }}>
+          <Typography
+            variant="h4"
+            sx={{ fontFamily: `${firaSans.style.fontFamily} !important`, lineHeight: 1.3 }}
+          >
+            {task.titulo ?? 'Sin título'}
+          </Typography>
+          <Typography variant="caption" color="textSecondary">
+            Creado por {task.cliente?.username ?? 'Desconocido'}
+          </Typography>
+        </Stack>
 
-        {/* Mensajes */}
+        <Stack direction="row" justifyContent="space-between" flexWrap="wrap" sx={{ mb: 2, mt: 3 }}>
+          <Stack direction="row" spacing={1.5} alignItems="center">
+            <Tooltip title="Estado de la orden" arrow>
+              <Chip
+                label={task.estado_display ?? 'N/A'}
+                color={statusChipColorMap[task.estado as TaskStatus] ?? 'default'}
+                icon={getStatusIcon(task.estado as TaskStatus)}
+                variant="outlined"
+              />
+            </Tooltip>
+
+            <Divider orientation="vertical" flexItem />
+
+            <Tooltip title="Prioridad de la orden" arrow>
+              <Chip
+                label={`Prioridad ${task.prioridad_display ?? 'N/A'}`}
+                color={priorityChipColorMap[task.prioridad as TaskPriority] ?? 'default'}
+                icon={getPriorityIcon(task.prioridad as TaskPriority)}
+                variant="outlined"
+              />
+            </Tooltip>
+
+            <Divider orientation="vertical" flexItem />
+
+            {task.agentes && task.agentes.length > 0 ? (
+              task.agentes.map((agente) => (
+                <Tooltip key={agente.id} title="Agente asignado" arrow>
+                  <Chip
+                    label={agente.username ?? 'N/A'}
+                    icon={<SupportAgent />}
+                    color="secondary"
+                    variant="outlined"
+                  />
+                </Tooltip>
+              ))
+            ) : (
+              <Chip label="Sin agentes asignados" variant="outlined" color="default" />
+            )}
+          </Stack>
+
+          <Stack direction="column" justifyContent="flex-end">
+            <Typography variant="caption" color="textSecondary">
+              Creado el {fDate(task.created_at, 'DD-MM-YYYY h:mm a')}
+            </Typography>
+          </Stack>
+        </Stack>
+      </DialogTitle>
+      <DialogContent sx={{ position: 'relative', p: 3, pb: 0 }}>
         <Paper
           elevation={2}
           sx={{
             p: 2,
-            height: '60vh',
+            pb: 0,
+            height: '53vh',
             bgcolor: theme.vars.palette.background.paper,
             borderRadius: 2,
             overflowY: 'auto',
@@ -88,10 +158,18 @@ export function TaskChatView({ task, open, onClose }: Props) {
                   }}
                 >
                   <Stack direction="row" spacing={2} alignItems="center">
-                    <Avatar
-                      src={isClient ? '/avatars/client.png' : '/avatars/agent.png'}
-                      alt={isClient ? 'Cliente' : 'Agente'}
-                    />
+                    <Tooltip
+                      title={
+                        isClient ? task.cliente.username : task.agentes[0]?.username ?? 'Agente'
+                      }
+                      arrow
+                    >
+                      <Avatar>
+                        {isClient
+                          ? task.cliente.username.charAt(0).toUpperCase()
+                          : task.agentes[0]?.username?.charAt(0).toUpperCase() ?? 'A'}
+                      </Avatar>
+                    </Tooltip>
 
                     <Box>
                       <Paper
@@ -132,13 +210,14 @@ export function TaskChatView({ task, open, onClose }: Props) {
             </Typography>
           )}
         </Paper>
+      </DialogContent>
 
-        {/* Input de mensaje */}
+      <DialogActions sx={{ pt: 1 }}>
         <Box
           component="form"
           onSubmit={(e) => e.preventDefault()}
           sx={{
-            mt: 2,
+            width: '100%',
             p: 1,
             display: 'flex',
             alignItems: 'center',
@@ -159,7 +238,7 @@ export function TaskChatView({ task, open, onClose }: Props) {
             }}
           />
 
-          <IconButton type="submit" color="info">
+          <IconButton type="submit" color="primary">
             <Send />
           </IconButton>
 
@@ -167,7 +246,7 @@ export function TaskChatView({ task, open, onClose }: Props) {
             <AutoAwesome />
           </IconButton>
         </Box>
-      </DialogContent>
+      </DialogActions>
     </Dialog>
   );
 }
