@@ -26,7 +26,7 @@ export default async function RootLayout({ children }: Props) {
   const settings = CONFIG.isStaticExport ? defaultSettings : await detectSettings();
 
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body>
         {getInitColorSchemeScript}
 
