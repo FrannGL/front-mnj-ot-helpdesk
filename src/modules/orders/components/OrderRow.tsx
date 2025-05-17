@@ -89,7 +89,7 @@ export function OrderRow({ order, onOrderClick, index = 0 }: OrderRowProps) {
           sx={{
             color,
             fontWeight: 'medium',
-            width: 80,
+            width: 95,
             pl: 1.5,
           }}
         >
@@ -112,7 +112,7 @@ export function OrderRow({ order, onOrderClick, index = 0 }: OrderRowProps) {
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '70%',
+              maxWidth: '85%',
             }}
           >
             {order.titulo}

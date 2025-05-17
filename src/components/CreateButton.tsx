@@ -4,7 +4,7 @@ import Fab from '@mui/material/Fab';
 import { Add as AddIcon } from '@mui/icons-material';
 
 import { UserModal } from '../modules/users/components/UserModal';
-import { OrderModal } from '../modules/orders/components/OrderModal';
+import { OrderForm } from '../modules/orders/components/OrderForm';
 
 type ModalType = 'order' | 'user';
 
@@ -21,7 +21,7 @@ export function CreateButton({ type, label = 'Crear' }: Props) {
   const renderModal = () => {
     switch (type) {
       case 'order':
-        return <OrderModal open={open} onClose={handleClose} />;
+        return <OrderForm open={open} onClose={handleClose} />;
       case 'user':
         return <UserModal open={open} onClose={handleClose} type="post" disabled={false} />;
       default:

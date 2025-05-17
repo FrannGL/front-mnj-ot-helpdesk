@@ -2,7 +2,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 
 import { Send, AutoAwesome } from '@mui/icons-material';
-import { Box, useTheme, InputBase, IconButton, DialogActions } from '@mui/material';
+import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
 import { useOrders } from '../../hooks/useOrders';
 
@@ -13,8 +13,10 @@ type Props = {
 };
 
 export function OrderChatInput({ order }: Props) {
-  const theme = useTheme();
   const [mensaje, setMensaje] = useState('');
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   const { sendMessageMutation } = useOrders();
 
@@ -42,13 +44,13 @@ export function OrderChatInput({ order }: Props) {
   };
 
   return (
-    <DialogActions sx={{ pt: 1 }}>
+    <DialogActions sx={{ pt: 1, px: 2 }}>
       <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{
           width: '100%',
-          p: 1,
+          p: isMobile ? 0.5 : 1,
           display: 'flex',
           alignItems: 'center',
           gap: 1,
@@ -58,7 +60,7 @@ export function OrderChatInput({ order }: Props) {
           border: `1px solid ${
             theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
           }`,
-          height: 80,
+          height: isMobile ? 60 : 80,
         }}
       >
         <InputBase

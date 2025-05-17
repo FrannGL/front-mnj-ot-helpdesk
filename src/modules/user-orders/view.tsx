@@ -3,15 +3,15 @@
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
 
-import { Box, Stack, Typography, Pagination, CircularProgress } from '@mui/material';
+import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 
 import { applyFilters } from 'src/modules/orders/utils';
 import { OrdersList } from 'src/modules/orders/components/OrdersList';
 
 import { CreateButton } from 'src/components/CreateButton';
 
-import { OrderChat, OrdersFilter } from '../orders/components';
 import { useOrders, useOrderById } from '../orders/hooks/useOrders';
+import { OrderChat, OrdersFilter, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
 
 import type { OrderFilters } from '../orders/types';
 
@@ -38,6 +38,8 @@ export function OrdersView() {
 
   const { data: selectedOrder } = useOrderById(selectedOrderId);
 
+  const isMobileScreen = useMediaQuery('(max-width:600px)');
+
   const filteredOrders = useMemo(
     () => (data?.results ? applyFilters(data.results, filters) : []),
     [data?.results, filters]
@@ -57,7 +59,16 @@ export function OrdersView() {
     setPage(value);
   };
 
-  const totalPages = data ? Math.ceil(data.count / (data.results.length || 1)) : 1;
+  const totalPages = useMemo(() => {
+    if (!data) return 1;
+
+    if (data.next || !data.previous) {
+      const pageSize = data.results.length;
+      return Math.ceil(data.count / Math.max(pageSize, 1));
+    }
+
+    return page;
+  }, [data, page]);
 
   const showLoading = isLoading || isFetching;
 
@@ -81,7 +92,7 @@ export function OrdersView() {
   }
 
   return (
-    <Stack direction="row" spacing={2} sx={{ px: 4 }}>
+    <Stack direction="row" spacing={2} sx={{ px: 2 }}>
       <Stack direction="column" sx={{ flex: 1 }}>
         <Typography
           variant="h4"
@@ -95,11 +106,26 @@ export function OrdersView() {
         >
           Listado de Ordenes
         </Typography>
-        <OrdersFilter
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          hasActiveFilters={hasActiveFilters}
-        />
+        {isMobileScreen ? (
+          <Stack
+            width="97%"
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={1}
+            sx={{ px: 1, mb: 1 }}
+          >
+            <OrderSearchBar filters={filters} onFiltersChange={handleFiltersChange} />
+            <OrdersFiltersMenu filters={filters} onFiltersChange={handleFiltersChange} />
+          </Stack>
+        ) : (
+          <OrdersFilter
+            filters={filters}
+            onFiltersChange={handleFiltersChange}
+            hasActiveFilters={hasActiveFilters}
+          />
+        )}
+
         <Box sx={{ width: '100%', pt: 1 }}>
           <OrdersList orders={filteredOrders ?? []} onOrderClick={handleOrderClick} />
         </Box>

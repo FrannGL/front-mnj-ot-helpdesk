@@ -19,7 +19,9 @@
     "dev:ts": "yarn dev & yarn ts:watch",
     "ts": "tsc --noEmit --incremental",
     "ts:watch": "yarn ts --watch",
-    "start:out": "npx serve@latest out -p 8083"
+    "start:out": "npx serve@latest out -p 8083",
+    "prepare": "husky",
+    "precommit": "npm run lint && npm run ts"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -44,6 +46,7 @@
     "axios": "^1.7.2",
     "dayjs": "^1.11.11",
     "framer-motion": "^11.2.10",
+    "husky": "^9.1.7",
     "next": "^14.2.4",
     "nprogress": "^0.2.0",
     "react": "^18.3.1",

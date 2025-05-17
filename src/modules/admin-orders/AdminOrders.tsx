@@ -29,7 +29,7 @@ import { CreateButton } from 'src/components/CreateButton';
 import { ConfirmationModal } from 'src/components/ConfirmationModal';
 
 import { useOrders } from '../orders/hooks/useOrders';
-import { OrderModal } from '../orders/components/OrderModal';
+import { OrderForm } from '../orders/components/OrderForm';
 import { OrdersFilter } from '../orders/components/OrdersFilter';
 import {
   applyFilters,
@@ -55,13 +55,14 @@ export function AdminOrders() {
   const [selectedOrder, setSelectedOrders] = useState<Order | null>(null);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({
-    status: null,
-    priority: null,
-    assignedTo: null,
-    searchTerm: '',
+    status: undefined,
+    priority: undefined,
+    assignedTo: undefined,
+    cliente: undefined,
+    searchTerm: undefined,
   });
 
-  const { data, isLoading, deleteMutation } = useOrders(page);
+  const { data, isLoading, deleteMutation, hasActiveFilters } = useOrders(page);
 
   const theme = useTheme();
 
@@ -135,7 +136,11 @@ export function AdminOrders() {
       >
         Administrar Tareas
       </Typography>
-      <OrdersFilter orders={data.results} onFiltersChange={handleFiltersChange} />
+      <OrdersFilter
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        hasActiveFilters={hasActiveFilters}
+      />
       <TableContainer component={Paper}>
         <Table size="small">
           <TableHead>
@@ -234,7 +239,7 @@ export function AdminOrders() {
         />
       </Box>
 
-      <OrderModal
+      <OrderForm
         open={editModalOpen}
         onClose={handleCloseEditModal}
         type="edit"

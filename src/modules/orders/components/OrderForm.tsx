@@ -33,7 +33,7 @@ import { useOrders } from '../hooks/useOrders';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
 import { createOrderSchema, type CreateOrderType } from '../schemas/order.schema';
 
-interface OrderModalProps {
+interface OrderFormProps {
   open: boolean;
   onClose: () => void;
   defaultValues?: Partial<CreateOrderType>;
@@ -41,7 +41,7 @@ interface OrderModalProps {
   orderId?: number;
 }
 
-export function OrderModal({ open, onClose, defaultValues, type, orderId }: OrderModalProps) {
+export function OrderForm({ open, onClose, defaultValues, type, orderId }: OrderFormProps) {
   const { data: users } = useUsers();
   const { createMutation, updateMutation } = useOrders();
 

@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { m } from 'framer-motion';
 
 import {
+  Person,
   SwapVert,
+  Business,
   PriorityHigh,
   Close as CloseIcon,
   FilterList as FilterListIcon,
@@ -11,40 +13,45 @@ import {
   Box,
   Chip,
   Menu,
+  Grid,
   Badge,
   Stack,
   Button,
   Divider,
+  useTheme,
   Checkbox,
+  TextField,
   FormGroup,
   IconButton,
   Typography,
+  Autocomplete,
   FormControlLabel,
 } from '@mui/material';
+
+import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 import { statusColorMap } from '../utils/statusColorsMap';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
 
+import type { OrderFilters } from '../types';
+
 interface OrdersFiltersMenuProps {
-  selectedStatuses: number[];
-  selectedPriorities: number[];
-  onStatusChange: (statuses: number[]) => void;
-  onPriorityChange: (priorities: number[]) => void;
-  onClear: () => void;
+  filters: OrderFilters;
+  onFiltersChange: (filters: OrderFilters) => void;
 }
 
-export function OrdersFiltersMenu({
-  selectedStatuses,
-  selectedPriorities,
-  onStatusChange,
-  onPriorityChange,
-  onClear,
-}: OrdersFiltersMenuProps) {
+export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [tempFilters, setTempFilters] = useState<OrderFilters>(filters);
   const open = Boolean(anchorEl);
+
+  const { data: users } = useUsers();
+
+  const theme = useTheme();
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
+    setTempFilters(filters);
   };
 
   const handleClose = () => {
@@ -52,24 +59,57 @@ export function OrdersFiltersMenu({
   };
 
   const handleStatusToggle = (value: number) => {
-    const newStatuses = selectedStatuses.includes(value)
-      ? selectedStatuses.filter((v) => v !== value)
-      : [...selectedStatuses, value];
-    onStatusChange(newStatuses);
+    setTempFilters((prev) => ({
+      ...prev,
+      status: prev.status === value ? undefined : value,
+    }));
   };
 
   const handlePriorityToggle = (value: number) => {
-    const newPriorities = selectedPriorities.includes(value)
-      ? selectedPriorities.filter((v) => v !== value)
-      : [...selectedPriorities, value];
-    onPriorityChange(newPriorities);
+    setTempFilters((prev) => ({
+      ...prev,
+      priority: prev.priority === value ? undefined : value,
+    }));
+  };
+
+  const handleClienteToggle = (value: number) => {
+    setTempFilters((prev) => ({
+      ...prev,
+      cliente: prev.cliente === value ? undefined : value,
+    }));
+  };
+
+  const handleAssignedToToggle = (value: number) => {
+    setTempFilters((prev) => ({
+      ...prev,
+      assignedTo: prev.assignedTo === value ? undefined : value,
+    }));
+  };
+
+  const handleApplyFilters = () => {
+    onFiltersChange(tempFilters);
+    handleClose();
   };
 
   const handleClearFilters = () => {
-    onClear();
+    const clearedFilters = {
+      cliente: undefined,
+      status: undefined,
+      priority: undefined,
+      assignedTo: undefined,
+      searchTerm: undefined,
+    };
+    setTempFilters(clearedFilters);
+    onFiltersChange(clearedFilters);
+    handleClose();
   };
 
-  const totalSelected = selectedStatuses.length + selectedPriorities.length;
+  const totalSelected = [
+    tempFilters.status,
+    tempFilters.priority,
+    tempFilters.cliente,
+    tempFilters.assignedTo,
+  ].filter(Boolean).length;
 
   return (
     <>
@@ -83,7 +123,7 @@ export function OrdersFiltersMenu({
             },
           }}
         >
-          <FilterListIcon />
+          <FilterListIcon sx={{ fontSize: '30px' }} />
         </IconButton>
       </Badge>
 
@@ -124,24 +164,15 @@ export function OrdersFiltersMenu({
             </Stack>
           </Stack>
 
-          <Stack direction="row" spacing={3} divider={<Divider orientation="vertical" flexItem />}>
-            <Box sx={{ flex: 1 }}>
+          <Grid container spacing={2} alignItems="stretch">
+            <Grid item xs={5.5}>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                <SwapVert
-                  fontSize="small"
-                  color="action"
-                  // sx={{ color: theme.palette.mode === 'dark' ? 'info.dark' : 'primary.main' }}
-                />
+                <SwapVert fontSize="small" color="action" />
                 <Typography variant="subtitle1" fontWeight="500">
                   Estado
                 </Typography>
-                {selectedStatuses.length > 0 && (
-                  <Chip
-                    label={selectedStatuses.length}
-                    size="small"
-                    color="primary"
-                    sx={{ pt: 0.3 }}
-                  />
+                {tempFilters.status !== undefined && (
+                  <Chip label={1} size="small" color="primary" sx={{ pt: 0.3 }} />
                 )}
               </Stack>
               <FormGroup sx={{ gap: 1 }}>
@@ -190,12 +221,14 @@ export function OrdersFiltersMenu({
                                 }}
                               />
                             </Box>
-                            <Typography variant="body2">{label.replace('_', ' ')}</Typography>
+                            <Typography variant="body2" sx={{ pl: 1.5, pt: 0.2 }}>
+                              {label.replace('_', ' ')}
+                            </Typography>
                           </Box>
                         }
                         control={
                           <Checkbox
-                            checked={selectedStatuses.includes(value as number)}
+                            checked={tempFilters.status === value}
                             onChange={() => handleStatusToggle(value as number)}
                             size="small"
                             color="primary"
@@ -205,25 +238,20 @@ export function OrdersFiltersMenu({
                     );
                   })}
               </FormGroup>
-            </Box>
+            </Grid>
 
-            <Box sx={{ flex: 1 }}>
+            <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Divider orientation="vertical" flexItem sx={{ height: '100%' }} />
+            </Grid>
+
+            <Grid item xs={5.5}>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
-                <PriorityHigh
-                  fontSize="small"
-                  // sx={{ color: theme.palette.mode === 'dark' ? 'info.dark' : 'primary.main' }}
-                  color="action"
-                />
+                <PriorityHigh fontSize="small" color="action" />
                 <Typography variant="subtitle1" fontWeight="500">
                   Prioridad
                 </Typography>
-                {selectedPriorities.length > 0 && (
-                  <Chip
-                    label={selectedPriorities.length}
-                    size="small"
-                    color="primary"
-                    sx={{ pt: 0.3 }}
-                  />
+                {tempFilters.priority !== undefined && (
+                  <Chip label={1} size="small" color="primary" sx={{ pt: 0.3 }} />
                 )}
               </Stack>
               <FormGroup sx={{ gap: 1 }}>
@@ -234,7 +262,7 @@ export function OrdersFiltersMenu({
                       key={value}
                       control={
                         <Checkbox
-                          checked={selectedPriorities.includes(value as number)}
+                          checked={tempFilters.priority === value}
                           onChange={() => handlePriorityToggle(value as number)}
                           size="small"
                           color="primary"
@@ -248,25 +276,146 @@ export function OrdersFiltersMenu({
                     />
                   ))}
               </FormGroup>
-            </Box>
-          </Stack>
+            </Grid>
 
-          {totalSelected > 0 && (
-            <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
-              <Button
-                fullWidth
-                variant="contained"
-                onClick={handleClose}
-                sx={{
-                  textTransform: 'none',
-                  fontWeight: '500',
-                  py: 1,
+            <Grid item xs={12} py={2}>
+              <Divider />
+            </Grid>
+
+            <Grid item xs={5.5}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <Business fontSize="small" color="action" />
+                <Typography variant="subtitle1" fontWeight="500">
+                  Cliente
+                </Typography>
+                {tempFilters.cliente !== undefined && (
+                  <Chip label={1} size="small" color="primary" sx={{ pt: 0.3 }} />
+                )}
+              </Stack>
+              <Autocomplete
+                options={users?.results || []}
+                getOptionLabel={(option) => option.username}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                value={users?.results.find((u) => u.id === tempFilters.cliente) || null}
+                onChange={(_, newValue) => {
+                  if (newValue) handleClienteToggle(newValue.id);
                 }}
-              >
-                Aplicar filtros ({totalSelected})
-              </Button>
-            </Box>
-          )}
+                ListboxProps={{
+                  sx: {
+                    maxHeight: 200,
+                    overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                      width: '0.4em',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: theme.palette.primary.main,
+                      borderRadius: '8px',
+                    },
+                  },
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    size="small"
+                    placeholder="Buscar ..."
+                    sx={{
+                      input: { color: 'white' },
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Divider orientation="vertical" flexItem sx={{ height: '100%' }} />
+            </Grid>
+
+            <Grid item xs={5.5}>
+              <Stack direction="row" alignItems="center" spacing={1} mb={2}>
+                <Person fontSize="small" color="action" />
+                <Typography variant="subtitle1" fontWeight="500">
+                  Agentes
+                </Typography>
+                {tempFilters.assignedTo !== undefined && (
+                  <Chip label={1} size="small" color="primary" sx={{ pt: 0.3 }} />
+                )}
+              </Stack>
+              <Autocomplete
+                options={users?.results || []}
+                getOptionLabel={(option) => option.username}
+                isOptionEqualToValue={(option, value) => option.id === value.id}
+                value={users?.results.find((u) => u.id === tempFilters.assignedTo) || null}
+                onChange={(_, newValue) => {
+                  if (newValue) handleAssignedToToggle(newValue.id);
+                }}
+                ListboxProps={{
+                  sx: {
+                    maxHeight: 200,
+                    overflow: 'auto',
+                    '&::-webkit-scrollbar': {
+                      width: '0.4em',
+                    },
+                    '&::-webkit-scrollbar-track': {
+                      boxShadow: 'inset 0 0 6px rgba(0,0,0,0.00)',
+                    },
+                    '&::-webkit-scrollbar-thumb': {
+                      backgroundColor: theme.palette.primary.main,
+                      borderRadius: '8px',
+                    },
+                  },
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="standard"
+                    size="small"
+                    placeholder="Buscar ..."
+                    sx={{
+                      input: { color: 'white' },
+                      '& .MuiInput-underline:before': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                      '& .MuiInput-underline:hover:before': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                      '& .MuiInput-underline:after': {
+                        borderBottomColor: theme.palette.primary.light,
+                      },
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+
+          <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
+            <Button
+              fullWidth
+              variant="contained"
+              onClick={handleApplyFilters}
+              color="primary"
+              sx={{
+                textTransform: 'none',
+                fontWeight: '500',
+                py: 1,
+              }}
+            >
+              Aplicar filtros ({totalSelected})
+            </Button>
+          </Box>
         </Box>
       </Menu>
     </>

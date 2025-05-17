@@ -1,18 +1,14 @@
-import type { NavSectionProps } from 'src/components/nav-section';
-import type { OrderStatusEnum, OrderPriorityEnum } from 'src/modules/orders/enums';
-
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import Box from '@mui/material/Box';
-import { Stack, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import Drawer, { drawerClasses } from '@mui/material/Drawer';
 
 import { usePathname } from 'src/routes/hooks';
 
-import { OrderSearchBar, OrdersFiltersMenu } from 'src/modules/orders/components';
-
 import { Scrollbar } from 'src/components/scrollbar';
+import { NavSectionVertical, type NavSectionProps } from 'src/components/nav-section';
 
 // ----------------------------------------------------------------------
 
@@ -35,26 +31,8 @@ export function NavMobile({
   sx,
   ...other
 }: NavMobileProps) {
-  const [selectedStatuses, setSelectedStatuses] = useState<OrderStatusEnum[]>([]);
-  const [selectedPriorities, setSelectedPriorities] = useState<OrderPriorityEnum[]>([]);
-
-  // const filteredOrders = filteredOrders(orders, selectedStatuses, selectedPriorities);
-
   const pathname = usePathname();
   const theme = useTheme();
-
-  const handleStatusChange = (statuses: number[]) => {
-    setSelectedStatuses(statuses);
-  };
-
-  const handlePriorityChange = (priorities: number[]) => {
-    setSelectedPriorities(priorities);
-  };
-
-  const handleClearFilters = () => {
-    setSelectedStatuses([]);
-    setSelectedPriorities([]);
-  };
 
   useEffect(() => {
     if (open) {
@@ -77,35 +55,17 @@ export function NavMobile({
       }}
     >
       {slots?.topArea ?? (
-        <>
-          <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
-            {theme.palette.mode === 'dark' ? (
-              <Image src="/assets/images/logos/logo-white.png" alt="Logo" width={180} height={40} />
-            ) : (
-              <Image src="/assets/images/logos/logo-dark.png" alt="Logo" width={180} height={40} />
-            )}
-          </Box>
-          <Stack
-            width="100%"
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
-            sx={{ px: 1, mb: 1 }}
-          >
-            <OrderSearchBar />
-            <OrdersFiltersMenu
-              selectedStatuses={selectedStatuses}
-              selectedPriorities={selectedPriorities}
-              onStatusChange={handleStatusChange}
-              onPriorityChange={handlePriorityChange}
-              onClear={handleClearFilters}
-            />
-          </Stack>
-        </>
+        <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
+          {theme.palette.mode === 'dark' ? (
+            <Image src="/assets/images/logos/logo-white.png" alt="Logo" width={180} height={40} />
+          ) : (
+            <Image src="/assets/images/logos/logo-dark.png" alt="Logo" width={180} height={40} />
+          )}
+        </Box>
       )}
 
       <Scrollbar fillContent>
-        {/* <OrderList orders={filteredorders ?? []} isNavMini={isNavMini ?? false} /> */}
+        <NavSectionVertical data={data} sx={{ px: 2, flex: '1 1 auto' }} {...other} />
       </Scrollbar>
 
       {slots?.bottomArea}

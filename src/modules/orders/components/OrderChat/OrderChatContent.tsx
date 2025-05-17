@@ -1,14 +1,15 @@
 import { SupportAgent } from '@mui/icons-material';
 import {
   Box,
+  Grid,
   Chip,
   Stack,
   Paper,
   Avatar,
   Tooltip,
-  Divider,
   useTheme,
   Typography,
+  useMediaQuery,
   DialogContent,
 } from '@mui/material';
 
@@ -29,58 +30,90 @@ type Props = {
 };
 
 export function OrderChatContent({ order }: Props) {
+  const isMobile = useMediaQuery('(max-width:600px)');
+
   const theme = useTheme();
 
   return (
     <>
-      <Stack direction="row" justifyContent="space-between" flexWrap="wrap" sx={{ mb: 2, mt: 3 }}>
-        <Stack direction="row" spacing={1.5} alignItems="center">
-          <Tooltip title="Estado de la orden" arrow>
-            <Chip
-              label={order.estado_display ?? 'N/A'}
-              color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
-              icon={getStatusIcon(order.estado as OrderStatusEnum)}
-              variant="outlined"
-            />
-          </Tooltip>
-
-          <Divider orientation="vertical" flexItem />
-
-          <Tooltip title="Prioridad de la orden" arrow>
-            <Chip
-              label={`Prioridad ${order.prioridad_display ?? 'N/A'}`}
-              color={priorityChipColorMap[order.prioridad as OrderPriorityEnum] ?? 'default'}
-              icon={getPriorityIcon(order.prioridad as OrderPriorityEnum)}
-              variant="outlined"
-            />
-          </Tooltip>
-
-          <Divider orientation="vertical" flexItem />
-
-          {order.agentes && order.agentes.length > 0 ? (
-            order.agentes.map((agente) => (
-              <Tooltip key={agente.id} title="Agente asignado" arrow>
+      <Stack
+        direction={isMobile ? 'column' : 'row'}
+        justifyContent="space-between"
+        flexWrap="wrap"
+        sx={{
+          mb: 2,
+          mt: 2,
+          px: 2,
+          gap: isMobile ? 1 : 0,
+        }}
+      >
+        <Stack
+          direction="column"
+          spacing={2}
+          sx={{
+            my: 1,
+          }}
+        >
+          <Grid container spacing={2}>
+            <Grid item xs={6} sm={6}>
+              <Tooltip title="Estado de la orden" arrow>
                 <Chip
-                  label={agente.username ?? 'N/A'}
-                  icon={<SupportAgent />}
-                  color="secondary"
+                  label={order.estado_display ?? 'N/A'}
+                  color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
+                  icon={getStatusIcon(order.estado as OrderStatusEnum)}
                   variant="outlined"
+                  sx={{ width: '100%' }}
                 />
               </Tooltip>
-            ))
-          ) : (
-            <Chip label="Sin agentes asignados" variant="outlined" color="default" />
-          )}
+            </Grid>
+
+            <Grid item xs={6} sm={6}>
+              <Tooltip title="Prioridad de la orden" arrow>
+                <Chip
+                  label={`Prioridad ${order.prioridad_display ?? 'N/A'}`}
+                  color={priorityChipColorMap[order.prioridad as OrderPriorityEnum] ?? 'default'}
+                  icon={getPriorityIcon(order.prioridad as OrderPriorityEnum)}
+                  variant="outlined"
+                  sx={{ width: '100%' }}
+                />
+              </Tooltip>
+            </Grid>
+
+            {order.agentes && order.agentes.length > 0 ? (
+              order.agentes.map((agente) => (
+                <Grid item xs={6} sm={6} key={agente.id}>
+                  <Tooltip title="Agente asignado" arrow>
+                    <Chip
+                      label={agente.username ?? 'N/A'}
+                      icon={<SupportAgent />}
+                      color="secondary"
+                      variant="outlined"
+                      sx={{ width: '100%' }}
+                    />
+                  </Tooltip>
+                </Grid>
+              ))
+            ) : (
+              <Grid item xs={12} sm={6}>
+                <Chip
+                  label="Sin agentes asignados"
+                  variant="outlined"
+                  color="default"
+                  sx={{ width: '100%' }}
+                />
+              </Grid>
+            )}
+          </Grid>
         </Stack>
       </Stack>
 
-      <DialogContent sx={{ position: 'relative', pb: 0, px: 0 }}>
+      <DialogContent sx={{ position: 'relative', pb: 0, px: 2 }}>
         <Paper
           elevation={2}
           sx={{
-            p: 2,
+            p: isMobile ? 1 : 2,
             pb: 0,
-            height: '53vh',
+            height: isMobile ? 'calc(100vh - 425px)' : '53vh',
             bgcolor: theme.vars.palette.background.paper,
             borderRadius: 2,
             overflowY: 'auto',
@@ -106,6 +139,9 @@ export function OrderChatContent({ order }: Props) {
                     flexDirection: isClient ? 'row' : 'row-reverse',
                     alignItems: 'flex-end',
                     gap: 1.5,
+                    '& .MuiPaper-root': {
+                      maxWidth: isMobile ? '100%' : 400,
+                    },
                   }}
                 >
                   <Stack direction="row" spacing={2} alignItems="center">
@@ -115,7 +151,13 @@ export function OrderChatContent({ order }: Props) {
                       }
                       arrow
                     >
-                      <Avatar>
+                      <Avatar
+                        sx={{
+                          width: isMobile ? 25 : 50,
+                          height: isMobile ? 25 : 50,
+                          fontSize: isMobile ? 13 : 15,
+                        }}
+                      >
                         {isClient
                           ? order.cliente.username.charAt(0).toUpperCase()
                           : order.agentes[0]?.username?.charAt(0).toUpperCase() ?? 'A'}

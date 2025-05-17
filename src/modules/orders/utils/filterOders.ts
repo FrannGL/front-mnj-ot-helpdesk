@@ -10,7 +10,7 @@ export const applyFilters = (orders: Order[], filters: OrderFilters): Order[] =>
     const matchesStatus = !filters.status || order.estado === filters.status;
     const matchesPriority = !filters.priority || order.prioridad === filters.priority;
     const matchesAssignedTo =
-      !filters.assignedTo || order.agentes.some((agente) => agente.username === filters.assignedTo);
+      !filters.assignedTo || order.agentes.some((agente) => agente.id === filters.assignedTo);
 
     const matchesSearch =
       !searchTerm ||
