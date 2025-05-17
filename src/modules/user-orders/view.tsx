@@ -32,7 +32,7 @@ export function OrdersView() {
     searchTerm: undefined,
   });
 
-  const { data, isLoading, isFetching, hasActiveFilters } = useOrders(page, filters);
+  const { data, isLoading, isFetching, hasActiveFilters, error } = useOrders(page, filters);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
 
@@ -88,6 +88,26 @@ export function OrdersView() {
         </Box>
         <CreateButton type="order" />
       </>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        minHeight={400}
+        flexDirection="column"
+        gap={2}
+      >
+        <Typography color="error" variant="h6">
+          Error al cargar las órdenes
+        </Typography>
+        <Typography variant="body2" color="textSecondary">
+          {error.message}
+        </Typography>
+      </Box>
     );
   }
 

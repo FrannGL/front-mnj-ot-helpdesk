@@ -27,7 +27,7 @@ export const request = async (
     //   };
     // }
 
-    const url = `${apiBase}/${endpoint}`;
+    const url = `${apiBase}${endpoint}`;
 
     const isFormData = body instanceof FormData;
 
