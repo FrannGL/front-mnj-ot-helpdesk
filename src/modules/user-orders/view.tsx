@@ -112,8 +112,8 @@ export function OrdersView() {
   }
 
   return (
-    <Stack direction="row" spacing={2} sx={{ px: 2 }}>
-      <Stack direction="column" sx={{ flex: 1 }}>
+    <Stack direction="row" spacing={2}>
+      <Stack width="100%" direction="column" sx={{ px: 2 }}>
         <Typography
           variant="h4"
           sx={{
@@ -128,7 +128,6 @@ export function OrdersView() {
         </Typography>
         {isMobileScreen ? (
           <Stack
-            width="97%"
             direction="row"
             justifyContent="space-between"
             alignItems="center"
@@ -146,7 +145,7 @@ export function OrdersView() {
           />
         )}
 
-        <Box sx={{ width: '100%', pt: 1 }}>
+        <Box>
           <OrdersList orders={filteredOrders ?? []} onOrderClick={handleOrderClick} />
         </Box>
 

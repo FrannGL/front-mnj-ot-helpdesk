@@ -165,7 +165,26 @@ export function useOrders(
   const sendMessageMutation = useMutation({
     mutationFn: sendMessageToOrder,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['orders'] });
+      queryClient.setQueryData(['order', variables.orderId], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            mensajes: [
+              ...oldData.data.mensajes,
+              {
+                id: Date.now(),
+                texto: variables.message.texto,
+                usuario: { id: variables.message.usuario },
+                created_at: new Date().toISOString(),
+              },
+            ],
+          },
+        };
+      });
+
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
     },
   });

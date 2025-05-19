@@ -19,6 +19,7 @@ import {
   DialogTitle,
   FormControl,
   Autocomplete,
+  useMediaQuery,
   DialogActions,
   DialogContent,
   FormHelperText,
@@ -46,6 +47,8 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
   const { createMutation, updateMutation } = useOrders();
 
   const theme = useTheme();
+
+  const isMobileScreen = useMediaQuery('(max-width:600px)');
 
   const {
     control,
@@ -106,7 +109,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={6}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="cliente"
                 control={control}
@@ -152,7 +155,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="agentes"
                 control={control}
@@ -210,7 +213,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="estado"
                 control={control}
@@ -242,7 +245,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={6}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="prioridad"
                 control={control}
@@ -305,12 +308,13 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                     <Box
                       sx={{
                         border: `2px dashed ${theme.palette.primary.light}`,
-                        padding: 3,
+                        padding: isMobileScreen ? 2 : 3,
                         textAlign: 'center',
                         borderRadius: 2,
                         cursor: 'pointer',
                         bgcolor: theme.palette.background.paper,
                         color: theme.palette.text.secondary,
+                        minHeight: isMobileScreen ? 'auto' : undefined,
                       }}
                     >
                       <Dropzone
@@ -332,11 +336,20 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                             {value ? (
                               <p>{value.name}</p>
                             ) : (
-                              <p>
-                                Arrastre y suelte un archivo aquí o haga clic para seleccionar uno
-                                (PDF, PNG, JPEG)
-                              </p>
+                              <Button
+                                variant="text"
+                                color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
+                                sx={{
+                                  width: isMobileScreen ? '100%' : 'auto',
+                                  mb: 1,
+                                }}
+                              >
+                                {isMobileScreen
+                                  ? 'Seleccionar archivo'
+                                  : 'Arrastre o seleccione un archivo'}
+                              </Button>
                             )}
+                            {!isMobileScreen && <p>Formatos aceptados: PDF, PNG, JPEG</p>}
                           </div>
                         )}
                       </Dropzone>
