@@ -55,6 +55,7 @@ export function OrderChatContent({ order }: Props) {
           mb: 2,
           mt: 2,
           px: 2,
+
           gap: isMobile ? 1 : 0,
         }}
       >
@@ -124,7 +125,7 @@ export function OrderChatContent({ order }: Props) {
           sx={{
             p: isMobile ? 1 : 2,
             pb: 0,
-            height: isMobile ? 'calc(100vh - 425px)' : '53vh',
+            height: isMobile ? 'calc(100vh - 475px)' : '53vh',
             bgcolor: theme.vars.palette.background.paper,
             borderRadius: 2,
             overflowY: 'auto',

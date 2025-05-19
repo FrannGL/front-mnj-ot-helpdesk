@@ -51,6 +51,7 @@ export function OrderChatInput({ order }: Props) {
         sx={{
           width: '100%',
           p: isMobile ? 0.5 : 1,
+          mt: isMobile ? 1 : 0,
           display: 'flex',
           alignItems: 'center',
           gap: 1,
