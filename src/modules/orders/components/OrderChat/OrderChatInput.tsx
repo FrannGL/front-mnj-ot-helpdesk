@@ -78,7 +78,10 @@ export function OrderChatInput({ order }: Props) {
           <Send />
         </IconButton>
 
-        <IconButton color="default" onClick={() => console.log('IA clicked')}>
+        <IconButton
+          color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
+          onClick={() => console.log('IA clicked')}
+        >
           <AutoAwesome />
         </IconButton>
       </Box>

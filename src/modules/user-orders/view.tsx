@@ -149,7 +149,7 @@ export function OrdersView() {
           <OrdersList orders={filteredOrders ?? []} onOrderClick={handleOrderClick} />
         </Box>
 
-        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
           <Pagination
             count={totalPages}
             page={page}
