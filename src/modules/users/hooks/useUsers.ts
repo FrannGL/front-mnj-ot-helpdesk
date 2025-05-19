@@ -13,10 +13,10 @@ interface ServerResponse {
 }
 
 async function fetchUsers(): Promise<ServerResponse> {
-  const response = await request(`/usuarios`, 'GET');
+  const response = await request(`usuarios`, 'GET');
 
-  if (response.error) {
-    throw new Error(response.error);
+  if (response.error || response.status >= 400) {
+    throw new Error(response.error || `Error ${response.status}`);
   }
 
   return response.data;
@@ -29,7 +29,7 @@ async function createUser(newUser: CreateUserType): Promise<User> {
     email: newUser.email,
     groups: newUser.groups,
   };
-  const response = await request('/usuarios', 'POST', dataToSend);
+  const response = await request('usuarios', 'POST', dataToSend);
   if (response.error) {
     throw new Error(response.error);
   }
@@ -47,7 +47,7 @@ async function updateUser({
     username: updatedUser.username,
     email: updatedUser.email,
   };
-  const response = await request(`/usuarios/${userId}`, 'PATCH', dataToSend);
+  const response = await request(`usuarios/${userId}`, 'PATCH', dataToSend);
   if (response.error) {
     throw new Error(response.error);
   }
@@ -55,7 +55,7 @@ async function updateUser({
 }
 
 async function deleteUser(userId: number) {
-  const response = await request(`/usuarios/${userId}`, 'DELETE');
+  const response = await request(`usuarios/${userId}`, 'DELETE');
   if (response.error) {
     throw new Error(response.error);
   }
@@ -70,6 +70,8 @@ export function useUsers() {
     queryFn: fetchUsers,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
+    retry: 3,
+    retryDelay: 2000,
   });
 
   const createMutation = useMutation({

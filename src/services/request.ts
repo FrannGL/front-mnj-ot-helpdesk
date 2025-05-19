@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import { CONFIG } from 'src/config-global';
 
-const { apiBase } = CONFIG.site;
+const { serverJST } = CONFIG.site;
 
 export const request = async (
   endpoint: string,
@@ -27,7 +27,12 @@ export const request = async (
     //   };
     // }
 
-    const url = `${apiBase}${endpoint}`;
+    const base = serverJST.replace(/\/+$/, '');
+
+    const [pathPart, queryPart] = endpoint.split('?');
+    const cleanedPath = pathPart.replace(/^\/+|\/+$/g, '');
+
+    const url = `${base}/${cleanedPath}/${queryPart ? `?${queryPart}` : '?page=1'}`;
 
     const isFormData = body instanceof FormData;
 

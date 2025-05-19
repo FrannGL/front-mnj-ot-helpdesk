@@ -41,19 +41,19 @@ async function fetchOrders(params: OrderQueryParams = {}): Promise<ServerRespons
   });
 
   const queryString = searchParams.toString();
-  const url = `/ordenes${queryString ? `?${queryString}` : ''}`;
+  const url = `ordenes${queryString ? `?${queryString}` : ''}`;
 
   const response = await request(url, 'GET');
 
-  if (response.error) {
-    throw new Error(response.error);
+  if (response.error || response.status >= 400) {
+    throw new Error(response.error || `Error ${response.status}`);
   }
 
   return response.data;
 }
 
 async function createOrder(newOrder: CreateOrderType): Promise<Order> {
-  const response = await request('/ordenes', 'POST', newOrder);
+  const response = await request('ordenes', 'POST', newOrder);
   if (response.error) {
     throw new Error(response.error);
   }
@@ -67,7 +67,7 @@ async function updateOrder({
   orderId: number;
   updatedOrder: CreateOrderType;
 }): Promise<Order> {
-  const response = await request(`/ordenes/${orderId}`, 'PUT', updatedOrder);
+  const response = await request(`ordenes/${orderId}`, 'PUT', updatedOrder);
   if (response.error) {
     throw new Error(response.error);
   }
@@ -75,7 +75,7 @@ async function updateOrder({
 }
 
 async function deleteOrder(orderId: number) {
-  const response = await request(`/ordenes/${orderId}`, 'DELETE');
+  const response = await request(`ordenes/${orderId}`, 'DELETE');
   if (response.error) {
     throw new Error(response.error);
   }
@@ -83,7 +83,7 @@ async function deleteOrder(orderId: number) {
 }
 
 async function sendMessageToOrder({ orderId, message }: SendMessagePayload) {
-  const response = await request(`/ordenes/${orderId}/mensajes/`, 'POST', message);
+  const response = await request(`ordenes/${orderId}/mensajes/`, 'POST', message);
   if (response.error) {
     throw new Error(response.error);
   }
@@ -124,6 +124,8 @@ export function useOrders(
     queryFn: () => fetchOrders(queryParams),
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
+    retry: 3,
+    retryDelay: 2000,
   });
 
   const hasActiveFilters = Object.entries(filters).some(
