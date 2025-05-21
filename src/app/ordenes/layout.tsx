@@ -1,8 +1,6 @@
 import { CONFIG } from 'src/config-global';
 import { DashboardLayout } from 'src/layouts/dashboard';
 
-import { AuthGuard } from 'src/auth/guard';
-
 // ----------------------------------------------------------------------
 
 type Props = {
@@ -14,9 +12,5 @@ export default async function Layout({ children }: Props) {
     return <DashboardLayout>{children}</DashboardLayout>;
   }
 
-  return (
-    <AuthGuard>
-      <DashboardLayout>{children}</DashboardLayout>
-    </AuthGuard>
-  );
+  return <DashboardLayout>{children}</DashboardLayout>;
 }

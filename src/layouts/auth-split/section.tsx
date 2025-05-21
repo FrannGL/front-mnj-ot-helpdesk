@@ -33,7 +33,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'Manage the job',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/illustration-dashboard.webp`,
+  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/login.svg`,
   subtitle = 'More effectively with optimized workflows.',
   ...other
 }: SectionProps) {

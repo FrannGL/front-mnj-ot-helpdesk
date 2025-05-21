@@ -41,7 +41,7 @@ export type ConfigValue = {
 
 export const CONFIG: ConfigValue = {
   site: {
-    name: 'Minimals',
+    name: 'JST OT',
     serverUrl: process.env.NEXT_PUBLIC_SERVER_URL ?? '',
     serverJST: process.env.NEXT_PUBLIC_JST_SERVER ?? '',
     assetURL: process.env.NEXT_PUBLIC_ASSET_URL ?? '',

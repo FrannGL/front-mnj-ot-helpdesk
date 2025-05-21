@@ -1,6 +1,7 @@
 import type { StackProps } from '@mui/material/Stack';
 
 import { m } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -16,19 +17,17 @@ import { varAlpha, bgGradient } from 'src/theme/styles';
 
 import { Label } from 'src/components/label';
 
-import { useMockedUser } from 'src/auth/hooks';
-
 // ----------------------------------------------------------------------
 
 export function NavUpgrade({ sx, ...other }: StackProps) {
-  const { user } = useMockedUser();
+  const { data: session } = useSession();
 
   return (
     <Stack sx={{ px: 2, py: 5, textAlign: 'center', ...sx }} {...other}>
       <Stack alignItems="center">
         <Box sx={{ position: 'relative' }}>
-          <Avatar src={user?.photoURL} alt={user?.displayName} sx={{ width: 48, height: 48 }}>
-            {user?.displayName?.charAt(0).toUpperCase()}
+          <Avatar src="" alt={session?.user.username} sx={{ width: 48, height: 48 }}>
+            {session?.user?.username.charAt(0).toUpperCase()}
           </Avatar>
 
           <Label
@@ -53,7 +52,7 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
             noWrap
             sx={{ color: 'var(--layout-nav-text-primary-color)' }}
           >
-            {user?.displayName}
+            {session?.user?.username ?? ''}
           </Typography>
 
           <Typography
@@ -61,7 +60,7 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
             noWrap
             sx={{ color: 'var(--layout-nav-text-disabled-color)' }}
           >
-            {user?.email}
+            {session?.user.email ?? ''}
           </Typography>
         </Stack>
 

@@ -3,6 +3,7 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
 
 import { useState, useCallback } from 'react';
+import { signOut, useSession } from 'next-auth/react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -16,8 +17,6 @@ import { varAlpha } from 'src/theme/styles';
 import { Iconify } from 'src/components/iconify';
 import { Scrollbar } from 'src/components/scrollbar';
 import { AnimateAvatar } from 'src/components/animate';
-
-import { useMockedUser } from 'src/auth/hooks';
 
 import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
@@ -36,7 +35,7 @@ export type AccountDrawerProps = IconButtonProps & {
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const theme = useTheme();
 
-  const { user } = useMockedUser();
+  const { data: session } = useSession();
 
   const [open, setOpen] = useState(false);
 
@@ -48,11 +47,20 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
     setOpen(false);
   }, []);
 
+  const handleSignOut = async () => {
+    try {
+      await signOut({ redirect: true, callbackUrl: '/auth/login' });
+      handleCloseDrawer();
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    }
+  };
+
   const renderAvatar = (
     <AnimateAvatar
       width={96}
       slotProps={{
-        avatar: { src: user?.photoURL, alt: user?.displayName },
+        avatar: { src: '', alt: session?.user?.username },
         overlay: {
           border: 2,
           spacing: 3,
@@ -60,7 +68,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         },
       }}
     >
-      {user?.displayName?.charAt(0).toUpperCase()}
+      {session?.user?.username.charAt(0).toUpperCase()}
     </AnimateAvatar>
   );
 
@@ -69,8 +77,8 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
       <AccountButton
         open={open}
         onClick={handleOpenDrawer}
-        photoURL={user?.photoURL}
-        displayName={user?.displayName}
+        photoURL=""
+        displayName={session?.user?.username ?? ''}
         sx={sx}
         {...other}
       />
@@ -94,11 +102,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             {renderAvatar}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              Franco Galluccio
+              {session?.user?.username ?? ''}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              fgalluccio@jst.gob.ar
+              {session?.user?.email ?? ''}
             </Typography>
           </Stack>
 
@@ -174,7 +182,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         </Scrollbar>
 
         <Box sx={{ p: 2.5 }}>
-          <SignOutButton onClose={handleCloseDrawer} />
+          <SignOutButton onClose={handleSignOut} />
         </Box>
       </Drawer>
     </>
