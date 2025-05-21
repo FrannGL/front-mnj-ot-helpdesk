@@ -10,6 +10,7 @@ export const useFilterHandlers = (initialFilters?: Partial<OrderFilters>) => {
   const [anchorStatus, setAnchorStatus] = useState<HTMLElement | null>(null);
   const [anchorPriority, setAnchorPriority] = useState<HTMLElement | null>(null);
   const [anchorAssignedTo, setAnchorAssignedTo] = useState<HTMLElement | null>(null);
+  const [anchorClient, setAnchorClient] = useState<HTMLElement | null>(null);
 
   const getStatusButtonText = (status: number | null) =>
     status !== null
@@ -26,9 +27,11 @@ export const useFilterHandlers = (initialFilters?: Partial<OrderFilters>) => {
     anchorStatus,
     anchorPriority,
     anchorAssignedTo,
+    anchorClient,
     setAnchorStatus,
     setAnchorPriority,
     setAnchorAssignedTo,
+    setAnchorClient,
     getStatusButtonText,
     getPriorityButtonText,
   };

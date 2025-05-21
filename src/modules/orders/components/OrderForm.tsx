@@ -368,7 +368,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
             Cancelar
           </Button>
           <Button type="submit" variant="contained">
-            Crear
+            {type === 'edit' ? 'Editar' : 'Enviar'}
           </Button>
         </DialogActions>
       </form>

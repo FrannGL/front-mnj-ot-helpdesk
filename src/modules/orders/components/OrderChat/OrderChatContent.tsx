@@ -60,58 +60,59 @@ export function OrderChatContent({ order }: Props) {
         }}
       >
         <Stack
-          direction="column"
+          direction={isMobile ? 'column' : 'row'}
           spacing={2}
           sx={{
             my: 1,
+            width: '100%',
           }}
         >
-          <Grid container spacing={2}>
-            <Grid item xs={6} sm={6}>
+          <Grid container spacing={2} sx={{ flexWrap: isMobile ? 'wrap' : 'nowrap' }}>
+            <Grid item xs={isMobile ? 6 : 'auto'}>
               <Tooltip title="Estado de la orden" arrow>
                 <Chip
                   label={order.estado_display ?? 'N/A'}
                   color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
                   icon={getStatusIcon(order.estado as OrderStatusEnum)}
                   variant="outlined"
-                  sx={{ width: '100%' }}
+                  sx={{ minWidth: '150px' }}
                 />
               </Tooltip>
             </Grid>
 
-            <Grid item xs={6} sm={6}>
+            <Grid item xs={isMobile ? 6 : 'auto'}>
               <Tooltip title="Prioridad de la orden" arrow>
                 <Chip
                   label={`Prioridad ${order.prioridad_display ?? 'N/A'}`}
                   color={priorityChipColorMap[order.prioridad as OrderPriorityEnum] ?? 'default'}
                   icon={getPriorityIcon(order.prioridad as OrderPriorityEnum)}
                   variant="outlined"
-                  sx={{ width: '100%' }}
+                  sx={{ minWidth: '150px' }}
                 />
               </Tooltip>
             </Grid>
 
             {order.agentes && order.agentes.length > 0 ? (
               order.agentes.map((agente) => (
-                <Grid item xs={6} sm={6} key={agente.id}>
+                <Grid item xs={isMobile ? 6 : 'auto'} key={agente.id}>
                   <Tooltip title="Agente asignado" arrow>
                     <Chip
                       label={agente.username ?? 'N/A'}
                       icon={<SupportAgent />}
                       color="secondary"
                       variant="outlined"
-                      sx={{ width: '100%' }}
+                      sx={{ minWidth: '150px' }}
                     />
                   </Tooltip>
                 </Grid>
               ))
             ) : (
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={isMobile ? 12 : 'auto'}>
                 <Chip
                   label="Sin agentes asignados"
                   variant="outlined"
                   color="default"
-                  sx={{ width: '100%' }}
+                  sx={{ minWidth: '150px' }}
                 />
               </Grid>
             )}

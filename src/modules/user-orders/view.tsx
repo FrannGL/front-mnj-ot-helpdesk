@@ -5,13 +5,11 @@ import { Fira_Sans } from 'next/font/google';
 
 import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 
-import { applyFilters } from 'src/modules/orders/utils';
-import { OrdersList } from 'src/modules/orders/components/OrdersList';
-
 import { CreateButton } from 'src/components/CreateButton';
 
-import { useOrders, useOrderById } from '../orders/hooks/useOrders';
-import { OrderChat, OrdersFilter, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
+import { AdminOrders } from '../admin-orders/AdminOrders';
+import { useOrders, useOrderById, useDebouncedValue } from '../orders/hooks';
+import { OrderChat, OrdersList, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
 
 import type { OrderFilters } from '../orders/types';
 
@@ -23,6 +21,8 @@ const firaSans = Fira_Sans({
 // ----------------------------------------------------------------------
 
 export function OrdersView() {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({
     cliente: undefined,
@@ -32,18 +32,20 @@ export function OrdersView() {
     searchTerm: undefined,
   });
 
-  const { data, isLoading, isFetching, hasActiveFilters, error } = useOrders(page, filters);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const debouncedSearchTerm = useDebouncedValue(filters.searchTerm, 1000);
+
+  const debouncedFilters = useMemo(
+    () => ({ ...filters, searchTerm: debouncedSearchTerm }),
+    [filters, debouncedSearchTerm]
+  );
+
+  const { data, isLoading, isFetching, error } = useOrders(page, debouncedFilters);
 
   const { data: selectedOrder } = useOrderById(selectedOrderId);
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 
-  const filteredOrders = useMemo(
-    () => (data?.results ? applyFilters(data.results, filters) : []),
-    [data?.results, filters]
-  );
+  const filteredOrders = data?.results ?? [];
 
   const handleOrderClick = (orderId: number) => {
     setSelectedOrderId(orderId);
@@ -114,51 +116,61 @@ export function OrdersView() {
   return (
     <Stack direction="row" spacing={2}>
       <Stack width="100%" direction="column" sx={{ px: 2 }}>
-        <Typography
-          variant="h4"
-          sx={{
-            fontFamily: `${firaSans.style.fontFamily} !important`,
-            lineHeight: 1.3,
-            pl: 1,
-            mb: 2,
-          }}
-          gutterBottom
-        >
-          Listado de Ordenes
-        </Typography>
+        {isMobileScreen && (
+          <Typography
+            variant="h4"
+            sx={{
+              fontFamily: `${firaSans.style.fontFamily} !important`,
+              lineHeight: 1.3,
+              pl: 1,
+              mb: 2,
+            }}
+            gutterBottom
+          >
+            Listado de Ordenes
+          </Typography>
+        )}
         {isMobileScreen ? (
           <Stack
-            direction="row"
+            width="100%"
+            direction="column"
             justifyContent="space-between"
             alignItems="center"
             spacing={1}
             sx={{ px: 1, mb: 1 }}
           >
-            <OrderSearchBar filters={filters} onFiltersChange={handleFiltersChange} />
-            <OrdersFiltersMenu filters={filters} onFiltersChange={handleFiltersChange} />
+            <Stack
+              width="100%"
+              direction="row"
+              justifyContent="space-between"
+              alignItems="center"
+              spacing={1}
+            >
+              <OrderSearchBar filters={filters} onFiltersChange={handleFiltersChange} />
+              <OrdersFiltersMenu filters={filters} onFiltersChange={handleFiltersChange} />
+            </Stack>
+
+            <Stack width="100%" direction="column" justifyContent="center" alignItems="center">
+              <OrdersList orders={filteredOrders ?? []} onOrderClick={handleOrderClick} />
+              <Pagination
+                count={totalPages}
+                page={page}
+                onChange={handlePageChange}
+                color="primary"
+                showFirstButton
+                showLastButton
+                sx={{ py: 2 }}
+              />
+            </Stack>
           </Stack>
         ) : (
-          <OrdersFilter
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
-            hasActiveFilters={hasActiveFilters}
-          />
+          // <OrdersFilter
+          //   filters={filters}
+          //   onFiltersChange={handleFiltersChange}
+          //   hasActiveFilters={hasActiveFilters}
+          // />
+          <AdminOrders />
         )}
-
-        <Box>
-          <OrdersList orders={filteredOrders ?? []} onOrderClick={handleOrderClick} />
-        </Box>
-
-        <Box sx={{ display: 'flex', justifyContent: 'center', py: 3 }}>
-          <Pagination
-            count={totalPages}
-            page={page}
-            onChange={handlePageChange}
-            color="primary"
-            showFirstButton
-            showLastButton
-          />
-        </Box>
 
         {selectedOrder && (
           <OrderChat

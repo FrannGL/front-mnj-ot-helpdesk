@@ -26,7 +26,7 @@ import {
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 
-import { statusColorMap, priorityColorMap } from '../utils';
+import { statusColorMap } from '../utils';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
 import { useFilterHandlers } from '../hooks/useFilterHandlers';
 
@@ -45,9 +45,11 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
     anchorStatus,
     anchorPriority,
     anchorAssignedTo,
+    anchorClient,
     setAnchorStatus,
     setAnchorPriority,
     setAnchorAssignedTo,
+    setAnchorClient,
     getStatusButtonText,
     getPriorityButtonText,
   } = useFilterHandlers();
@@ -58,7 +60,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
       status: undefined,
       priority: undefined,
       assignedTo: undefined,
-      searchTerm: undefined,
+      searchTerm: '',
     });
   };
 
@@ -69,7 +71,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
           <Button
             onClick={(e) => setAnchorStatus(e.currentTarget)}
             variant="soft"
-            color="inherit"
+            color={filters.status !== undefined ? 'secondary' : 'inherit'}
             startIcon={<StatusIcon fontSize="small" />}
           >
             {getStatusButtonText(filters.status as OrderStatusEnum)}
@@ -151,7 +153,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
           <Button
             onClick={(e) => setAnchorPriority(e.currentTarget)}
             variant="soft"
-            color="inherit"
+            color={filters.priority !== undefined ? 'secondary' : 'inherit'}
             startIcon={<PriorityIcon fontSize="small" />}
           >
             {getPriorityButtonText(filters.priority as OrderPriorityEnum)}
@@ -172,60 +174,57 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
             </MenuItem>
             {Object.entries(OrderPriorityEnum)
               .filter(([key]) => Number.isNaN(Number(key)))
-              .map(([key, value]) => {
-                const color = priorityColorMap[value as OrderPriorityEnum];
-                return (
-                  <MenuItem
-                    key={value}
-                    selected={filters.priority === value}
-                    onClick={() => {
-                      onFiltersChange({ ...filters, priority: value as number });
-                      setAnchorPriority(null);
-                    }}
-                  >
-                    <Box display="flex" alignItems="center" gap={1}>
-                      <Box position="relative" width={16} height={16} flexShrink={0}>
-                        <Box
-                          component={m.div}
-                          animate={{ scale: [1, 1.6, 1], opacity: [0.4, 0.1, 0.4] }}
-                          transition={{ duration: 2, repeat: Infinity, ease: 'circIn' }}
-                          sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: '50%',
-                            width: 16,
-                            height: 16,
-                            borderRadius: '50%',
-                            backgroundColor: color,
-                            transform: 'translate(-50%, -50%)',
-                            filter: 'blur(4px)',
-                            zIndex: 0,
-                          }}
-                        />
-                        <Box
-                          component={m.div}
-                          animate={{ opacity: [1, 0.3, 1] }}
-                          transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                          sx={{
-                            position: 'absolute',
-                            top: '50%',
-                            left: '100%',
-                            width: 10,
-                            height: 10,
-                            borderRadius: '50%',
-                            bgcolor: color,
-                            transform: 'translate(-50%, -50%)',
-                            zIndex: 1,
-                          }}
-                        />
-                      </Box>
-                      <Typography variant="body2" sx={{ pl: 2 }}>
-                        {key}
-                      </Typography>
-                    </Box>
-                  </MenuItem>
-                );
-              })}
+              .map(([key, value]) => (
+                <MenuItem
+                  key={value}
+                  selected={filters.priority === value}
+                  onClick={() => {
+                    onFiltersChange({ ...filters, priority: value as number });
+                    setAnchorPriority(null);
+                  }}
+                >
+                  <Typography variant="body2">{key}</Typography>
+                </MenuItem>
+              ))}
+          </Menu>
+        </div>
+
+        <div>
+          <Button
+            onClick={(e) => setAnchorClient(e.currentTarget)}
+            variant="soft"
+            color={filters.cliente !== undefined ? 'secondary' : 'inherit'}
+            startIcon={<AssigneeIcon fontSize="small" />}
+          >
+            {users?.results.find((agent: User) => agent.id === filters.cliente)?.username ||
+              'Generado por'}
+          </Button>
+          <Menu
+            anchorEl={anchorClient}
+            open={Boolean(anchorClient)}
+            onClose={() => setAnchorClient(null)}
+          >
+            <MenuItem
+              onClick={() => {
+                onFiltersChange({ ...filters, cliente: undefined });
+                setAnchorClient(null);
+              }}
+              selected={!filters.cliente}
+            >
+              Todos
+            </MenuItem>
+            {users?.results.map((agent: User) => (
+              <MenuItem
+                key={agent.id}
+                selected={filters.cliente === agent.id}
+                onClick={() => {
+                  onFiltersChange({ ...filters, cliente: agent.id });
+                  setAnchorClient(null);
+                }}
+              >
+                {agent.username}
+              </MenuItem>
+            ))}
           </Menu>
         </div>
 
@@ -233,7 +232,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
           <Button
             onClick={(e) => setAnchorAssignedTo(e.currentTarget)}
             variant="soft"
-            color="inherit"
+            color={filters.assignedTo !== undefined ? 'secondary' : 'inherit'}
             startIcon={<AssigneeIcon fontSize="small" />}
           >
             {users?.results.find((agent: User) => agent.id === filters.assignedTo)?.username ||
@@ -271,7 +270,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
         <TextField
           variant="standard"
           size="small"
-          value={filters.searchTerm}
+          value={filters.searchTerm || ''}
           placeholder="Buscar"
           onChange={(e) => onFiltersChange({ ...filters, searchTerm: e.target.value })}
           InputProps={{

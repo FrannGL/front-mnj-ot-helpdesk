@@ -4,7 +4,6 @@ import { m } from 'framer-motion';
 import {
   Person,
   SwapVert,
-  Business,
   PriorityHigh,
   Close as CloseIcon,
   FilterList as FilterListIcon,
@@ -18,17 +17,12 @@ import {
   Stack,
   Button,
   Divider,
-  useTheme,
   Checkbox,
-  TextField,
   FormGroup,
   IconButton,
   Typography,
-  Autocomplete,
   FormControlLabel,
 } from '@mui/material';
-
-import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 import { statusColorMap } from '../utils/statusColorsMap';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
@@ -45,9 +39,9 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
   const [tempFilters, setTempFilters] = useState<OrderFilters>(filters);
   const open = Boolean(anchorEl);
 
-  const { data: users } = useUsers();
+  // const { data: users } = useUsers();
 
-  const theme = useTheme();
+  // const theme = useTheme();
 
   const handleOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -72,19 +66,19 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
     }));
   };
 
-  const handleClienteToggle = (value: number) => {
-    setTempFilters((prev) => ({
-      ...prev,
-      cliente: prev.cliente === value ? undefined : value,
-    }));
-  };
+  // const handleClienteToggle = (value: number) => {
+  //   setTempFilters((prev) => ({
+  //     ...prev,
+  //     cliente: prev.cliente === value ? undefined : value,
+  //   }));
+  // };
 
-  const handleAssignedToToggle = (value: number) => {
-    setTempFilters((prev) => ({
-      ...prev,
-      assignedTo: prev.assignedTo === value ? undefined : value,
-    }));
-  };
+  // const handleAssignedToToggle = (value: number) => {
+  //   setTempFilters((prev) => ({
+  //     ...prev,
+  //     assignedTo: prev.assignedTo === value ? undefined : value,
+  //   }));
+  // };
 
   const handleApplyFilters = () => {
     onFiltersChange(tempFilters);
@@ -282,7 +276,7 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
               <Divider />
             </Grid>
 
-            <Grid item xs={5.5}>
+            {/* <Grid item xs={5.5}>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                 <Business fontSize="small" color="action" />
                 <Typography variant="subtitle1" fontWeight="500">
@@ -337,13 +331,88 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
                   />
                 )}
               />
+            </Grid> */}
+
+            <Grid item xs={12}>
+              <Stack
+                width="100%"
+                direction="row"
+                justifyContent="center"
+                alignItems="center"
+                spacing={1}
+                mb={2}
+              >
+                <Person fontSize="small" color="action" />
+                <Typography variant="subtitle1" fontWeight="500">
+                  Asignación
+                </Typography>
+              </Stack>
+
+              <Stack direction="row" spacing={2} justifyContent="space-between" alignItems="center">
+                <FormGroup sx={{ gap: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={tempFilters.assignedTo === 0}
+                        onChange={() => {
+                          setTempFilters((prev) => ({
+                            ...prev,
+                            assignedTo: prev.assignedTo === 0 ? undefined : 0,
+                          }));
+                        }}
+                        size="small"
+                        color="primary"
+                        sx={{ pl: 0 }}
+                      />
+                    }
+                    label={
+                      <Typography variant="body1" sx={{ pr: 1 }}>
+                        Sin asignar
+                      </Typography>
+                    }
+                    sx={{
+                      m: 0,
+                      '&:hover': { backgroundColor: 'action.hover', borderRadius: 1 },
+                    }}
+                  />
+                </FormGroup>
+
+                <Divider orientation="vertical" flexItem sx={{ mr: 1.5 }} />
+
+                <FormGroup sx={{ gap: 1 }}>
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        checked={tempFilters.assignedTo === 1}
+                        onChange={() => {
+                          setTempFilters((prev) => ({
+                            ...prev,
+                            assignedTo: prev.assignedTo === 1 ? undefined : 1,
+                          }));
+                        }}
+                        size="small"
+                        color="primary"
+                      />
+                    }
+                    label={<Typography variant="body1">Asignadas</Typography>}
+                    sx={{
+                      m: 0,
+                      '&:hover': { backgroundColor: 'action.hover', borderRadius: 1 },
+                    }}
+                  />
+                </FormGroup>
+              </Stack>
             </Grid>
 
-            <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+            {/* <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
               <Divider orientation="vertical" flexItem sx={{ height: '100%' }} />
-            </Grid>
+            </Grid> */}
 
-            <Grid item xs={5.5}>
+            {/* <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Divider orientation="vertical" flexItem sx={{ height: '100%' }} />
+            </Grid> */}
+
+            {/* <Grid item xs={5.5}>
               <Stack direction="row" alignItems="center" spacing={1} mb={2}>
                 <Person fontSize="small" color="action" />
                 <Typography variant="subtitle1" fontWeight="500">
@@ -398,7 +467,7 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
                   />
                 )}
               />
-            </Grid>
+            </Grid> */}
           </Grid>
 
           <Box sx={{ mt: 2, pt: 2, borderTop: '1px solid', borderColor: 'divider' }}>
