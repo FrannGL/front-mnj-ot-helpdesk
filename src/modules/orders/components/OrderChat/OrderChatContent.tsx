@@ -1,3 +1,5 @@
+import type { User } from 'src/modules/users/interfaces';
+
 import { useRef, useEffect } from 'react';
 
 import { AttachFile, SupportAgent } from '@mui/icons-material';
@@ -17,6 +19,7 @@ import {
 
 import { fDate } from 'src/utils/format-time';
 
+import { useOrderById } from '../../hooks';
 import {
   getStatusIcon,
   getPriorityIcon,
@@ -25,14 +28,18 @@ import {
   priorityChipColorMap,
 } from '../../utils';
 
-import type { Order } from '../../interfaces';
+import type { Message } from '../../interfaces';
 import type { OrderStatusEnum, OrderPriorityEnum } from '../../enums';
 
 type Props = {
-  order: Order;
+  orderId: number;
 };
 
-export function OrderChatContent({ order }: Props) {
+export function OrderChatContent({ orderId }: Props) {
+  const { data } = useOrderById(orderId);
+
+  const order = data?.data;
+
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const theme = useTheme();
@@ -45,6 +52,8 @@ export function OrderChatContent({ order }: Props) {
   useEffect(() => {
     scrollToBottom();
   }, [order.mensajes]);
+
+  if (!order) return null;
 
   return (
     <>
@@ -94,7 +103,7 @@ export function OrderChatContent({ order }: Props) {
             </Grid>
 
             {order.agentes && order.agentes.length > 0 ? (
-              order.agentes.map((agente) => (
+              order.agentes.map((agente: User) => (
                 <Grid item xs={isMobile ? 6 : 'auto'} key={agente.id}>
                   <Tooltip title="Agente asignado" arrow>
                     <Chip
@@ -144,7 +153,7 @@ export function OrderChatContent({ order }: Props) {
           {order.mensajes?.length ? (
             <>
               {' '}
-              {order.mensajes.map((msg) => {
+              {order.mensajes.map((msg: Message) => {
                 const isClient = msg.usuario.id === order.cliente.id;
 
                 return (
@@ -210,7 +219,7 @@ export function OrderChatContent({ order }: Props) {
                                       gap: 1,
                                       p: 1,
                                       bgcolor:
-                                        theme.palette.mode === 'dark' ? 'grey.800' : 'grey.100',
+                                        theme.palette.mode === 'dark' ? 'grey.800' : 'primary.main',
                                       borderRadius: 1,
                                       transition: 'all 0.2s',
                                       '&:hover': {
@@ -219,8 +228,8 @@ export function OrderChatContent({ order }: Props) {
                                       },
                                     }}
                                   >
-                                    <AttachFile sx={{ fontSize: 20, color: 'primary.main' }} />
-                                    <Typography variant="caption" color="text.secondary" noWrap>
+                                    <AttachFile sx={{ fontSize: 20, color: '#fff' }} />
+                                    <Typography variant="caption" sx={{ color: '#fff' }} noWrap>
                                       {fileName}
                                     </Typography>
                                   </Box>

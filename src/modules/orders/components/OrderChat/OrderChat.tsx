@@ -7,10 +7,9 @@ import { Stack, Dialog, IconButton, Typography, DialogTitle, useMediaQuery } fro
 
 import { fDate } from 'src/utils/format-time';
 
+import { useOrderById } from '../../hooks';
 import { OrderChatInput } from './OrderChatInput';
 import { OrderChatContent } from './OrderChatContent';
-
-import type { Order } from '../../interfaces';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
@@ -18,17 +17,23 @@ const firaSans = Fira_Sans({
 });
 
 type Props = {
-  order: Order;
+  orderId: number;
   open: boolean;
   onClose: () => void;
 };
 
-export function OrderChat({ order, open, onClose }: Props) {
+export function OrderChat({ orderId, open, onClose }: Props) {
+  const { data } = useOrderById(orderId);
+
+  const order = data?.data;
+
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const handleClose = () => {
     onClose();
   };
+
+  if (!order) return null;
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
@@ -63,9 +68,9 @@ export function OrderChat({ order, open, onClose }: Props) {
         </Stack>
       </DialogTitle>
 
-      <OrderChatContent order={order} />
+      <OrderChatContent orderId={order.id} />
 
-      <OrderChatInput order={order} />
+      <OrderChatInput orderId={order.id} />
     </Dialog>
   );
 }

@@ -5,15 +5,18 @@ import { useDropzone } from 'react-dropzone';
 import { Send, AttachFile, AutoAwesome } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
+import { useOrderById } from '../../hooks';
 import { useOrders } from '../../hooks/useOrders';
 
-import type { Order } from '../../interfaces';
-
 type Props = {
-  order: Order;
+  orderId: number;
 };
 
-export function OrderChatInput({ order }: Props) {
+export function OrderChatInput({ orderId }: Props) {
+  const { data } = useOrderById(orderId);
+
+  const order = data?.data;
+
   const [mensaje, setMensaje] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
 
@@ -35,6 +38,8 @@ export function OrderChatInput({ order }: Props) {
     onDrop,
     multiple: false,
   });
+
+  if (!order) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

@@ -89,7 +89,8 @@ export function useOrders(
           },
         };
       });
-
+    },
+    onSettled: (_data, _error, variables) => {
       queryClient.invalidateQueries({ queryKey: ['order', variables.orderId] });
     },
   });

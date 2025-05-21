@@ -54,7 +54,7 @@ export function AdminOrders() {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedOrder, setSelectedOrders] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [openChat, setOpenChat] = useState(false);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({
@@ -85,13 +85,13 @@ export function AdminOrders() {
   };
 
   const handleEdit = (order: Order) => {
-    setSelectedOrders(order);
+    setSelectedOrder(order);
     setEditModalOpen(true);
   };
 
   const handleCloseEditModal = () => {
     setEditModalOpen(false);
-    setSelectedOrders(null);
+    setSelectedOrder(null);
   };
 
   const handleDelete = (orderId: number) => {
@@ -115,7 +115,7 @@ export function AdminOrders() {
   };
 
   const handleOpenChat = (order: Order) => {
-    setSelectedOrders(order);
+    setSelectedOrder(order);
     setOpenChat(true);
   };
 
@@ -288,11 +288,11 @@ export function AdminOrders() {
 
       {selectedOrder && (
         <OrderChat
-          order={selectedOrder}
+          orderId={selectedOrder.id}
           open={openChat}
           onClose={() => {
             setOpenChat(false);
-            setSelectedOrders(null);
+            setSelectedOrder(null);
           }}
         />
       )}

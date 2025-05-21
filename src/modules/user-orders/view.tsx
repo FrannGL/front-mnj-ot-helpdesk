@@ -8,7 +8,7 @@ import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } f
 import { CreateButton } from 'src/components/CreateButton';
 
 import { AdminOrders } from '../admin-orders/AdminOrders';
-import { useOrders, useOrderById, useDebouncedValue } from '../orders/hooks';
+import { useOrders, useDebouncedValue } from '../orders/hooks';
 import { OrderChat, OrdersList, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
 
 import type { OrderFilters } from '../orders/types';
@@ -40,8 +40,6 @@ export function OrdersView() {
   );
 
   const { data, isLoading, isFetching, error } = useOrders(page, debouncedFilters);
-
-  const { data: selectedOrder } = useOrderById(selectedOrderId);
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 
@@ -172,9 +170,9 @@ export function OrdersView() {
           <AdminOrders />
         )}
 
-        {selectedOrder && (
+        {selectedOrderId && (
           <OrderChat
-            order={selectedOrder.data}
+            orderId={selectedOrderId}
             open={openDialog}
             onClose={() => setOpenDialog(false)}
           />
