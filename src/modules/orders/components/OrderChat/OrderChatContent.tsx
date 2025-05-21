@@ -1,6 +1,6 @@
 import { useRef, useEffect } from 'react';
 
-import { SupportAgent } from '@mui/icons-material';
+import { AttachFile, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -21,6 +21,7 @@ import {
   getStatusIcon,
   getPriorityIcon,
   statusChipColorMap,
+  downloadAttachment,
   priorityChipColorMap,
 } from '../../utils';
 
@@ -192,6 +193,41 @@ export function OrderChatContent({ order }: Props) {
                           }}
                         >
                           <Typography variant="body2">{msg.texto}</Typography>
+
+                          {msg.adjuntos && msg.adjuntos.length > 0 && (
+                            <Stack spacing={1} mt={2}>
+                              {msg.adjuntos.map((adjunto) => {
+                                const fileName = adjunto.archivo.split('/').pop();
+
+                                return (
+                                  <Box
+                                    key={adjunto.id}
+                                    onClick={() => downloadAttachment(msg.id, fileName!)}
+                                    sx={{
+                                      cursor: 'pointer',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 1,
+                                      p: 1,
+                                      bgcolor:
+                                        theme.palette.mode === 'dark' ? 'grey.800' : 'grey.100',
+                                      borderRadius: 1,
+                                      transition: 'all 0.2s',
+                                      '&:hover': {
+                                        bgcolor:
+                                          theme.palette.mode === 'dark' ? 'grey.700' : 'grey.200',
+                                      },
+                                    }}
+                                  >
+                                    <AttachFile sx={{ fontSize: 20, color: 'primary.main' }} />
+                                    <Typography variant="caption" color="text.secondary" noWrap>
+                                      {fileName}
+                                    </Typography>
+                                  </Box>
+                                );
+                              })}
+                            </Stack>
+                          )}
                         </Paper>
 
                         <Typography

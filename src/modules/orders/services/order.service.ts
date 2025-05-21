@@ -39,7 +39,19 @@ export async function deleteOrder(orderId: number) {
 }
 
 export async function sendMessageToOrder({ orderId, message }: SendMessagePayload) {
-  const response = await request(`ordenes/${orderId}/mensajes/`, 'POST', message);
+  const formData = new FormData();
+
+  if (message.texto) {
+    formData.append('texto', message.texto);
+  }
+  formData.append('usuario', String(message.usuario));
+
+  message.adjuntos.forEach((file) => {
+    formData.append('adjuntos', file);
+  });
+
+  const response = await request(`ordenes/${orderId}/mensajes/`, 'POST', formData, 'formData');
+
   if (response.error) throw new Error(response.error);
   return response.data;
 }

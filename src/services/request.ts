@@ -32,7 +32,10 @@ export const request = async (
     const [pathPart, queryPart] = endpoint.split('?');
     const cleanedPath = pathPart.replace(/^\/+|\/+$/g, '');
 
-    const url = `${base}/${cleanedPath}/${queryPart ? `?${queryPart}` : '?page=1'}`;
+    const url =
+      responseType === 'blob'
+        ? `${base}/${cleanedPath}${queryPart ? `?${queryPart}` : ''}`
+        : `${base}/${cleanedPath}/${queryPart ? `?${queryPart}` : '?page=1'}`;
 
     const isFormData = body instanceof FormData;
 

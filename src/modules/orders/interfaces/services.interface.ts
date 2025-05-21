@@ -19,7 +19,8 @@ export interface ServerResponse {
 export interface SendMessagePayload {
   orderId: number;
   message: {
-    texto: string;
+    texto?: string;
     usuario: number;
+    adjuntos: File[];
   };
 }

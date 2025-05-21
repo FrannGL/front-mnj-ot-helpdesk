@@ -4,3 +4,4 @@ export * from './priorityIconMap';
 export * from './statusColorsMap';
 export * from './priorityColorsMap';
 export * from './getEnumKeyByValue';
+export * from './downloadAttachment';
