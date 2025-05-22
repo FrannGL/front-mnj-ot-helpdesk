@@ -162,11 +162,6 @@ export function OrdersView() {
             </Stack>
           </Stack>
         ) : (
-          // <OrdersFilter
-          //   filters={filters}
-          //   onFiltersChange={handleFiltersChange}
-          //   hasActiveFilters={hasActiveFilters}
-          // />
           <AdminOrders />
         )}
 

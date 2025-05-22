@@ -1,6 +1,5 @@
 import { toast } from 'sonner';
 import { useState } from 'react';
-import { useDropzone } from 'react-dropzone';
 
 import { Send, AttachFile, AutoAwesome } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
@@ -26,18 +25,6 @@ export function OrderChatInput({ orderId }: Props) {
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const { sendMessageMutation } = useOrders();
-
-  const onDrop = (acceptedFiles: File[]) => {
-    if (acceptedFiles.length > 0) {
-      setArchivo(acceptedFiles[0]);
-      toast.success('Archivo adjuntado correctamente');
-    }
-  };
-
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
-    onDrop,
-    multiple: false,
-  });
 
   if (!order) return null;
 
@@ -73,7 +60,6 @@ export function OrderChatInput({ orderId }: Props) {
       <Box
         component="form"
         onSubmit={handleSubmit}
-        {...getRootProps()}
         sx={{
           width: '100%',
           p: isMobile ? 0.5 : 1,
@@ -85,25 +71,17 @@ export function OrderChatInput({ orderId }: Props) {
           bgcolor: theme.vars.palette.background.paper,
           boxShadow: theme.shadows[1],
           border: `1px solid ${
-            isDragActive
-              ? theme.palette.primary.main
-              : theme.palette.mode === 'dark'
-                ? 'rgba(255, 255, 255, 0.1)'
-                : 'rgba(0, 0, 0, 0.1)'
+            theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
           }`,
           height: isMobile ? 60 : 80,
-          cursor: 'text',
           position: 'relative',
         }}
       >
-        <input {...getInputProps()} />
-
         <InputBase
-          placeholder={isDragActive ? 'Suelta el archivo aquí...' : 'Escribe un mensaje...'}
+          placeholder="Escribe un mensaje..."
           fullWidth
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
-          onClick={(e) => e.stopPropagation()}
           sx={{
             pl: 2,
             flexGrow: 1,
@@ -128,22 +106,14 @@ export function OrderChatInput({ orderId }: Props) {
           >
             <AttachFile fontSize="small" />
             <span>{archivo.name}</span>
-            <IconButton
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                clearFile();
-              }}
-              color="inherit"
-            >
+            <IconButton size="small" onClick={() => clearFile()} color="inherit">
               ×
             </IconButton>
           </Box>
         )}
 
         <IconButton
-          onClick={(e) => {
-            e.stopPropagation();
+          onClick={() => {
             const fileInput = document.createElement('input');
             fileInput.type = 'file';
             fileInput.onchange = (event) => {
@@ -160,18 +130,13 @@ export function OrderChatInput({ orderId }: Props) {
           <AttachFile />
         </IconButton>
 
-        <IconButton
-          type="submit"
-          color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <IconButton type="submit" color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}>
           <Send />
         </IconButton>
 
         <IconButton
           color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
-          onClick={(e) => {
-            e.stopPropagation();
+          onClick={() => {
             console.log('IA clicked');
           }}
         >

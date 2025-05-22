@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
 
-import { Chat, Edit, Delete, SupportAgent } from '@mui/icons-material';
+import { Chat, Edit, Delete, Warning, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Chip,
@@ -32,6 +32,7 @@ import { ConfirmationModal } from 'src/components/ConfirmationModal';
 import { OrderChat } from '../orders/components';
 import { useDebouncedValue } from '../orders/hooks';
 import { useOrders } from '../orders/hooks/useOrders';
+import { SortableTableCell } from './SortedTableCell';
 import { OrderForm } from '../orders/components/OrderForm';
 import { OrdersFilter } from '../orders/components/OrdersFilter';
 import {
@@ -51,12 +52,14 @@ const firaSans = Fira_Sans({
 });
 
 export function AdminOrders() {
+  const [orderBy, setOrderBy] = useState<keyof Order | ''>('');
+  const [orderDirection, setOrderDirection] = useState<'asc' | 'desc'>('asc');
+  const [page, setPage] = useState(1);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [openChat, setOpenChat] = useState(false);
-  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState<OrderFilters>({
     cliente: undefined,
     status: undefined,
@@ -78,6 +81,12 @@ export function AdminOrders() {
   );
 
   const theme = useTheme();
+
+  const handleSort = (column: keyof Order) => {
+    const isAsc = orderBy === column && orderDirection === 'asc';
+    setOrderDirection(isAsc ? 'desc' : 'asc');
+    setOrderBy(column);
+  };
 
   const handleFiltersChange = (newFilters: OrderFilters) => {
     setFilters(newFilters);
@@ -119,9 +128,37 @@ export function AdminOrders() {
     setOpenChat(true);
   };
 
-  const filteredOrders = data?.results ?? [];
   const showLoading = isLoading || isFetching;
   const totalPages = data ? Math.ceil(data.count / 10) : 0;
+
+  const sortedOrders = useMemo(() => {
+    const filteredOrders = data?.results ?? [];
+
+    if (!orderBy) return filteredOrders;
+
+    return [...filteredOrders].sort((a, b) => {
+      let aValue: any = a[orderBy];
+      let bValue: any = b[orderBy];
+
+      if (orderBy === 'cliente' && a.cliente && b.cliente) {
+        aValue = a.cliente.username;
+        bValue = b.cliente.username;
+      } else if (orderBy === 'created_at') {
+        aValue = new Date(a.created_at).getTime();
+        bValue = new Date(b.created_at).getTime();
+      } else if (orderBy === 'agentes') {
+        aValue = a.agentes.length;
+        bValue = b.agentes.length;
+      }
+
+      if (aValue === null || aValue === undefined) return 1;
+      if (bValue === null || bValue === undefined) return -1;
+      if (aValue === bValue) return 0;
+
+      const comparison = aValue < bValue ? -1 : 1;
+      return orderDirection === 'asc' ? comparison : -comparison;
+    });
+  }, [data?.results, orderBy, orderDirection]);
 
   return (
     <Stack sx={{ px: 3 }} spacing={1}>
@@ -169,17 +206,53 @@ export function AdminOrders() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Título</TableCell>
-                  <TableCell>Cliente</TableCell>
-                  <TableCell>Estado</TableCell>
-                  <TableCell>Prioridad</TableCell>
-                  <TableCell>Agentes Asignados</TableCell>
-                  <TableCell>Fecha de Creación</TableCell>
+                  <SortableTableCell
+                    column="titulo"
+                    label="Título"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
+                    column="cliente"
+                    label="Cliente"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
+                    column="estado"
+                    label="Estado"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
+                    column="prioridad"
+                    label="Prioridad"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
+                    column="agentes"
+                    label="Agentes Asignados"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
+                    column="created_at"
+                    label="Fecha de Creación"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
                   <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredOrders.map((order) => (
+                {sortedOrders.map((order) => (
                   <TableRow
                     key={order.id}
                     sx={{
@@ -191,15 +264,23 @@ export function AdminOrders() {
                     }}
                   >
                     <TableCell
+                      onClick={() => handleOpenChat(order)}
                       sx={{
-                        maxWidth: 200,
+                        maxWidth: 250,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
+                        '& .title-text': {
+                          textDecoration: 'none',
+                          transition: 'text-decoration 0.2s ease',
+                        },
+                        '&:hover .title-text': {
+                          textDecoration: 'underline',
+                        },
                       }}
                     >
                       <Tooltip title={order.titulo} arrow placement="top">
-                        <Typography noWrap component="span">
+                        <Typography noWrap component="span" className="title-text">
                           {order.titulo}
                         </Typography>
                       </Tooltip>
@@ -224,18 +305,28 @@ export function AdminOrders() {
                       />
                     </TableCell>
                     <TableCell>
-                      <Stack direction="row" flexWrap="wrap" spacing={0.5}>
-                        {order.agentes.map((agent) => (
-                          <Chip
-                            key={agent.id}
-                            label={agent.username}
-                            size="small"
-                            variant="outlined"
-                            color="secondary"
-                            icon={<SupportAgent />}
-                          />
-                        ))}
-                      </Stack>
+                      {order.agentes.length > 0 ? (
+                        <Stack direction="row" flexWrap="wrap" spacing={0.5}>
+                          {order.agentes.map((agent) => (
+                            <Chip
+                              key={agent.id}
+                              label={agent.username}
+                              size="small"
+                              variant="outlined"
+                              color="secondary"
+                              icon={<SupportAgent />}
+                            />
+                          ))}
+                        </Stack>
+                      ) : (
+                        <Chip
+                          label="Sin Asignar"
+                          size="small"
+                          color="warning"
+                          icon={<Warning />}
+                          variant="outlined"
+                        />
+                      )}
                     </TableCell>
                     <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>
                     <TableCell>
@@ -259,7 +350,7 @@ export function AdminOrders() {
             </Table>
           </TableContainer>
 
-          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 3 }}>
             <Pagination
               count={totalPages}
               page={page}
