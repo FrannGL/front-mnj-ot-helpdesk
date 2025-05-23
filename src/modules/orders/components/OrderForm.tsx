@@ -26,9 +26,8 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { inputStyles } from 'src/utils/shared-styles';
-
 import { useUsers } from 'src/modules/users/hooks/useUsers';
+import { inputStyles } from 'src/shared/utils/shared-styles';
 
 import { useOrders } from '../hooks/useOrders';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';

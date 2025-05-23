@@ -1,14 +1,13 @@
-import 'src/global.css';
+import 'src/shared/styles/global.css';
 
 import type { Viewport } from 'next';
 
-import { CONFIG } from 'src/config-global';
-import { primary } from 'src/theme/core/palette';
-import { getInitColorSchemeScript } from 'src/theme/color-scheme-script';
-
-import { ProgressBar } from 'src/components/progress-bar';
-import { detectSettings } from 'src/components/settings/server';
-import { SettingsDrawer, defaultSettings } from 'src/components/settings';
+import { CONFIG } from 'src/config/config-global';
+import { primary } from 'src/shared/theme/core/palette';
+import { ProgressBar } from 'src/shared/components/minimal/progress-bar';
+import { detectSettings } from 'src/shared/components/minimal/settings/server';
+import { getInitColorSchemeScript } from 'src/shared/theme/color-scheme-script';
+import { SettingsDrawer, defaultSettings } from 'src/shared/components/minimal/settings';
 
 import { Providers } from './Providers';
 

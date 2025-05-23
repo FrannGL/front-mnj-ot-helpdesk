@@ -5,7 +5,7 @@ import { Fira_Sans } from 'next/font/google';
 
 import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 
-import { CreateButton } from 'src/components/CreateButton';
+import { CreateButton } from 'src/shared/components/custom/CreateButton';
 
 import { AdminOrders } from '../admin-orders/AdminOrders';
 import { useOrders, useDebouncedValue } from '../orders/hooks';

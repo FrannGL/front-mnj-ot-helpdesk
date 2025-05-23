@@ -17,7 +17,7 @@ import {
   DialogContent,
 } from '@mui/material';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate } from 'src/shared/utils/format-time';
 
 import { useOrderById } from '../../hooks';
 import {

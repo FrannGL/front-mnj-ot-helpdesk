@@ -1,11 +1,10 @@
-import { CONFIG } from 'src/config-global';
-
-import { JwtSignInView } from 'src/sections/auth/jwt';
+import { CONFIG } from 'src/config/config-global';
+import { LoginView } from 'src/modules/auth/components/LoginView';
 
 // ----------------------------------------------------------------------
 
 export const metadata = { title: `Iniciar Sesión - ${CONFIG.site.name}` };
 
 export default function Page() {
-  return <JwtSignInView />;
+  return <LoginView />;
 }

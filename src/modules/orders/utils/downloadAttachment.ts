@@ -1,4 +1,4 @@
-import { request } from 'src/services/request';
+import { request } from 'src/shared/services/request';
 
 export async function downloadAttachment(messageId: number, fileName: string) {
   try {

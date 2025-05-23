@@ -3,7 +3,7 @@ import type { CreateUserType } from 'src/modules/users/schemas/user.schema';
 
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
-import { request } from 'src/services/request';
+import { request } from 'src/shared/services/request';
 
 interface ServerResponse {
   count: number;

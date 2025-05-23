@@ -5,7 +5,7 @@ import { Fira_Sans } from 'next/font/google';
 import { Close } from '@mui/icons-material';
 import { Stack, Dialog, IconButton, Typography, DialogTitle, useMediaQuery } from '@mui/material';
 
-import { fDate } from 'src/utils/format-time';
+import { fDate } from 'src/shared/utils/format-time';
 
 import { useOrderById } from '../../hooks';
 import { OrderChatInput } from './OrderChatInput';

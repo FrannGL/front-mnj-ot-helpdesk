@@ -1,5 +1,5 @@
-import { CONFIG } from 'src/config-global';
-import { DashboardLayout } from 'src/layouts/dashboard';
+import { CONFIG } from 'src/config/config-global';
+import { DashboardLayout } from 'src/shared/layouts/dashboard';
 
 // ----------------------------------------------------------------------
 

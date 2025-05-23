@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Clear, Search, ArrowForward } from '@mui/icons-material';
 import { Box, useTheme, TextField, IconButton, InputAdornment } from '@mui/material';
 
-import { varAlpha } from 'src/theme/styles';
+import { varAlpha } from 'src/shared/theme/styles';
 
 import type { OrderFilters } from '../types';
 

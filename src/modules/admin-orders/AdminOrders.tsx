@@ -24,10 +24,9 @@ import {
   CircularProgress,
 } from '@mui/material';
 
-import { fDate } from 'src/utils/format-time';
-
-import { CreateButton } from 'src/components/CreateButton';
-import { ConfirmationModal } from 'src/components/ConfirmationModal';
+import { fDate } from 'src/shared/utils/format-time';
+import { CreateButton } from 'src/shared/components/custom/CreateButton';
+import { ConfirmationModal } from 'src/shared/components/custom/ConfirmationModal';
 
 import { OrderChat } from '../orders/components';
 import { useDebouncedValue } from '../orders/hooks';

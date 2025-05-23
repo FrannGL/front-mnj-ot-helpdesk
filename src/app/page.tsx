@@ -1,10 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
-import { useRouter } from 'src/routes/hooks';
-
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/config';
 
 // ----------------------------------------------------------------------
 

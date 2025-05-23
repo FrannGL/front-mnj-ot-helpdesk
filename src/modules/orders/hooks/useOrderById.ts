@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { request } from 'src/services/request';
+import { request } from 'src/shared/services/request';
 
 export function useOrderById(orderId: number | null) {
   return useQuery({

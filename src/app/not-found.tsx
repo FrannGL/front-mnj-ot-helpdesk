@@ -1,6 +1,5 @@
-import { CONFIG } from 'src/config-global';
-
-import { NotFoundView } from 'src/sections/error';
+import { CONFIG } from 'src/config/config-global';
+import { NotFoundView } from 'src/shared/components/minimal/error';
 
 // ----------------------------------------------------------------------
 

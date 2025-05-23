@@ -1,4 +1,4 @@
-import { LoadingScreen } from 'src/components/loading-screen';
+import { LoadingScreen } from 'src/shared/components/minimal/loading-screen';
 
 // ----------------------------------------------------------------------
 

@@ -1,4 +1,4 @@
-import { CONFIG } from 'src/config-global';
+import { CONFIG } from 'src/config/config-global';
 import DashboardView from 'src/modules/dashboard/components/DashboardView';
 
 // ----------------------------------------------------------------------
