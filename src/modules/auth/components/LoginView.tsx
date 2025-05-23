@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useForm } from 'react-hook-form';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -28,6 +28,8 @@ import type { LoginSchemaType } from '../schemas';
 // ----------------------------------------------------------------------
 
 export function LoginView() {
+  const [isMounted, setIsMounted] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -87,6 +89,10 @@ export function LoginView() {
     return routeNames[path] || path;
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const renderRegisterLink = (
     <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'center', mt: 2 }}>
       <Typography variant="body2" sx={{ color: 'text.secondary' }}>
@@ -94,13 +100,20 @@ export function LoginView() {
       </Typography>
       <Link
         href="/auth/register"
-        style={{
-          fontSize: 15,
-          textDecoration: 'none',
-          color: theme.palette.mode === 'dark' ? '#fff' : theme.palette.primary.main,
-        }}
+        style={{ textDecoration: 'none', display: 'flex', justifyContent: 'center', gap: 2 }}
       >
-        Regístrate aquí
+        <Typography
+          sx={{
+            fontSize: 15,
+            color: isMounted
+              ? theme.palette.mode === 'dark'
+                ? '#fff'
+                : theme.palette.primary.main
+              : 'inherit',
+          }}
+        >
+          Regístrate aquí
+        </Typography>
       </Link>
     </Stack>
   );
@@ -145,10 +158,13 @@ export function LoginView() {
   return (
     <>
       <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
-        {theme.palette.mode === 'dark' ? (
-          <Image src="/logo/logo-white.png" alt="Logo" width={225} height={55} />
-        ) : (
-          <Image src="/logo/logo-dark.png" alt="Logo" width={225} height={55} />
+        {isMounted && (
+          <Image
+            src={theme.palette.mode === 'dark' ? '/logo/logo-white.png' : '/logo/logo-dark.png'}
+            alt="Logo"
+            width={225}
+            height={55}
+          />
         )}
       </Box>
 

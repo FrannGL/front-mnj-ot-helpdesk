@@ -22,7 +22,7 @@ export function AnimateLogo1({ logo, sx, ...other }: AnimateLogoProps) {
     <Box
       sx={{
         width: 120,
-        height: 120,
+        height: 100,
         alignItems: 'center',
         position: 'relative',
         display: 'inline-flex',
