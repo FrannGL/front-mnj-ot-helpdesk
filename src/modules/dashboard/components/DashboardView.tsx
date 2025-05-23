@@ -24,6 +24,7 @@ const MantenimientoCategoriasChart = dynamic(
         <CircularProgress />
       </Box>
     ),
+    ssr: false,
   }
 );
 

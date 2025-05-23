@@ -1,30 +1,28 @@
 import type { ApexOptions } from 'apexcharts';
 
-import React from 'react';
+import { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-import { Box, Typography } from '@mui/material';
+import { Box, useTheme, Typography } from '@mui/material';
 
 const mantenimientoPorMes = [
-  { nombre: 'Carpinteria', month: 'Enero', count: 5 },
-  { nombre: 'Carpinteria', month: 'Febrero', count: 7 },
-  { nombre: 'Carpinteria', month: 'Marzo', count: 6 },
-
-  { nombre: 'Ferretería', month: 'Enero', count: 3 },
-  { nombre: 'Ferretería', month: 'Febrero', count: 4 },
-  { nombre: 'Ferretería', month: 'Marzo', count: 5 },
-
-  { nombre: 'Electricidad', month: 'Enero', count: 6 },
-  { nombre: 'Electricidad', month: 'Febrero', count: 7 },
-  { nombre: 'Electricidad', month: 'Marzo', count: 7 },
-
-  { nombre: 'Plomería', month: 'Enero', count: 4 },
-  { nombre: 'Plomería', month: 'Febrero', count: 6 },
-  { nombre: 'Plomería', month: 'Marzo', count: 5 },
+  { nombre: 'Carpinteria', month: 'Marzo', count: 5 },
+  { nombre: 'Carpinteria', month: 'Abril', count: 7 },
+  { nombre: 'Carpinteria', month: 'Mayo', count: 6 },
+  { nombre: 'Ferretería', month: 'Marzo', count: 3 },
+  { nombre: 'Ferretería', month: 'Abril', count: 4 },
+  { nombre: 'Ferretería', month: 'Mayo', count: 5 },
+  { nombre: 'Electricidad', month: 'Marzo', count: 6 },
+  { nombre: 'Electricidad', month: 'Abril', count: 7 },
+  { nombre: 'Electricidad', month: 'Mayo', count: 7 },
+  { nombre: 'Plomería', month: 'Marzo', count: 4 },
+  { nombre: 'Plomería', month: 'Abril', count: 6 },
+  { nombre: 'Plomería', month: 'Mayo', count: 5 },
 ];
 
 export function MantenimientoCategoriasChart() {
-  const meses = ['Enero', 'Febrero', 'Marzo'];
+  const theme = useTheme();
+  const meses = useMemo(() => ['Marzo', 'Abril', 'Mayo'], []);
   const categorias = Array.from(new Set(mantenimientoPorMes.map((item) => item.nombre)));
 
   type Serie = {
@@ -42,12 +40,8 @@ export function MantenimientoCategoriasChart() {
     }),
   }));
 
-  const chartData: {
-    series: Serie[];
-    options: ApexOptions;
-  } = {
-    series,
-    options: {
+  const chartOptions = useMemo<ApexOptions>(
+    () => ({
       chart: {
         type: 'bar',
         height: 350,
@@ -61,6 +55,7 @@ export function MantenimientoCategoriasChart() {
             reset: false,
           },
         },
+        foreColor: theme.palette.text.primary,
       },
       plotOptions: {
         bar: {
@@ -72,6 +67,7 @@ export function MantenimientoCategoriasChart() {
               style: {
                 fontSize: '13px',
                 fontWeight: 900,
+                color: theme.palette.text.primary,
               },
             },
           },
@@ -79,15 +75,35 @@ export function MantenimientoCategoriasChart() {
       },
       stroke: {
         width: 1,
-        colors: ['#fff'],
+        colors: [theme.palette.background.paper],
       },
       xaxis: {
         categories: meses,
+        labels: {
+          style: {
+            colors: theme.palette.text.secondary,
+          },
+        },
+        axisBorder: {
+          show: true,
+          color: theme.palette.divider,
+        },
+        axisTicks: {
+          color: theme.palette.divider,
+        },
+      },
+      yaxis: {
+        labels: {
+          style: {
+            colors: theme.palette.text.secondary,
+          },
+        },
       },
       tooltip: {
         y: {
           formatter: (val) => `${val} órdenes`,
         },
+        theme: theme.palette.mode,
       },
       fill: {
         opacity: 1,
@@ -96,7 +112,28 @@ export function MantenimientoCategoriasChart() {
         position: 'top',
         horizontalAlign: 'left',
         offsetX: 40,
-        fontSize: '14px',
+        fontSize: '12px',
+        labels: {
+          colors: theme.palette.text.primary,
+          useSeriesColors: false,
+        },
+        markers: {
+          width: 12,
+          height: 12,
+          strokeWidth: 0,
+          strokeColor: theme.palette.divider,
+          radius: 2,
+          offsetX: 15,
+        },
+        itemMargin: {
+          horizontal: 1,
+        },
+        formatter(seriesName) {
+          return `\u00A0\u00A0\u00A0\u00A0\u00A0${seriesName}`;
+        },
+      },
+      grid: {
+        borderColor: theme.palette.divider,
       },
       responsive: [
         {
@@ -131,6 +168,7 @@ export function MantenimientoCategoriasChart() {
               labels: {
                 style: {
                   fontSize: '10px',
+                  colors: theme.palette.text.secondary,
                 },
               },
             },
@@ -138,14 +176,16 @@ export function MantenimientoCategoriasChart() {
               labels: {
                 style: {
                   fontSize: '10px',
+                  colors: theme.palette.text.secondary,
                 },
               },
             },
           },
         },
       ],
-    },
-  };
+    }),
+    [theme, meses]
+  );
 
   return (
     <Box sx={{ p: 3, pl: 1, height: { xs: 280, sm: 350 } }}>
@@ -153,10 +193,11 @@ export function MantenimientoCategoriasChart() {
         Categorías
       </Typography>
       <ReactApexChart
-        options={chartData.options}
-        series={chartData.series}
+        options={chartOptions}
+        series={series}
         type="bar"
-        height={chartData.options.chart?.height}
+        height={chartOptions.chart?.height}
+        key={theme.palette.mode}
       />
     </Box>
   );

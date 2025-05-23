@@ -1,8 +1,9 @@
 import type { ApexOptions } from 'apexcharts';
 
-import { useState, useEffect } from 'react';
 import ReactApexChart from 'react-apexcharts';
+import { useMemo, useState, useEffect } from 'react';
 
+import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 
 import { useOrders } from 'src/modules/orders/hooks';
@@ -10,14 +11,11 @@ import { statusColorMap } from 'src/modules/orders/utils';
 import { OrderStatusEnum } from 'src/modules/orders/enums';
 
 export function OrderStatusChart() {
+  const theme = useTheme();
   const { data } = useOrders();
 
-  const [chartData, setChartData] = useState<{
-    series: number[];
-    options: ApexOptions;
-  }>({
-    series: [0, 0, 0],
-    options: {
+  const chartOptions = useMemo<ApexOptions>(
+    () => ({
       chart: {
         height: 300,
         type: 'radialBar',
@@ -31,6 +29,11 @@ export function OrderStatusChart() {
             margin: 5,
             size: '30%',
             background: 'transparent',
+          },
+          track: {
+            background: theme.palette.mode === 'dark' ? theme.palette.background.paper : '#EBEBEB',
+            strokeWidth: '97%',
+            margin: 5,
           },
           dataLabels: {
             name: {
@@ -67,8 +70,11 @@ export function OrderStatusChart() {
           },
         },
       ],
-    },
-  });
+    }),
+    [theme]
+  );
+
+  const [series, setSeries] = useState([0, 0, 0]);
 
   useEffect(() => {
     if (data?.results) {
@@ -86,16 +92,11 @@ export function OrderStatusChart() {
         }
       );
 
-      const series = [
+      setSeries([
         statusCounts[OrderStatusEnum.RESUELTO],
         statusCounts[OrderStatusEnum.CANCELADO],
         statusCounts[OrderStatusEnum.ABIERTO],
-      ];
-
-      setChartData((prev) => ({
-        ...prev,
-        series,
-      }));
+      ]);
     }
   }, [data]);
 
@@ -103,10 +104,11 @@ export function OrderStatusChart() {
     <Box sx={{ p: 3, height: 300 }}>
       <Typography variant="h6">Ordenes</Typography>
       <ReactApexChart
-        options={chartData.options}
-        series={chartData.series}
+        options={chartOptions}
+        series={series}
         type="radialBar"
         height={300}
+        key={theme.palette.mode}
       />
     </Box>
   );
