@@ -50,6 +50,11 @@ export function OrdersView() {
     setOpenDialog(true);
   };
 
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
+    setSelectedOrderId(null);
+  };
+
   const handleFiltersChange = (newFilters: OrderFilters) => {
     setFilters(newFilters);
     setPage(1);
@@ -166,11 +171,7 @@ export function OrdersView() {
         )}
 
         {selectedOrderId && (
-          <OrderChat
-            orderId={selectedOrderId}
-            open={openDialog}
-            onClose={() => setOpenDialog(false)}
-          />
+          <OrderChat orderId={selectedOrderId} open={openDialog} onClose={handleCloseDialog} />
         )}
       </Stack>
       <CreateButton type="order" />

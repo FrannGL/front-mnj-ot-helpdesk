@@ -1,11 +1,11 @@
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Send, AttachFile, AutoAwesome } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
-import { useOrderById } from '../../hooks';
-import { useOrders } from '../../hooks/useOrders';
+import { useOrders, useOrderById, useOrderSocket } from '../../hooks';
 
 type Props = {
   orderId: number;
@@ -19,12 +19,27 @@ export function OrderChatInput({ orderId }: Props) {
   const [mensaje, setMensaje] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
 
+  const queryClient = useQueryClient();
+  const { sendMessageMutation } = useOrders();
+
   const clearFile = () => setArchivo(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery('(max-width:600px)');
 
-  const { sendMessageMutation } = useOrders();
+  const { sendSocketMessage } = useOrderSocket(orderId, (nuevoMensaje) => {
+    queryClient.setQueryData(['order', orderId], (oldData: any) => {
+      if (!oldData) return oldData;
+
+      return {
+        ...oldData,
+        data: {
+          ...oldData.data,
+          mensajes: [...oldData.data.mensajes, nuevoMensaje],
+        },
+      };
+    });
+  });
 
   if (!order) return null;
 
@@ -32,7 +47,16 @@ export function OrderChatInput({ orderId }: Props) {
     e.preventDefault();
     if (!mensaje.trim() && !archivo) return;
 
-    const adjuntos = archivo ? [archivo] : [];
+    const msgPayload = {
+      type: 'mensaje_new',
+      mensaje: {
+        texto: mensaje,
+        usuario: order.cliente.id,
+        adjuntos: archivo ? [archivo.name] : [],
+      },
+    };
+
+    sendSocketMessage(msgPayload);
 
     sendMessageMutation.mutate(
       {
@@ -40,13 +64,13 @@ export function OrderChatInput({ orderId }: Props) {
         message: {
           texto: mensaje,
           usuario: order.cliente.id,
-          adjuntos,
+          adjuntos: archivo ? [archivo] : [],
         },
       },
       {
         onSuccess: () => {
           setMensaje('');
-          clearFile();
+          setArchivo(null);
         },
         onError: () => {
           toast.error('Error al enviar el mensaje');
