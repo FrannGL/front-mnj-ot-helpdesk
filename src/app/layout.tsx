@@ -2,6 +2,9 @@ import 'src/shared/styles/global.css';
 
 import type { Viewport } from 'next';
 
+import { esES } from '@clerk/localizations';
+import { ClerkProvider } from '@clerk/nextjs';
+
 import { CONFIG } from 'src/config/config-global';
 import { primary } from 'src/shared/theme/core/palette';
 import { ProgressBar } from 'src/shared/components/minimal/progress-bar';
@@ -21,20 +24,34 @@ type Props = {
   children: React.ReactNode;
 };
 
+export const customEsLocalization = {
+  ...esES,
+  signIn: {
+    ...esES.signIn,
+    start: {
+      ...esES.signIn?.start,
+      title: 'Por favor, Inicia Sesión',
+    },
+    formButtonPrimary: 'Continuar',
+  },
+};
+
 export default async function RootLayout({ children }: Props) {
   const settings = CONFIG.isStaticExport ? defaultSettings : await detectSettings();
 
   return (
-    <html lang="es" suppressHydrationWarning>
-      <body>
-        {getInitColorSchemeScript}
+    <ClerkProvider localization={customEsLocalization}>
+      <html lang="es" suppressHydrationWarning>
+        <body>
+          {getInitColorSchemeScript}
 
-        <Providers settings={settings} caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}>
-          <ProgressBar />
-          <SettingsDrawer />
-          {children}
-        </Providers>
-      </body>
-    </html>
+          <Providers settings={settings} caches={CONFIG.isStaticExport ? 'localStorage' : 'cookie'}>
+            <ProgressBar />
+            <SettingsDrawer />
+            {children}
+          </Providers>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

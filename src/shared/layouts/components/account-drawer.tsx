@@ -3,7 +3,7 @@
 import type { IconButtonProps } from '@mui/material/IconButton';
 
 import { useState, useCallback } from 'react';
-import { signOut, useSession } from 'next-auth/react';
+import { useUser, useClerk, UserButton } from '@clerk/nextjs';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -17,7 +17,6 @@ import { Iconify } from 'src/shared/components/minimal/iconify';
 import { Scrollbar } from 'src/shared/components/minimal/scrollbar';
 import { AnimateAvatar } from 'src/shared/components/minimal/animate';
 
-import { AccountButton } from './account-button';
 import { SignOutButton } from './sign-out-button';
 
 // ----------------------------------------------------------------------
@@ -34,13 +33,12 @@ export type AccountDrawerProps = IconButtonProps & {
 export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const theme = useTheme();
 
-  const { data: session } = useSession();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
+  console.log(user);
 
   const [open, setOpen] = useState(false);
-
-  const handleOpenDrawer = useCallback(() => {
-    setOpen(true);
-  }, []);
 
   const handleCloseDrawer = useCallback(() => {
     setOpen(false);
@@ -48,7 +46,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
 
   const handleSignOut = async () => {
     try {
-      await signOut({ redirect: true, callbackUrl: '/auth/login' });
+      await signOut();
       handleCloseDrawer();
     } catch (error) {
       console.error('Error al cerrar sesión:', error);
@@ -59,7 +57,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
     <AnimateAvatar
       width={96}
       slotProps={{
-        avatar: { src: '', alt: session?.user?.username },
+        avatar: { src: '', alt: user?.username ?? '' },
         overlay: {
           border: 2,
           spacing: 3,
@@ -67,20 +65,21 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
         },
       }}
     >
-      {session?.user?.username.charAt(0).toUpperCase()}
+      {user?.username?.charAt(0).toUpperCase()}
     </AnimateAvatar>
   );
 
   return (
     <>
-      <AccountButton
+      {/* <AccountButton
         open={open}
         onClick={handleOpenDrawer}
         photoURL=""
-        displayName={session?.user?.username ?? ''}
+        displayName={user?.username ?? ''}
         sx={sx}
         {...other}
-      />
+      /> */}
+      <UserButton />
 
       <Drawer
         open={open}
@@ -101,11 +100,11 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
             {renderAvatar}
 
             <Typography variant="subtitle1" noWrap sx={{ mt: 2 }}>
-              {session?.user?.username ?? ''}
+              {user?.username ?? ''}
             </Typography>
 
             <Typography variant="body2" sx={{ color: 'text.secondary', mt: 0.5 }} noWrap>
-              {session?.user?.email ?? ''}
+              {user?.primaryEmailAddress?.emailAddress ?? ''}
             </Typography>
           </Stack>
 

@@ -10,7 +10,7 @@ export default function Layout({ children }: Props) {
   return (
     <AuthSplitLayout
       section={{
-        title: 'Hi, Welcome back',
+        title: 'Hola! Bievenido de nuevo 👋',
         subtitle: 'Sistema de gestión de tickets y mesa de ayuda',
       }}
     >
