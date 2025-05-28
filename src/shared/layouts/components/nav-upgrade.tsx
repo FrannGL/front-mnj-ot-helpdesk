@@ -1,7 +1,6 @@
 import type { StackProps } from '@mui/material/Stack';
 
 import { m } from 'framer-motion';
-import { useSession } from 'next-auth/react';
 
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -18,14 +17,12 @@ import { varAlpha, bgGradient } from 'src/shared/theme/styles';
 // ----------------------------------------------------------------------
 
 export function NavUpgrade({ sx, ...other }: StackProps) {
-  const { data: session } = useSession();
-
   return (
     <Stack sx={{ px: 2, py: 5, textAlign: 'center', ...sx }} {...other}>
       <Stack alignItems="center">
         <Box sx={{ position: 'relative' }}>
-          <Avatar src="" alt={session?.user.username} sx={{ width: 48, height: 48 }}>
-            {session?.user?.username.charAt(0).toUpperCase()}
+          <Avatar src="" alt="Avatar" sx={{ width: 48, height: 48 }}>
+            ASD
           </Avatar>
 
           <Label
@@ -50,7 +47,7 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
             noWrap
             sx={{ color: 'var(--layout-nav-text-primary-color)' }}
           >
-            {session?.user?.username ?? ''}
+            asd
           </Typography>
 
           <Typography
@@ -58,7 +55,7 @@ export function NavUpgrade({ sx, ...other }: StackProps) {
             noWrap
             sx={{ color: 'var(--layout-nav-text-disabled-color)' }}
           >
-            {session?.user.email ?? ''}
+            asd
           </Typography>
         </Stack>
 

@@ -24,6 +24,9 @@
     "precommit": "npm run lint && npm run ts"
   },
   "dependencies": {
+    "@clerk/localizations": "^3.16.2",
+    "@clerk/nextjs": "^6.20.1",
+    "@clerk/themes": "^2.2.47",
     "@emotion/cache": "^11.11.0",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -50,7 +53,6 @@
     "framer-motion": "^11.2.10",
     "husky": "^9.1.7",
     "next": "^14.2.4",
-    "next-auth": "^5.0.0-beta.28",
     "nprogress": "^0.2.0",
     "react": "^18.3.1",
     "react-apexcharts": "^1.7.0",
