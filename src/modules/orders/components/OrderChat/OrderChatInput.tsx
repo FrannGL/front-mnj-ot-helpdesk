@@ -1,76 +1,111 @@
+import type { User } from 'src/modules/users/interfaces';
+
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Send, AttachFile, AutoAwesome } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
+import { UserGroups } from 'src/modules/users/enums';
+
 import { useOrders, useOrderById, useOrderSocket } from '../../hooks';
+
+import type { Message } from '../../interfaces';
 
 type Props = {
   orderId: number;
 };
 
-export function OrderChatInput({ orderId }: Props) {
-  const { data } = useOrderById(orderId);
+type IncomingWSMessage = { message: string } | Partial<Message>;
 
-  const order = data?.data;
+export function OrderChatInput({ orderId }: Props) {
+  const theme = useTheme();
+  const isMobile = useMediaQuery('(max-width:600px)');
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [mensaje, setMensaje] = useState('');
   const [archivo, setArchivo] = useState<File | null>(null);
+
+  const { data } = useOrderById(orderId);
+  const order = data?.data;
 
   const queryClient = useQueryClient();
   const { sendMessageMutation } = useOrders();
 
   const clearFile = () => setArchivo(null);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery('(max-width:600px)');
-
-  const { sendSocketMessage } = useOrderSocket(orderId, (nuevoMensaje) => {
-    queryClient.setQueryData(['order', orderId], (oldData: any) => {
-      if (!oldData) return oldData;
-
-      return {
-        ...oldData,
-        data: {
-          ...oldData.data,
-          mensajes: [...oldData.data.mensajes, nuevoMensaje],
-        },
+  const handleNewMessage = useCallback(
+    (incoming: IncomingWSMessage) => {
+      const defaultUser: User = {
+        id: 0,
+        username: 'Sistema',
+        email: '',
+        groups: [UserGroups.DIRECTOR],
       };
-    });
-  });
 
-  if (!order) return null;
+      const newMessage: Message = {
+        id: Date.now(),
+        texto: 'message' in incoming ? incoming.message ?? '' : incoming.texto ?? '',
+        usuario: defaultUser,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        adjuntos: [],
+      };
+
+      queryClient.setQueryData(['order', orderId], (oldData: any) => {
+        if (!oldData) return oldData;
+
+        const mensajes = oldData.data.mensajes ?? [];
+        const lastMessage = mensajes[mensajes.length - 1];
+
+        if (lastMessage?.texto === newMessage.texto) return oldData;
+
+        return {
+          ...oldData,
+          data: {
+            ...oldData.data,
+            mensajes: [...mensajes, newMessage],
+          },
+        };
+      });
+    },
+    [orderId, queryClient]
+  );
+
+  const { sendSocketMessage } = useOrderSocket(orderId, handleNewMessage);
+
+  const handleAttachClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setArchivo(file);
+      toast.success('Archivo adjuntado correctamente');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!mensaje.trim() && !archivo) return;
 
-    const msgPayload = {
-      type: 'mensaje_new',
-      mensaje: {
-        texto: mensaje,
-        usuario: order.cliente.id,
-        adjuntos: archivo ? [archivo.name] : [],
-      },
-    };
-
-    sendSocketMessage(msgPayload);
+    sendSocketMessage({ message: mensaje });
 
     sendMessageMutation.mutate(
       {
-        orderId: order.id,
+        orderId,
         message: {
           texto: mensaje,
-          usuario: order.cliente.id,
+          usuario: order?.cliente.id,
           adjuntos: archivo ? [archivo] : [],
         },
       },
       {
         onSuccess: () => {
           setMensaje('');
-          setArchivo(null);
+          clearFile();
         },
         onError: () => {
           toast.error('Error al enviar el mensaje');
@@ -78,6 +113,8 @@ export function OrderChatInput({ orderId }: Props) {
       }
     );
   };
+
+  if (!order) return null;
 
   return (
     <DialogActions sx={{ pt: 1, px: 2 }}>
@@ -106,10 +143,7 @@ export function OrderChatInput({ orderId }: Props) {
           fullWidth
           value={mensaje}
           onChange={(e) => setMensaje(e.target.value)}
-          sx={{
-            pl: 2,
-            flexGrow: 1,
-          }}
+          sx={{ pl: 2, flexGrow: 1 }}
         />
 
         {archivo && (
@@ -130,25 +164,21 @@ export function OrderChatInput({ orderId }: Props) {
           >
             <AttachFile fontSize="small" />
             <span>{archivo.name}</span>
-            <IconButton size="small" onClick={() => clearFile()} color="inherit">
+            <IconButton size="small" onClick={clearFile} color="inherit">
               ×
             </IconButton>
           </Box>
         )}
 
+        <input
+          ref={fileInputRef}
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handleFileChange}
+        />
+
         <IconButton
-          onClick={() => {
-            const fileInput = document.createElement('input');
-            fileInput.type = 'file';
-            fileInput.onchange = (event) => {
-              const { files } = event.target as HTMLInputElement;
-              if (files && files.length > 0) {
-                setArchivo(files[0]);
-                toast.success('Archivo adjuntado correctamente');
-              }
-            };
-            fileInput.click();
-          }}
+          onClick={handleAttachClick}
           color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
         >
           <AttachFile />
@@ -160,9 +190,7 @@ export function OrderChatInput({ orderId }: Props) {
 
         <IconButton
           color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
-          onClick={() => {
-            console.log('IA clicked');
-          }}
+          onClick={() => console.log('IA clicked')}
         >
           <AutoAwesome />
         </IconButton>

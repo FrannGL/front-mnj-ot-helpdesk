@@ -36,7 +36,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const { user } = useUser();
   const { signOut } = useClerk();
 
-  console.log(user);
+
 
   const [open, setOpen] = useState(false);
 
