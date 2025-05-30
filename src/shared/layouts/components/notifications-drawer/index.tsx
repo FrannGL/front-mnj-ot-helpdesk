@@ -10,7 +10,6 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Badge from '@mui/material/Badge';
 import Drawer from '@mui/material/Drawer';
-import Button from '@mui/material/Button';
 import SvgIcon from '@mui/material/SvgIcon';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
@@ -25,6 +24,7 @@ import { CustomTabs } from 'src/shared/components/minimal/custom-tabs';
 import { useNotificationsSocket } from 'src/shared/hooks/custom/useNotificationSocket';
 
 import { NotificationItem } from './notification-item';
+import { markAllAsRead, handleSocketMessage, markNotificationAsRead } from './notificationsHandler';
 
 import type { NotificationItemProps } from './notification-item';
 
@@ -48,89 +48,17 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
 
   const [currentTab, setCurrentTab] = useState('all');
 
+  const [notifications, setNotifications] = useState(data);
+
+  const onMessage = useCallback((noti: any) => handleSocketMessage(noti, setNotifications), []);
+
+  useNotificationsSocket({ onMessage });
+
+  const handleMarkAllAsRead = () => markAllAsRead(setNotifications);
+
   const handleChangeTab = useCallback((event: React.SyntheticEvent, newValue: string) => {
     setCurrentTab(newValue);
   }, []);
-
-  const [notifications, setNotifications] = useState(data);
-
-  const onMessage = useCallback((noti: any) => {
-    if (noti?.type === 'mensaje_new') {
-      const orden = noti.data?.orden_id;
-      const mensaje = noti.data?.mensaje;
-      const usuario = mensaje?.usuario;
-
-      const newNotification: NotificationItemProps = {
-        id: `${mensaje?.id}`,
-        type: 'mensaje_new',
-        title: `Nuevo mensaje en orden #${orden}`,
-        category: usuario?.username || 'Usuario desconocido',
-        isUnRead: true,
-        avatarUrl: null,
-        createdAt: mensaje?.created_at ?? new Date().toISOString(),
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-    } else if (noti?.type === 'orden_create') {
-      const orden = noti.data;
-      const cliente = orden?.cliente;
-
-      const newNotification: NotificationItemProps = {
-        id: `${orden?.id}`,
-        type: 'orden_create',
-        title: `Nueva orden creada: "${orden?.titulo}"`,
-        category: cliente?.username || 'Usuario desconocido',
-        isUnRead: true,
-        avatarUrl: null,
-        createdAt: orden?.created_at ?? new Date().toISOString(),
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-    } else if (noti?.type === 'orden_update') {
-      const orden = noti.data;
-
-      const newNotification: NotificationItemProps = {
-        id: `${orden?.id}`,
-        type: 'orden_update',
-        title: `Orden actualizada: "${orden?.titulo}"`,
-        category: `Estado: ${orden?.estado ?? 'Desconocido'}`,
-        isUnRead: true,
-        avatarUrl: null,
-        createdAt: orden?.updated_at ?? new Date().toISOString(),
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-    } else if (noti?.type === 'orden_delete') {
-      const orden = noti.data;
-      const cliente = orden?.cliente;
-
-      const newNotification: NotificationItemProps = {
-        id: `${orden?.id}`,
-        type: 'orden_delete',
-        title: `Orden eliminada: "${orden?.titulo}"`,
-        category: cliente?.username || 'Usuario desconocido',
-        isUnRead: true,
-        avatarUrl: null,
-        createdAt: new Date().toISOString(),
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-    } else {
-      const newNotification: NotificationItemProps = {
-        id: `${Date.now()}-${noti?.type}`,
-        type: noti?.type ?? 'general',
-        title: `Notificación desconocida`,
-        category: noti?.category ?? 'default',
-        isUnRead: true,
-        avatarUrl: null,
-        createdAt: new Date().toISOString(),
-      };
-
-      setNotifications((prev) => [newNotification, ...prev]);
-    }
-  }, []);
-
-  useNotificationsSocket({ onMessage });
 
   const totalUnRead = notifications.filter((item) => item.isUnRead === true).length;
 
@@ -139,14 +67,10 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
     unread: notifications.filter((n) => n.isUnRead).length,
   };
 
-  const handleMarkAllAsRead = () => {
-    setNotifications(notifications.map((notification) => ({ ...notification, isUnRead: false })));
-  };
-
   const renderHead = (
     <Stack direction="row" alignItems="center" sx={{ py: 2, pl: 2.5, pr: 1, minHeight: 68 }}>
       <Typography variant="h6" sx={{ flexGrow: 1 }}>
-        Notifications
+        Notificaciones
       </Typography>
 
       {!!totalUnRead && (
@@ -167,9 +91,9 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         <Iconify icon="mingcute:close-line" />
       </IconButton>
 
-      <IconButton>
+      {/* <IconButton>
         <Iconify icon="solar:settings-bold-duotone" />
-      </IconButton>
+      </IconButton> */}
     </Stack>
   );
 
@@ -199,7 +123,12 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
       <Box component="ul">
         {notifications?.map((notification) => (
           <Box component="li" key={notification.id} sx={{ display: 'flex' }}>
-            <NotificationItem notification={notification} />
+            <NotificationItem
+              notification={notification}
+              onMarkRead={() =>
+                notification.isUnRead && markNotificationAsRead(notification.id, setNotifications)
+              }
+            />
           </Box>
         ))}
       </Box>
@@ -245,12 +174,6 @@ export function NotificationsDrawer({ data = [], sx, ...other }: NotificationsDr
         {renderTabs}
 
         {renderList}
-
-        <Box sx={{ p: 1 }}>
-          <Button fullWidth size="large">
-            View all
-          </Button>
-        </Box>
       </Drawer>
     </>
   );

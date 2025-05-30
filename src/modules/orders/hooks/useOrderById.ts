@@ -7,5 +7,6 @@ export function useOrderById(orderId: number | null) {
     queryKey: ['order', orderId],
     queryFn: () => request(`ordenes/${orderId}`, 'GET'),
     enabled: !!orderId,
+    refetchOnWindowFocus: false,
   });
 }

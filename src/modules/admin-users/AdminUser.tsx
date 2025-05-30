@@ -122,6 +122,10 @@ export function AdminUser() {
         open={confirmationOpen}
         onClose={() => setConfirmationOpen(false)}
         onConfirm={handleConfirmDelete}
+        title="Confirmar eliminación"
+        content="¿Estás seguro de que deseas eliminar este usuario?"
+        confirmText="Eliminar"
+        cancelText="Cancelar"
       />
     </Stack>
   );

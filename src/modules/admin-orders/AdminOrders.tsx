@@ -4,14 +4,27 @@ import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
 
-import { Chat, Edit, Delete, Warning, SupportAgent } from '@mui/icons-material';
+import {
+  Chat,
+  Edit,
+  Sync,
+  Delete,
+  Cancel,
+  Warning,
+  MoreVert,
+  CheckCircle,
+  SupportAgent,
+} from '@mui/icons-material';
 import {
   Box,
   Chip,
+  Menu,
   Paper,
   Stack,
   Table,
   Tooltip,
+  Divider,
+  MenuItem,
   TableRow,
   useTheme,
   TableBody,
@@ -51,6 +64,7 @@ const firaSans = Fira_Sans({
 });
 
 export function AdminOrders() {
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [orderBy, setOrderBy] = useState<keyof Order | ''>('');
   const [orderDirection, setOrderDirection] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(1);
@@ -59,6 +73,8 @@ export function AdminOrders() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [openChat, setOpenChat] = useState(false);
+  const [pendingStatusId, setPendingStatusId] = useState<number | null>(null);
+  const [isStatusChangeConfirmOpen, setIsStatusChangeConfirmOpen] = useState(false);
   const [filters, setFilters] = useState<OrderFilters>({
     cliente: undefined,
     status: undefined,
@@ -67,6 +83,8 @@ export function AdminOrders() {
     searchTerm: undefined,
   });
 
+  const open = Boolean(anchorEl);
+
   const debouncedSearchTerm = useDebouncedValue(filters.searchTerm, 1000);
 
   const debouncedFilters = useMemo(
@@ -74,10 +92,8 @@ export function AdminOrders() {
     [filters, debouncedSearchTerm]
   );
 
-  const { data, isLoading, isFetching, hasActiveFilters, error, deleteMutation } = useOrders(
-    page,
-    debouncedFilters
-  );
+  const { data, isLoading, isFetching, hasActiveFilters, error, deleteMutation, updateMutation } =
+    useOrders(page, debouncedFilters);
 
   const theme = useTheme();
 
@@ -95,6 +111,7 @@ export function AdminOrders() {
   const handleEdit = (order: Order) => {
     setSelectedOrder(order);
     setEditModalOpen(true);
+    handleCloseMenu();
   };
 
   const handleCloseEditModal = () => {
@@ -105,6 +122,31 @@ export function AdminOrders() {
   const handleDelete = (orderId: number) => {
     setSelectedOrderId(orderId);
     setConfirmationOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleChangeStatus = (statusId: number) => {
+    setPendingStatusId(statusId);
+    setIsStatusChangeConfirmOpen(true);
+    handleCloseMenu();
+  };
+
+  const handleConfirmChangeStatus = () => {
+    if (!selectedOrder || pendingStatusId === null) return;
+
+    updateMutation.mutate({
+      orderId: selectedOrder.id,
+      updatedOrder: {
+        cliente: selectedOrder.cliente.id,
+        agentes: selectedOrder.agentes.map((a) => a.id),
+        titulo: selectedOrder.titulo,
+        prioridad: selectedOrder.prioridad,
+        estado: pendingStatusId,
+      },
+    });
+
+    setIsStatusChangeConfirmOpen(false);
+    setPendingStatusId(null);
   };
 
   const handleConfirmDelete = () => {
@@ -125,6 +167,11 @@ export function AdminOrders() {
   const handleOpenChat = (order: Order) => {
     setSelectedOrder(order);
     setOpenChat(true);
+    handleCloseMenu();
+  };
+
+  const handleCloseMenu = () => {
+    setAnchorEl(null);
   };
 
   const showLoading = isLoading || isFetching;
@@ -329,19 +376,63 @@ export function AdminOrders() {
                     </TableCell>
                     <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>
                     <TableCell>
-                      <IconButton onClick={() => handleOpenChat(order)} color="info" size="small">
-                        <Chat />
-                      </IconButton>
                       <IconButton
-                        onClick={() => handleEdit(order)}
-                        color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
+                        onClick={(e) => {
+                          setAnchorEl(e.currentTarget);
+                          setSelectedOrder(order);
+                        }}
                         size="small"
                       >
-                        <Edit />
+                        <MoreVert />
                       </IconButton>
-                      <IconButton onClick={() => handleDelete(order.id)} color="error" size="small">
-                        <Delete />
-                      </IconButton>
+
+                      <Menu
+                        id="long-menu"
+                        anchorEl={anchorEl}
+                        open={open}
+                        onClose={handleCloseMenu}
+                        slotProps={{
+                          paper: {
+                            style: {
+                              width: '17ch',
+                              boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.05)',
+                            },
+                          },
+                        }}
+                      >
+                        {(selectedOrder?.estado === 3 || selectedOrder?.estado === 2) && (
+                          <MenuItem onClick={() => handleChangeStatus(1)}>
+                            <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Re abrir
+                          </MenuItem>
+                        )}
+
+                        {selectedOrder?.estado === 1 && (
+                          <>
+                            <MenuItem onClick={() => handleChangeStatus(2)}>
+                              <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} />{' '}
+                              Finalizar
+                            </MenuItem>
+
+                            <MenuItem onClick={() => handleChangeStatus(3)}>
+                              <Cancel fontSize="small" color="error" sx={{ mr: 1 }} /> Cancelar
+                            </MenuItem>
+                          </>
+                        )}
+
+                        <Divider />
+
+                        <MenuItem onClick={() => handleOpenChat(order)}>
+                          <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
+                        </MenuItem>
+
+                        <MenuItem onClick={() => handleEdit(order)}>
+                          <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
+                        </MenuItem>
+
+                        <MenuItem onClick={() => handleDelete(order.id)}>
+                          <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
+                        </MenuItem>
+                      </Menu>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -391,6 +482,20 @@ export function AdminOrders() {
         open={confirmationOpen}
         onClose={() => setConfirmationOpen(false)}
         onConfirm={handleConfirmDelete}
+        title="¿Estás seguro que deseas eliminar esta tarea?"
+        content="Esta acción eliminará la tarea seleccionada. ¿Deseas continuar?"
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
+
+      <ConfirmationModal
+        open={isStatusChangeConfirmOpen}
+        onClose={() => setIsStatusChangeConfirmOpen(false)}
+        onConfirm={handleConfirmChangeStatus}
+        title="¿Estás seguro que deseas cambiar el estado?"
+        content="Esta acción actualizará el estado de la tarea seleccionada. ¿Deseas continuar?"
+        confirmText="Sí, cambiar estado"
+        cancelText="Cancelar"
       />
 
       <CreateButton type="order" />

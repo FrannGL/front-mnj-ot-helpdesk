@@ -11,21 +11,33 @@ interface ConfirmationModalProps {
   open: boolean;
   onClose: () => void;
   onConfirm: () => void;
+  title: string;
+  content: string;
+  confirmText: string;
+  cancelText: string;
 }
 
-export function ConfirmationModal({ open, onClose, onConfirm }: ConfirmationModalProps) {
+export function ConfirmationModal({
+  open,
+  onClose,
+  onConfirm,
+  cancelText,
+  confirmText,
+  content,
+  title,
+}: ConfirmationModalProps) {
   return (
-    <Dialog open={open} onClose={onClose}>
-      <DialogTitle>Confirmar Eliminación</DialogTitle>
+    <Dialog open={open} onClose={onClose} maxWidth="xs">
+      <DialogTitle> {title} </DialogTitle>
       <DialogContent>
-        <DialogContentText>¿Estás seguro de que deseas eliminar este recurso?</DialogContentText>
+        <DialogContentText> {content} </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} sx={{ color: 'primary.light' }}>
-          Cancelar
+        <Button onClick={onClose} color="error">
+          {cancelText}
         </Button>
-        <Button onClick={onConfirm} color="error" autoFocus>
-          Aceptar
+        <Button onClick={onConfirm} sx={{ color: 'primary.light' }} autoFocus>
+          {confirmText}
         </Button>
       </DialogActions>
     </Dialog>

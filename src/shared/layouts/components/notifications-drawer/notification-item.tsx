@@ -24,7 +24,12 @@ export type NotificationItemProps = {
   createdAt: string | number | null;
 };
 
-export function NotificationItem({ notification }: { notification: NotificationItemProps }) {
+type Props = {
+  notification: NotificationItemProps;
+  onMarkRead?: () => void;
+};
+
+export function NotificationItem({ notification, onMarkRead }: Props) {
   const renderAvatar = (
     <ListItemAvatar>
       {notification.avatarUrl ? (
@@ -38,14 +43,14 @@ export function NotificationItem({ notification }: { notification: NotificationI
           <Box
             component="img"
             src={`${CONFIG.site.basePath}/assets/icons/notification/${
-              (notification.type === 'order' && 'ic-order') ||
+              (notification.type.includes('orden') && 'ic-order') ||
               (notification.type === 'chat' && 'ic-chat') ||
               (notification.type === 'mail' && 'ic-mail') ||
               (notification.type === 'delivery' && 'ic-delivery') ||
-              (notification.type === 'mensaje_new' && 'ic-user') ||
-              'ic-notification'
+              (notification.type === 'mensaje_new' && 'ic-chat') ||
+              'ic-chat'
             }.svg`}
-            sx={{ width: 24, height: 24 }}
+            sx={{ width: 28, height: 28 }}
           />
         </Stack>
       )}
@@ -205,6 +210,7 @@ export function NotificationItem({ notification }: { notification: NotificationI
   return (
     <ListItemButton
       disableRipple
+      onClick={onMarkRead}
       sx={{
         p: 2.5,
         alignItems: 'flex-start',

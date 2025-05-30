@@ -39,6 +39,7 @@ export function useOrders(
     staleTime: 1000 * 60 * 5,
     retry: 3,
     retryDelay: 2000,
+    refetchOnWindowFocus: false,
   });
 
   const hasActiveFilters = Object.values(filters).some((value) => value != null && value !== '');
