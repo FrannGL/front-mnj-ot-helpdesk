@@ -1,8 +1,7 @@
 import { useRef, useEffect, useCallback } from 'react';
 
 import { CONFIG } from 'src/config';
-
-import { buildWebSocketUrl } from '../utils';
+import { buildWebSocketUrl } from 'src/shared/utils/buildWebsocketUrl';
 
 import type { Message } from '../interfaces';
 
@@ -75,5 +74,9 @@ export function useOrderSocket(
     }
   }, []);
 
-  return { socketRef, sendSocketMessage };
+  const sendNotification = useCallback(() => {
+    sendSocketMessage({ type: 'mensaje_new' });
+  }, [sendSocketMessage]);
+
+  return { socketRef, sendSocketMessage, sendNotification };
 }

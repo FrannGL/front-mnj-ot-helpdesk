@@ -16,12 +16,14 @@ import { HeaderSection } from './header-section';
 import { MenuButton } from '../components/menu-button';
 import { SignInButton } from '../components/sign-in-button';
 import { AccountDrawer } from '../components/account-drawer';
+import { NotificationsDrawer } from '../components/notifications-drawer';
 
 import type { HeaderSectionProps } from './header-section';
 import type { AccountDrawerProps } from '../components/account-drawer';
 import type { ContactsPopoverProps } from '../components/contacts-popover';
 import type { LanguagePopoverProps } from '../components/language-popover';
 import type { WorkspacesPopoverProps } from '../components/workspaces-popover';
+import type { NotificationsDrawerProps } from '../components/notifications-drawer';
 
 // ----------------------------------------------------------------------
 
@@ -60,7 +62,7 @@ export type HeaderBaseProps = HeaderSectionProps & {
     langs?: LanguagePopoverProps['data'];
     contacts?: ContactsPopoverProps['data'];
     workspaces?: WorkspacesPopoverProps['data'];
-    // notifications?: NotificationsDrawerProps['data'];
+    notifications?: NotificationsDrawerProps['data'];
   };
   slots?: {
     navMobile?: {
@@ -145,19 +147,9 @@ export function HeaderBase({
             {/* -- Logo -- */}
             {pathname.includes('sign-in') &&
               (theme.palette.mode === 'dark' ? (
-                <Image
-                  src="/logo/logo-white.png"
-                  alt="Logo"
-                  width={180}
-                  height={40}
-                />
+                <Image src="/logo/logo-white.png" alt="Logo" width={180} height={40} />
               ) : (
-                <Image
-                  src="/logo/logo-dark.png"
-                  alt="Logo"
-                  width={180}
-                  height={40}
-                />
+                <Image src="/logo/logo-dark.png" alt="Logo" width={180} height={40} />
               ))}
             {/* -- Divider -- */}
             <StyledDivider data-slot="divider" />
@@ -192,9 +184,9 @@ export function HeaderBase({
               )} */}
 
               {/* -- Notifications popover -- */}
-              {/* {notifications && (
+              {notifications && (
                 <NotificationsDrawer data-slot="notifications" data={data?.notifications} />
-              )} */}
+              )}
 
               {/* -- Contacts popover -- */}
               {/* {contacts && <ContactsPopover data-slot="contacts" data={data?.contacts} />} */}

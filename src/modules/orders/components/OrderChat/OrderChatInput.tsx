@@ -73,7 +73,7 @@ export function OrderChatInput({ orderId }: Props) {
     [orderId, queryClient]
   );
 
-  const { sendSocketMessage } = useOrderSocket(orderId, handleNewMessage);
+  const { sendSocketMessage, sendNotification } = useOrderSocket(orderId, handleNewMessage);
 
   const handleAttachClick = () => {
     fileInputRef.current?.click();
@@ -104,6 +104,7 @@ export function OrderChatInput({ orderId }: Props) {
       },
       {
         onSuccess: () => {
+          sendNotification();
           setMensaje('');
           clearFile();
         },

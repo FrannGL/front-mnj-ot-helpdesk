@@ -37,7 +37,14 @@ export function NotificationItem({ notification }: { notification: NotificationI
         >
           <Box
             component="img"
-            src={`${CONFIG.site.basePath}/assets/icons/notification/${(notification.type === 'order' && 'ic-order') || (notification.type === 'chat' && 'ic-chat') || (notification.type === 'mail' && 'ic-mail') || (notification.type === 'delivery' && 'ic-delivery')}.svg`}
+            src={`${CONFIG.site.basePath}/assets/icons/notification/${
+              (notification.type === 'order' && 'ic-order') ||
+              (notification.type === 'chat' && 'ic-chat') ||
+              (notification.type === 'mail' && 'ic-mail') ||
+              (notification.type === 'delivery' && 'ic-delivery') ||
+              (notification.type === 'mensaje_new' && 'ic-user') ||
+              'ic-notification'
+            }.svg`}
             sx={{ width: 24, height: 24 }}
           />
         </Stack>
