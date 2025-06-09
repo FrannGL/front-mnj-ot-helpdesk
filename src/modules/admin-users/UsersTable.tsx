@@ -72,8 +72,8 @@ export function UsersTable({
                     {user.groups.length ? (
                       user.groups.map((group) => (
                         <Chip
-                          key={group}
-                          label={group}
+                          key={group.id}
+                          label={group.name} 
                           size="small"
                           variant="soft"
                           color="primary"

@@ -81,6 +81,7 @@ export function AdminOrders() {
     priority: undefined,
     assignedTo: undefined,
     searchTerm: undefined,
+    tags: undefined,
   });
 
   const open = Boolean(anchorEl);
@@ -288,6 +289,13 @@ export function AdminOrders() {
                     onSort={handleSort}
                   />
                   <SortableTableCell
+                    column="tags"
+                    label="Categorías"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={handleSort}
+                  />
+                  <SortableTableCell
                     column="created_at"
                     label="Fecha de Creación"
                     orderBy={orderBy}
@@ -372,6 +380,25 @@ export function AdminOrders() {
                           icon={<Warning />}
                           variant="outlined"
                         />
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {order.tags && order.tags.length > 0 ? (
+                        <Stack direction="row" spacing={0.5} flexWrap="wrap">
+                          {order.tags.map((tag, idx) => (
+                            <Chip
+                              variant="soft"
+                              color="secondary"
+                              key={idx}
+                              label={tag.tag}
+                              size="small"
+                            />
+                          ))}
+                        </Stack>
+                      ) : (
+                        <Typography variant="body2" color="text.secondary">
+                          Sin Categorias
+                        </Typography>
                       )}
                     </TableCell>
                     <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>

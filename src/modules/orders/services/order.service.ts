@@ -12,14 +12,16 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
     }
   });
 
-  const url = `ordenes${searchParams.toString() ? `?${searchParams}` : ''}`;
+  searchParams.set('order_by', '-created_at');
+
+  const url = `ordenes?${searchParams}`;
   const response = await request(url, 'GET');
 
   if (response.error || response.status >= 400)
     throw new Error(response.error || `Error ${response.status}`);
+
   return response.data;
 }
-
 export async function createOrder(newOrder: CreateOrderType): Promise<Order> {
   const response = await request('ordenes', 'POST', newOrder);
   if (response.error) throw new Error(response.error);

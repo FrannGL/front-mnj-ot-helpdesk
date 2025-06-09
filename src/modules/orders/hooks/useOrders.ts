@@ -19,6 +19,7 @@ export function useOrders(
     priority: undefined,
     assignedTo: undefined,
     searchTerm: undefined,
+    tags: undefined,
   }
 ) {
   const queryClient = useQueryClient();
@@ -30,6 +31,7 @@ export function useOrders(
     prioridad: filters.priority,
     agente: filters.assignedTo,
     titulo_contains: filters.searchTerm,
+    tags: filters.tags,
   };
 
   const { data, isLoading, isFetching, error } = useQuery({

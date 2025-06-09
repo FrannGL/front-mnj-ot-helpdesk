@@ -17,6 +17,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 import {
+  Tag,
   Info,
   Clear,
   Person as AssigneeIcon,
@@ -24,6 +25,7 @@ import {
   PriorityHigh as PriorityIcon,
 } from '@mui/icons-material';
 
+import { useTags } from 'src/modules/tags/hooks/useTags';
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 import { statusColorMap } from '../utils';
@@ -40,16 +42,19 @@ type OrdersFilterProps = {
 
 export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: OrdersFilterProps) {
   const { data: users } = useUsers();
+  const { data: availableTags } = useTags();
 
   const {
     anchorStatus,
     anchorPriority,
     anchorAssignedTo,
     anchorClient,
+    anchorTags,
     setAnchorStatus,
     setAnchorPriority,
     setAnchorAssignedTo,
     setAnchorClient,
+    setAnchorTags,
     getStatusButtonText,
     getPriorityButtonText,
   } = useFilterHandlers();
@@ -61,6 +66,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
       priority: undefined,
       assignedTo: undefined,
       searchTerm: '',
+      tags: undefined,
     });
   };
 
@@ -223,6 +229,57 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
                 }}
               >
                 {agent.username}
+              </MenuItem>
+            ))}
+          </Menu>
+        </div>
+
+        <div>
+          <Button
+            onClick={(e) => setAnchorTags(e.currentTarget)}
+            variant="soft"
+            color={filters.tags?.length ? 'secondary' : 'inherit'}
+            startIcon={<Tag fontSize="small" />}
+          >
+            {filters.tags?.length
+              ? availableTags
+                  ?.filter((tag) => filters.tags?.includes(tag.id))
+                  .map((tag) => tag.nombre)
+                  .join(', ') || 'Tags seleccionados'
+              : 'Tags'}
+          </Button>
+          <Menu
+            anchorEl={anchorTags}
+            open={Boolean(anchorTags)}
+            onClose={() => setAnchorTags(null)}
+            PaperProps={{ style: { maxHeight: 300, width: 250 } }}
+          >
+            <MenuItem
+              onClick={() => {
+                onFiltersChange({ ...filters, tags: undefined });
+                setAnchorTags(null);
+              }}
+              selected={!filters.tags?.length}
+            >
+              Todos los tags
+            </MenuItem>
+            {availableTags?.map((tag) => (
+              <MenuItem
+                key={tag.id}
+                selected={filters.tags?.includes(tag.id)}
+                onClick={() => {
+                  const currentTags = filters.tags || [];
+                  const newTags = currentTags.includes(tag.id)
+                    ? currentTags.filter((t) => t !== tag.id)
+                    : [...currentTags, tag.id];
+
+                  onFiltersChange({
+                    ...filters,
+                    tags: newTags.length ? newTags : undefined,
+                  });
+                }}
+              >
+                {tag.nombre}
               </MenuItem>
             ))}
           </Menu>

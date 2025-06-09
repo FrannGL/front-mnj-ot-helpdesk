@@ -6,4 +6,5 @@ export interface OrderFilters {
   priority: OrderPriorityEnum | undefined;
   assignedTo: number | undefined;
   searchTerm: string | undefined;
+  tags: number[] | undefined;
 }

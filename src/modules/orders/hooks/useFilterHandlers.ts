@@ -11,6 +11,7 @@ export const useFilterHandlers = (initialFilters?: Partial<OrderFilters>) => {
   const [anchorPriority, setAnchorPriority] = useState<HTMLElement | null>(null);
   const [anchorAssignedTo, setAnchorAssignedTo] = useState<HTMLElement | null>(null);
   const [anchorClient, setAnchorClient] = useState<HTMLElement | null>(null);
+  const [anchorTags, setAnchorTags] = useState<HTMLElement | null>(null);
 
   const getStatusButtonText = (status: number | null) =>
     status !== null
@@ -23,16 +24,24 @@ export const useFilterHandlers = (initialFilters?: Partial<OrderFilters>) => {
         'Prioridad'
       : 'Prioridad';
 
+  const getTagsButtonText = (tags: number[] | undefined) => {
+    if (!tags || tags.length === 0) return 'Tags';
+    return `${tags.length} tag${tags.length > 1 ? 's' : ''} seleccionado${tags.length > 1 ? 's' : ''}`;
+  };
+
   return {
     anchorStatus,
     anchorPriority,
     anchorAssignedTo,
     anchorClient,
+    anchorTags,
     setAnchorStatus,
     setAnchorPriority,
     setAnchorAssignedTo,
     setAnchorClient,
+    setAnchorTags,
     getStatusButtonText,
     getPriorityButtonText,
+    getTagsButtonText,
   };
 };

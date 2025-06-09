@@ -26,6 +26,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 
+import { useTags } from 'src/modules/tags/hooks/useTags';
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
@@ -43,6 +44,8 @@ interface OrderFormProps {
 
 export function OrderForm({ open, onClose, defaultValues, type, orderId }: OrderFormProps) {
   const { data: users } = useUsers();
+  const { data: tagsData } = useTags();
+
   const { createMutation, updateMutation } = useOrders();
 
   const theme = useTheme();
@@ -62,6 +65,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
       titulo: '',
       estado: OrderStatusEnum.ABIERTO,
       prioridad: OrderPriorityEnum.MEDIA,
+      tags: [],
       ...defaultValues,
     },
   });
@@ -108,7 +112,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={isMobileScreen ? 12 : 6}>
+            <Grid item xs={isMobileScreen ? 12 : 4}>
               <Controller
                 name="cliente"
                 control={control}
@@ -148,6 +152,78 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                           }}
                         />
                       )}
+                    />
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={isMobileScreen ? 12 : 3}>
+              <Controller
+                name="prioridad"
+                control={control}
+                render={({ field }) => (
+                  <FormControl error={!!errors.prioridad} fullWidth>
+                    <InputLabel>Prioridad</InputLabel>
+                    <Select
+                      {...field}
+                      label="Prioridad"
+                      placeholder="Seleccione una prioridad"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <PriorityHigh />
+                        </InputAdornment>
+                      }
+                    >
+                      {Object.entries(OrderPriorityEnum)
+                        .filter(([key]) => Number.isNaN(Number(key)))
+                        .map(([key, value]) => (
+                          <MenuItem key={value} value={value}>
+                            {key}
+                          </MenuItem>
+                        ))}
+                    </Select>
+                    {errors.prioridad && (
+                      <FormHelperText>{errors.prioridad.message}</FormHelperText>
+                    )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={isMobileScreen ? 12 : 5}>
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <FormControl error={!!errors.tags} fullWidth>
+                    <Autocomplete
+                      {...field}
+                      multiple
+                      disableCloseOnSelect
+                      options={tagsData || []}
+                      getOptionLabel={(option) => option?.nombre || ''}
+                      value={field.value?.map((id) => tagsData?.find((tag) => tag.id === id)) || []}
+                      onChange={(_, newValue) => {
+                        field.onChange(newValue.map((tag) => tag?.id));
+                      }}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Tags"
+                          error={!!errors.tags}
+                          helperText={errors.tags?.message}
+                        />
+                      )}
+                      renderTags={(tagValue, getTagProps) =>
+                        tagValue.map((option, index) => (
+                          <Chip
+                            label={option?.nombre}
+                            {...getTagProps({ index })}
+                            onMouseDown={(event) => event.stopPropagation()}
+                          />
+                        ))
+                      }
                     />
                   </FormControl>
                 )}
@@ -239,39 +315,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                         ))}
                     </Select>
                     {errors.estado && <FormHelperText>{errors.estado.message}</FormHelperText>}
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={isMobileScreen ? 12 : 6}>
-              <Controller
-                name="prioridad"
-                control={control}
-                render={({ field }) => (
-                  <FormControl error={!!errors.prioridad} fullWidth>
-                    <InputLabel>Prioridad</InputLabel>
-                    <Select
-                      {...field}
-                      label="Prioridad"
-                      placeholder="Seleccione una prioridad"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <PriorityHigh />
-                        </InputAdornment>
-                      }
-                    >
-                      {Object.entries(OrderPriorityEnum)
-                        .filter(([key]) => Number.isNaN(Number(key)))
-                        .map(([key, value]) => (
-                          <MenuItem key={value} value={value}>
-                            {key}
-                          </MenuItem>
-                        ))}
-                    </Select>
-                    {errors.prioridad && (
-                      <FormHelperText>{errors.prioridad.message}</FormHelperText>
-                    )}
                   </FormControl>
                 )}
               />

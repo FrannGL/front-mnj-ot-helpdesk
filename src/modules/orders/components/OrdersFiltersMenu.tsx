@@ -92,6 +92,7 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
       priority: undefined,
       assignedTo: undefined,
       searchTerm: undefined,
+      tags: undefined,
     };
     setTempFilters(clearedFilters);
     onFiltersChange(clearedFilters);

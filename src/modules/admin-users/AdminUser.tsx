@@ -57,7 +57,8 @@ export function AdminUser() {
     if (!data?.results) return [];
 
     return data.results.filter((user) => {
-      const matchesGroup = !filters.group || user.groups.includes(filters.group);
+      const matchesGroup =
+        !filters.group || user.groups.some((group) => group.id === filters.group);
       const matchesSearch =
         !filters.searchTerm ||
         user.username.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -114,7 +115,7 @@ export function AdminUser() {
         defaultValues={{
           username: selectedUser?.username,
           email: selectedUser?.email,
-          groups: selectedUser?.groups,
+          groups: selectedUser?.groups?.map((group) => group.id),
         }}
       />
 

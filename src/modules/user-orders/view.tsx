@@ -30,6 +30,7 @@ export function OrdersView() {
     priority: undefined,
     assignedTo: undefined,
     searchTerm: undefined,
+    tags: undefined,
   });
 
   const debouncedSearchTerm = useDebouncedValue(filters.searchTerm, 1000);

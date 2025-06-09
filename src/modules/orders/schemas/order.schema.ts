@@ -20,6 +20,7 @@ export const createOrderSchema = z.object({
   prioridad: z.nativeEnum(OrderPriorityEnum, {
     required_error: 'La prioridad es requerida',
   }),
+  tags: z.array(z.number()).optional(),
   archivo: z
     .any()
     .refine(
