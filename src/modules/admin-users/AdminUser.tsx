@@ -12,12 +12,14 @@ import { ConfirmationModal } from 'src/shared/components/custom/ConfirmationModa
 import { Filters } from './Filters';
 import { UsersTable } from './UsersTable';
 import { UserModal } from '../users/components/UserModal';
+import { useUsersMutations } from '../users/hooks/useUsersMutations';
 
 import type { User } from '../users/interfaces';
 import type { UserGroups } from '../users/enums';
 
 export function AdminUser() {
-  const { data, isLoading, deleteMutation } = useUsers();
+  const { data, isLoading } = useUsers();
+  const { deleteMutation } = useUsersMutations();
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);

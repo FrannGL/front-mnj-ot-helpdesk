@@ -7,8 +7,8 @@ import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } f
 
 import { CreateButton } from 'src/shared/components/custom/CreateButton';
 
-import { AdminOrders } from '../admin-orders/AdminOrders';
 import { useOrders, useDebouncedValue } from '../orders/hooks';
+import { AdminOrders } from '../admin-orders/components/AdminOrders';
 import { OrderChat, OrdersList, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
 
 import type { OrderFilters } from '../orders/types';

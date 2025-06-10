@@ -20,9 +20,9 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
+import { useUsersMutations } from '../hooks/useUsersMutations';
 import { createUserSchema, type CreateUserType } from '../schemas/user.schema';
 
 interface Props {
@@ -35,7 +35,7 @@ interface Props {
 }
 
 export function UserModal({ open, onClose, defaultValues, type, userId, disabled }: Props) {
-  const { updateMutation, createMutation } = useUsers();
+  const { updateMutation, createMutation } = useUsersMutations();
 
   const {
     control,
