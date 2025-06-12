@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
 
-import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
+import { Box, Stack, Typography, Pagination, useMediaQuery } from '@mui/material';
 
 import { CreateButton } from 'src/shared/components/custom/CreateButton';
 
@@ -40,7 +40,7 @@ export function OrdersView() {
     [filters, debouncedSearchTerm]
   );
 
-  const { data, isLoading, isFetching, error } = useOrders(page, debouncedFilters);
+  const { data, error } = useOrders(page, debouncedFilters);
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 
@@ -75,16 +75,6 @@ export function OrdersView() {
 
     return page;
   }, [data, page]);
-
-  const showLoading = isLoading || isFetching;
-
-  if (showLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   if (!data?.results.length) {
     return (

@@ -44,28 +44,12 @@ export function AdminOrders() {
     handleCloseEditModal,
     handleConfirmDelete,
     handleConfirmChangeStatus,
+    handleAssignAgents,
     setConfirmationOpen,
     setIsStatusChangeConfirmOpen,
     setOpenChat,
     setSelectedOrder,
   } = useAdminOrders();
-
-  if (showLoading) {
-    return (
-      <Stack sx={{ px: 3 }} spacing={1}>
-        <Typography
-          variant="h4"
-          sx={{ fontFamily: `${firaSans.style.fontFamily} !important`, lineHeight: 1.3, pl: 1 }}
-          gutterBottom
-        >
-          Administrar Tareas
-        </Typography>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-          <CircularProgress />
-        </Box>
-      </Stack>
-    );
-  }
 
   if (error) {
     return (
@@ -139,23 +123,19 @@ export function AdminOrders() {
         orders={orders}
         orderBy={orderBy}
         orderDirection={orderDirection}
+        selectedOrder={selectedOrder}
+        setSelectedOrder={setSelectedOrder}
+        loading={showLoading}
         onSort={handleSort}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onOpenChat={handleOpenChat}
         onChangeStatus={handleChangeStatus}
+        onAssignAgents={handleAssignAgents}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
       />
-
-      <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 3 }}>
-        <Pagination
-          count={totalPages}
-          page={page}
-          onChange={handlePageChange}
-          color="primary"
-          showFirstButton
-          showLastButton
-        />
-      </Box>
 
       <OrderForm
         open={editModalOpen}
@@ -164,10 +144,10 @@ export function AdminOrders() {
         orderId={selectedOrder?.id ?? 0}
         defaultValues={{
           cliente: selectedOrder?.cliente.id,
-          agentes: selectedOrder?.agentes.map((agent) => agent.id) ?? [],
           titulo: selectedOrder?.titulo,
           estado: selectedOrder?.estado,
           prioridad: selectedOrder?.prioridad,
+          tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
         }}
       />
 

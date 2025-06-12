@@ -23,6 +23,7 @@ import {
   Person as AssigneeIcon,
   Assignment as StatusIcon,
   PriorityHigh as PriorityIcon,
+  SupportAgent,
 } from '@mui/icons-material';
 
 import { useTags } from 'src/modules/tags/hooks/useTags';
@@ -290,7 +291,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
             onClick={(e) => setAnchorAssignedTo(e.currentTarget)}
             variant="soft"
             color={filters.assignedTo !== undefined ? 'secondary' : 'inherit'}
-            startIcon={<AssigneeIcon fontSize="small" />}
+            startIcon={<SupportAgent fontSize="small" />}
           >
             {users?.results.find((agent: User) => agent.id === filters.assignedTo)?.username ||
               'Asignado a'}

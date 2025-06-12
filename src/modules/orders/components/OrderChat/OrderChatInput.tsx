@@ -189,12 +189,12 @@ export function OrderChatInput({ orderId }: Props) {
           <Send />
         </IconButton>
 
-        <IconButton
+        {/* <IconButton
           color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
           onClick={() => console.log('IA clicked')}
         >
           <AutoAwesome />
-        </IconButton>
+        </IconButton> */}
       </Box>
     </DialogActions>
   );

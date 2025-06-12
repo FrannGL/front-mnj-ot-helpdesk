@@ -7,6 +7,7 @@ import {
   Chat,
   Edit,
   Sync,
+  Group,
   Delete,
   Cancel,
   Warning,
@@ -15,6 +16,7 @@ import {
   SupportAgent,
 } from '@mui/icons-material';
 import {
+  Box,
   Chip,
   Menu,
   Paper,
@@ -30,7 +32,9 @@ import {
   TableHead,
   IconButton,
   Typography,
+  Pagination,
   TableContainer,
+  CircularProgress,
 } from '@mui/material';
 
 import { fDate } from 'src/shared/utils/format-time';
@@ -42,16 +46,24 @@ import {
 } from 'src/modules/orders/utils';
 
 import { SortableTableCell } from './SortedTableCell';
+import { AssignAgentsDialog } from '../AssignAgentsDialog';
 
 interface OrdersTableProps {
   orders: Order[];
   orderBy: keyof Order | '';
   orderDirection: 'asc' | 'desc';
+  selectedOrder: Order | null;
+  setSelectedOrder: (order: Order | null) => void;
   onSort: (column: keyof Order) => void;
   onEdit: (order: Order) => void;
   onDelete: (orderId: number) => void;
   onOpenChat: (order: Order) => void;
   onChangeStatus: (statusId: number) => void;
+  onAssignAgents: (orderId: number, agentes: number[]) => void;
+  loading: boolean;
+  page: number;
+  totalPages: number;
+  onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
 }
 
 export function OrdersTable({
@@ -63,21 +75,42 @@ export function OrdersTable({
   onDelete,
   onOpenChat,
   onChangeStatus,
+  onAssignAgents,
+  selectedOrder,
+  setSelectedOrder,
+  loading,
+  page,
+  totalPages,
+  onPageChange,
 }: OrdersTableProps) {
   const [anchorActionsEl, setAnchorActionsEl] = useState<HTMLElement | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [assignAgentsModalOpen, setAssignAgentsModalOpen] = useState(false);
+
+  console.log(selectedOrder);
 
   const theme = useTheme();
   const open = Boolean(anchorActionsEl);
 
-  const handleCloseActionsMenu = () => {
-    setAnchorActionsEl(null);
-    setSelectedOrder(null);
+  const handleOpenActionsMenu = (event: React.MouseEvent<HTMLElement>, order: Order) => {
+    setAnchorActionsEl(event.currentTarget);
+    setSelectedOrder(order);
   };
 
-  const handleOpenActionsMenu = (action: () => void) => {
+  const handleCloseActionsMenu = () => {
+    setAnchorActionsEl(null);
+  };
+
+  const handleAction = (action: () => void) => {
     action();
     handleCloseActionsMenu();
+  };
+
+  const handleAssignAgents = (values: { agentes: number[] }) => {
+    if (selectedOrder) {
+      console.log(values);
+      onAssignAgents(selectedOrder.id, values.agentes);
+      setAssignAgentsModalOpen(false);
+    }
   };
 
   const sortedOrders = useMemo(() => {
@@ -110,9 +143,23 @@ export function OrdersTable({
   const renderStatusMenu = (order: Order) => {
     const menuItems = [];
 
+    if (order.agentes.length === 0) {
+      menuItems.push(
+        <MenuItem
+          key="assign-agents"
+          onClick={() => {
+            setAssignAgentsModalOpen(true);
+            handleCloseActionsMenu();
+          }}
+        >
+          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} /> Asignar Agentes
+        </MenuItem>
+      );
+    }
+
     if (order.estado === 3 || order.estado === 2) {
       menuItems.push(
-        <MenuItem key="reopen" onClick={() => handleOpenActionsMenu(() => onChangeStatus(1))}>
+        <MenuItem key="reopen" onClick={() => handleAction(() => onChangeStatus(1))}>
           <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Re abrir
         </MenuItem>
       );
@@ -120,10 +167,10 @@ export function OrdersTable({
 
     if (order.estado === 1) {
       menuItems.push(
-        <MenuItem key="complete" onClick={() => handleOpenActionsMenu(() => onChangeStatus(2))}>
+        <MenuItem key="complete" onClick={() => handleAction(() => onChangeStatus(2))}>
           <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} /> Finalizar
         </MenuItem>,
-        <MenuItem key="cancel" onClick={() => handleOpenActionsMenu(() => onChangeStatus(3))}>
+        <MenuItem key="cancel" onClick={() => handleAction(() => onChangeStatus(3))}>
           <Cancel fontSize="small" color="error" sx={{ mr: 1 }} /> Cancelar
         </MenuItem>
       );
@@ -181,134 +228,147 @@ export function OrdersTable({
 
   return (
     <>
-      <TableContainer component={Paper}>
-        <Table size="small">
-          <TableHead>
-            <TableRow>
-              <SortableTableCell
-                column="titulo"
-                label="Título"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="cliente"
-                label="Cliente"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="estado"
-                label="Estado"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="prioridad"
-                label="Prioridad"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="agentes"
-                label="Agentes Asignados"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="tags"
-                label="Categorías"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <SortableTableCell
-                column="created_at"
-                label="Fecha de Creación"
-                orderBy={orderBy}
-                orderDirection={orderDirection}
-                onSort={onSort}
-              />
-              <TableCell>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {sortedOrders.map((order) => (
-              <TableRow
-                key={order.id}
-                sx={{
-                  '&:hover': {
-                    bgcolor: theme.palette.action.hover,
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s ease',
-                  },
-                }}
-              >
-                <TableCell
-                  onClick={() => onOpenChat(order)}
-                  sx={{
-                    maxWidth: 250,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                    '& .title-text': {
-                      textDecoration: 'none',
-                      transition: 'text-decoration 0.2s ease',
-                    },
-                    '&:hover .title-text': {
-                      textDecoration: 'underline',
-                    },
-                  }}
-                >
-                  <Tooltip title={order.titulo} arrow placement="top">
-                    <Typography noWrap component="span" className="title-text">
-                      {order.titulo}
-                    </Typography>
-                  </Tooltip>
-                </TableCell>
-                <TableCell>{order.cliente.username}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={order.estado_display ?? 'N/A'}
-                    color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
-                    icon={getStatusIcon(order.estado as OrderStatusEnum)}
-                    size="small"
-                    variant="soft"
+      {loading ? (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          <TableContainer component={Paper}>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <SortableTableCell
+                    column="titulo"
+                    label="Título"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
                   />
-                </TableCell>
-                <TableCell>
-                  <Chip
-                    label={order.prioridad_display}
-                    color={priorityChipColorMap[order.prioridad]}
-                    icon={getPriorityIcon(order.prioridad)}
-                    size="small"
-                    variant="soft"
+                  <SortableTableCell
+                    column="cliente"
+                    label="Cliente"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
                   />
-                </TableCell>
-                <TableCell>{renderAgentsCell(order.agentes)}</TableCell>
-                <TableCell>{renderTagsCell(order.tags)}</TableCell>
-                <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>
-                <TableCell>
-                  <IconButton
-                    onClick={(e) => {
-                      setAnchorActionsEl(e.currentTarget);
-                      setSelectedOrder(order);
+                  <SortableTableCell
+                    column="estado"
+                    label="Estado"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
+                  />
+                  <SortableTableCell
+                    column="prioridad"
+                    label="Prioridad"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
+                  />
+                  <SortableTableCell
+                    column="agentes"
+                    label="Agentes Asignados"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
+                  />
+                  <SortableTableCell
+                    column="tags"
+                    label="Categorías"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
+                  />
+                  <SortableTableCell
+                    column="created_at"
+                    label="Fecha de Creación"
+                    orderBy={orderBy}
+                    orderDirection={orderDirection}
+                    onSort={onSort}
+                  />
+                  <TableCell>Acciones</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {sortedOrders.map((order) => (
+                  <TableRow
+                    key={order.id}
+                    sx={{
+                      '&:hover': {
+                        bgcolor: theme.palette.action.hover,
+                        cursor: 'pointer',
+                        transition: 'background-color 0.2s ease',
+                      },
                     }}
-                    size="small"
                   >
-                    <MoreVert />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+                    <TableCell
+                      onClick={() => onOpenChat(order)}
+                      sx={{
+                        maxWidth: 250,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
+                        '& .title-text': {
+                          textDecoration: 'none',
+                          transition: 'text-decoration 0.2s ease',
+                        },
+                        '&:hover .title-text': {
+                          textDecoration: 'underline',
+                        },
+                      }}
+                    >
+                      <Tooltip title={order.titulo} arrow placement="top">
+                        <Typography noWrap component="span" className="title-text">
+                          {order.titulo}
+                        </Typography>
+                      </Tooltip>
+                    </TableCell>
+                    <TableCell>{order.cliente.username}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={order.estado_display ?? 'N/A'}
+                        color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
+                        icon={getStatusIcon(order.estado as OrderStatusEnum)}
+                        size="small"
+                        variant="soft"
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Chip
+                        label={order.prioridad_display}
+                        color={priorityChipColorMap[order.prioridad]}
+                        icon={getPriorityIcon(order.prioridad)}
+                        size="small"
+                        variant="soft"
+                      />
+                    </TableCell>
+                    <TableCell>{renderAgentsCell(order.agentes)}</TableCell>
+                    <TableCell>{renderTagsCell(order.tags)}</TableCell>
+                    <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={(e) => handleOpenActionsMenu(e, order)} size="small">
+                        <MoreVert />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2, mb: 3 }}>
+            <Pagination
+              count={totalPages}
+              page={page}
+              onChange={onPageChange}
+              color="primary"
+              showFirstButton
+              showLastButton
+            />
+          </Box>
+        </>
+      )}
 
       <Menu
         id="order-actions-menu"
@@ -329,18 +389,27 @@ export function OrdersTable({
         {selectedOrder && (
           <>
             <Divider />
-            <MenuItem onClick={() => handleOpenActionsMenu(() => onOpenChat(selectedOrder))}>
+            <MenuItem onClick={() => handleAction(() => onOpenChat(selectedOrder))}>
               <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
             </MenuItem>
-            <MenuItem onClick={() => handleOpenActionsMenu(() => onEdit(selectedOrder))}>
+            <MenuItem onClick={() => handleAction(() => onEdit(selectedOrder))}>
               <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
             </MenuItem>
-            <MenuItem onClick={() => handleOpenActionsMenu(() => onDelete(selectedOrder.id))}>
+            <MenuItem onClick={() => handleAction(() => onDelete(selectedOrder.id))}>
               <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
             </MenuItem>
           </>
         )}
       </Menu>
+
+      <AssignAgentsDialog
+        open={assignAgentsModalOpen}
+        onClose={() => {
+          setAssignAgentsModalOpen(false);
+        }}
+        onSubmit={handleAssignAgents}
+        initialValues={{ agentes: selectedOrder?.agentes?.map((a) => a.id) || [] }}
+      />
     </>
   );
 }

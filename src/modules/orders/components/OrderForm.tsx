@@ -1,27 +1,24 @@
 import { toast } from 'sonner';
 import { useEffect } from 'react';
-import Dropzone from 'react-dropzone';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
-import { Task, Group, PriorityHigh } from '@mui/icons-material';
+import { Tag, Toc, Task, Group, PriorityHigh, SupportAgent } from '@mui/icons-material';
 import {
-  Box,
   Chip,
   Grid,
   Button,
   Dialog,
   Select,
   MenuItem,
-  useTheme,
   TextField,
   InputLabel,
   DialogTitle,
   FormControl,
   Autocomplete,
-  useMediaQuery,
   DialogActions,
   DialogContent,
+  useMediaQuery,
   FormHelperText,
   InputAdornment,
 } from '@mui/material';
@@ -48,8 +45,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
 
   const { createMutation, updateMutation } = useOrders();
 
-  const theme = useTheme();
-
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 
   const {
@@ -61,7 +56,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
       cliente: undefined,
-      agentes: [],
       titulo: '',
       estado: OrderStatusEnum.ABIERTO,
       prioridad: OrderPriorityEnum.MEDIA,
@@ -84,10 +78,11 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
         await createMutation.mutateAsync(data);
         toast.success('Orden creada exitosamente.');
       }
-      handleClose();
     } catch (error) {
       console.error('Error:', error);
       toast.error('Ocurrió un error al guardar la orden.');
+    } finally {
+      handleClose();
     }
   };
 
@@ -95,7 +90,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
     if (open && type === 'edit') {
       reset({
         cliente: 1,
-        agentes: [],
         titulo: '',
         estado: OrderStatusEnum.ABIERTO,
         prioridad: OrderPriorityEnum.MEDIA,
@@ -105,14 +99,14 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
   }, [open, defaultValues, type, reset]);
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 3 }}>
         {type === 'edit' ? 'Editar Orden' : 'Crear Nueva Orden'}{' '}
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={isMobileScreen ? 12 : 4}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="cliente"
                 control={control}
@@ -120,7 +114,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                   <FormControl error={!!errors.cliente} fullWidth>
                     <Autocomplete
                       {...field}
-                      disablePortal
                       options={users?.results || []}
                       getOptionLabel={(option) => {
                         if (!option) return '';
@@ -158,7 +151,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={isMobileScreen ? 12 : 3}>
+            <Grid item xs={isMobileScreen ? 12 : 6}>
               <Controller
                 name="prioridad"
                 control={control}
@@ -191,7 +184,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={isMobileScreen ? 12 : 5}>
+            <Grid item xs={isMobileScreen ? 12 : 8}>
               <Controller
                 name="tags"
                 control={control}
@@ -213,6 +206,15 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                           label="Tags"
                           error={!!errors.tags}
                           helperText={errors.tags?.message}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <Tag sx={{ mr: 1, color: 'action.active' }} />
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
                         />
                       )}
                       renderTags={(tagValue, getTagProps) =>
@@ -230,65 +232,7 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
               />
             </Grid>
 
-            <Grid item xs={isMobileScreen ? 12 : 6}>
-              <Controller
-                name="agentes"
-                control={control}
-                render={({ field }) => (
-                  <FormControl error={!!errors.agentes} fullWidth>
-                    <Autocomplete
-                      {...field}
-                      multiple
-                      disableCloseOnSelect
-                      options={users?.results || []}
-                      getOptionLabel={(option) => {
-                        if (!option) return '';
-                        if (typeof option === 'number') {
-                          return users?.results.find((u) => u.id === option)?.username || '';
-                        }
-                        return option.username || '';
-                      }}
-                      value={
-                        field.value?.map((id) => users?.results.find((u) => u.id === id)) || []
-                      }
-                      onChange={(_, newValue) => {
-                        field.onChange(newValue.map((item) => item?.id));
-                      }}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Agentes"
-                          error={!!errors.agentes}
-                          helperText={errors.agentes?.message}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                <InputAdornment position="start">
-                                  <Group />
-                                </InputAdornment>
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
-                      renderTags={(tagValue, getTagProps) =>
-                        tagValue.map((option, index) => (
-                          <Chip
-                            label={option?.username}
-                            {...getTagProps({ index })}
-                            onMouseDown={(event) => event.stopPropagation()}
-                          />
-                        ))
-                      }
-                    />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={isMobileScreen ? 12 : 6}>
+            <Grid item xs={isMobileScreen ? 12 : 4}>
               <Controller
                 name="estado"
                 control={control}
@@ -328,79 +272,18 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
                   <TextField
                     {...field}
                     fullWidth
-                    label="Título de la Orden"
+                    label="Título de la orden"
                     error={!!errors.titulo}
                     helperText={errors.titulo?.message}
                     sx={inputStyles}
                     multiline
-                    rows={4}
-                    placeholder="Ingrese el título de la tarea"
+                    rows={2.5}
+                    placeholder="Ingrese el título de la orden"
+                    InputProps={{
+                      startAdornment: <Toc sx={{ mr: 1, color: 'action.active' }} />,
+                    }}
                   />
                 )}
-              />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Controller
-                name="archivo"
-                control={control}
-                render={({ field }) => {
-                  const { onChange, value } = field;
-                  return (
-                    <Box
-                      sx={{
-                        border: `2px dashed ${theme.palette.primary.light}`,
-                        padding: isMobileScreen ? 2 : 3,
-                        textAlign: 'center',
-                        borderRadius: 2,
-                        cursor: 'pointer',
-                        bgcolor: theme.palette.background.paper,
-                        color: theme.palette.text.secondary,
-                        minHeight: isMobileScreen ? 'auto' : undefined,
-                      }}
-                    >
-                      <Dropzone
-                        onDrop={(acceptedFiles) => {
-                          if (acceptedFiles.length > 0) {
-                            onChange(acceptedFiles[0]);
-                          }
-                        }}
-                        accept={{
-                          'application/pdf': ['.pdf'],
-                          'image/jpeg': ['.jpeg', '.jpg'],
-                          'image/png': ['.png'],
-                        }}
-                        multiple={false}
-                      >
-                        {({ getRootProps, getInputProps }) => (
-                          <div {...getRootProps()}>
-                            <input {...getInputProps()} />
-                            {value ? (
-                              <p>{value.name}</p>
-                            ) : (
-                              <Button
-                                variant="text"
-                                color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
-                                sx={{
-                                  width: isMobileScreen ? '100%' : 'auto',
-                                  mb: 1,
-                                }}
-                              >
-                                {isMobileScreen
-                                  ? 'Seleccionar archivo'
-                                  : 'Arrastre o seleccione un archivo'}
-                              </Button>
-                            )}
-                            {!isMobileScreen && <p>Formatos aceptados: PDF, PNG, JPEG</p>}
-                          </div>
-                        )}
-                      </Dropzone>
-                      {errors.archivo && (
-                        <FormHelperText error>{errors.archivo.message as string}</FormHelperText>
-                      )}
-                    </Box>
-                  );
-                }}
               />
             </Grid>
           </Grid>

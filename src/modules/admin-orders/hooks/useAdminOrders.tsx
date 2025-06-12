@@ -58,8 +58,12 @@ export function useAdminOrders() {
   };
 
   const handleDelete = (orderId: number) => {
-    setSelectedOrderId(orderId);
-    setConfirmationOpen(true);
+    const order = data?.results.find((o) => o.id === orderId);
+    if (order) {
+      setSelectedOrder(order);
+      setSelectedOrderId(orderId);
+      setConfirmationOpen(true);
+    }
   };
 
   const handleOpenChat = (order: Order) => {
@@ -68,8 +72,34 @@ export function useAdminOrders() {
   };
 
   const handleChangeStatus = (statusId: number) => {
-    setPendingStatusId(statusId);
-    setIsStatusChangeConfirmOpen(true);
+    if (selectedOrder) {
+      setPendingStatusId(statusId);
+      setIsStatusChangeConfirmOpen(true);
+    }
+  };
+
+  const handleAssignAgents = (orderId: number, agentes: number[]) => {
+    const order = data?.results.find((o) => o.id === orderId);
+    if (!order) return;
+
+    updateMutation.mutate(
+      {
+        orderId,
+        updatedOrder: {
+          cliente: order.cliente.id,
+          titulo: order.titulo,
+          prioridad: order.prioridad,
+          estado: order.estado,
+          agentes,
+        },
+      },
+      {
+        onSuccess: () => {
+          toast.success('Agentes asignados exitosamente');
+          setSelectedOrder(null);
+        },
+      }
+    );
   };
 
   const handleCloseEditModal = () => {
@@ -96,7 +126,6 @@ export function useAdminOrders() {
       orderId: selectedOrder.id,
       updatedOrder: {
         cliente: selectedOrder.cliente.id,
-        agentes: selectedOrder.agentes.map((a) => a.id),
         titulo: selectedOrder.titulo,
         prioridad: selectedOrder.prioridad,
         estado: pendingStatusId,
@@ -133,6 +162,7 @@ export function useAdminOrders() {
     handleDelete,
     handleOpenChat,
     handleChangeStatus,
+    handleAssignAgents,
     handleCloseEditModal,
     handleConfirmDelete,
     handleConfirmChangeStatus,
