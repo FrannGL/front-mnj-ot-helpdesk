@@ -20,10 +20,10 @@ import {
   Tag,
   Info,
   Clear,
+  SupportAgent,
   Person as AssigneeIcon,
   Assignment as StatusIcon,
   PriorityHigh as PriorityIcon,
-  SupportAgent,
 } from '@mui/icons-material';
 
 import { useTags } from 'src/modules/tags/hooks/useTags';

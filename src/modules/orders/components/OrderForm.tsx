@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
-import { Tag, Toc, Task, Group, PriorityHigh, SupportAgent } from '@mui/icons-material';
+import { Tag, Toc, Task, Group, PriorityHigh } from '@mui/icons-material';
 import {
   Chip,
   Grid,

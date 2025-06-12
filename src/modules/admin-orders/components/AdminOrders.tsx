@@ -2,7 +2,7 @@
 
 import { Fira_Sans } from 'next/font/google';
 
-import { Box, Stack, Pagination, Typography, CircularProgress } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 
 import { CreateButton } from 'src/shared/components/custom/CreateButton';
 import { ConfirmationModal } from 'src/shared/components/custom/ConfirmationModal';
