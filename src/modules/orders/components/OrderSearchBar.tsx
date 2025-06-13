@@ -12,7 +12,7 @@ type OrderSearchBarProps = {
   onFiltersChange: (filters: OrderFilters) => void;
 };
 
-export function OrderSearchBar({ filters, onFiltersChange }: OrderSearchBarProps) {
+const OrderSearchBar = ({ filters, onFiltersChange }: OrderSearchBarProps) => {
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState(filters.searchTerm || '');
 
@@ -111,4 +111,6 @@ export function OrderSearchBar({ filters, onFiltersChange }: OrderSearchBarProps
       }}
     />
   );
-}
+};
+
+export default OrderSearchBar;

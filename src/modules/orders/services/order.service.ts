@@ -1,4 +1,4 @@
-import { request } from 'src/shared/services/request';
+import { request } from 'src/services/request';
 
 import type { CreateOrderType } from '../schemas/order.schema';
 import type { Order, ServerResponse, OrderQueryParams, SendMessagePayload } from '../interfaces';

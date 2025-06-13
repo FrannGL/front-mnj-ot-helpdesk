@@ -18,7 +18,7 @@ import {
   TableContainer,
 } from '@mui/material';
 
-import type { User } from '../users/interfaces';
+import type { User } from '../interfaces';
 
 interface UsersTableProps {
   users: User[];

@@ -3,8 +3,8 @@ import { useState } from 'react';
 import Fab from '@mui/material/Fab';
 import { Add as AddIcon } from '@mui/icons-material';
 
-import { UserModal } from '../../../modules/users/components/UserModal';
-import { OrderForm } from '../../../modules/orders/components/OrderForm';
+import OrderForm from './OrderForm';
+import { UserModal } from '../../users/components/UserModal';
 
 type ModalType = 'order' | 'user';
 
@@ -13,7 +13,7 @@ interface Props {
   label?: string;
 }
 
-export function CreateButton({ type, label = 'Crear' }: Props) {
+const CreateButton = ({ type, label = 'Crear' }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleClose = () => setOpen(false);
@@ -50,4 +50,6 @@ export function CreateButton({ type, label = 'Crear' }: Props) {
       {renderModal()}
     </>
   );
-}
+};
+
+export default CreateButton;

@@ -17,7 +17,7 @@ interface ConfirmationModalProps {
   cancelText: string;
 }
 
-export function ConfirmationModal({
+const ConfirmationModal = ({
   open,
   onClose,
   onConfirm,
@@ -25,21 +25,21 @@ export function ConfirmationModal({
   confirmText,
   content,
   title,
-}: ConfirmationModalProps) {
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="xs">
-      <DialogTitle> {title} </DialogTitle>
-      <DialogContent>
-        <DialogContentText> {content} </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="error">
-          {cancelText}
-        </Button>
-        <Button onClick={onConfirm} sx={{ color: 'primary.light' }} autoFocus>
-          {confirmText}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
-}
+}: ConfirmationModalProps) => (
+  <Dialog open={open} onClose={onClose} maxWidth="xs">
+    <DialogTitle> {title} </DialogTitle>
+    <DialogContent>
+      <DialogContentText> {content} </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button onClick={onClose} color="error">
+        {cancelText}
+      </Button>
+      <Button onClick={onConfirm} sx={{ color: 'primary.light' }} autoFocus>
+        {confirmText}
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
+
+export default ConfirmationModal;

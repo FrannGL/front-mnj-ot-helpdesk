@@ -22,7 +22,7 @@ type Props = {
   onClose: () => void;
 };
 
-export function OrderChat({ orderId, open, onClose }: Props) {
+const OrderChat = ({ orderId, open, onClose }: Props) => {
   const { data } = useOrderById(orderId);
 
   const order = data?.data;
@@ -73,4 +73,6 @@ export function OrderChat({ orderId, open, onClose }: Props) {
       <OrderChatInput orderId={order.id} />
     </Dialog>
   );
-}
+};
+
+export default OrderChat;

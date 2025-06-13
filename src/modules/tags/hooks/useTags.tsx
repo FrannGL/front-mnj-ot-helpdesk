@@ -1,6 +1,6 @@
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
-import { request } from 'src/shared/services';
+import { request } from 'src/services';
 
 import type { Tag } from '../interfaces/tag.interface';
 

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
@@ -20,7 +21,7 @@ import {
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 const assignAgentsSchema = z.object({
-  agentes: z.array(z.number()).min(1, 'Debe seleccionar al menos un agente'),
+  agentes: z.array(z.number()),
 });
 
 type AssignAgentsFormData = z.infer<typeof assignAgentsSchema>;
@@ -30,28 +31,49 @@ interface AssignAgentsDialogProps {
   onClose: () => void;
   onSubmit: (values: AssignAgentsFormData) => void;
   initialValues: AssignAgentsFormData;
+  title?: string;
+  isEditing?: boolean;
 }
 
-export function AssignAgentsDialog({
+const AssignAgentsDialog = ({
   open,
   onClose,
   onSubmit,
   initialValues,
-}: AssignAgentsDialogProps) {
+  title = 'Asignar Agentes',
+  isEditing = false,
+}: AssignAgentsDialogProps) => {
   const { data: users } = useUsers();
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
+    watch,
   } = useForm<AssignAgentsFormData>({
     resolver: zodResolver(assignAgentsSchema),
     defaultValues: initialValues,
   });
 
+  const agentes = watch('agentes');
+
+  useEffect(() => {
+    if (open) {
+      reset({ agentes: initialValues.agentes });
+    }
+  }, [open, initialValues, reset]);
+
+  const handleFormSubmit = (values: AssignAgentsFormData) => {
+    if (!isEditing && (!values.agentes || values.agentes.length === 0)) {
+      return;
+    }
+    onSubmit(values);
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <DialogTitle>Asignar Agentes</DialogTitle>
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <DialogTitle>{title}</DialogTitle>
         <DialogContent>
           <Grid container spacing={2} sx={{ mt: 1 }}>
             <Grid item xs={12}>
@@ -72,18 +94,20 @@ export function AssignAgentsDialog({
                         }
                         return option.username || '';
                       }}
-                      value={
-                        field.value?.map((id) => users?.results.find((u) => u.id === id)) || []
-                      }
+                      value={users?.results.filter((user) => field.value?.includes(user.id)) || []}
                       onChange={(_, newValue) => {
-                        field.onChange(newValue.map((item) => item?.id));
+                        field.onChange(newValue.map((item) => item.id));
                       }}
                       renderInput={(params) => (
                         <TextField
                           {...params}
                           label="Agentes"
                           error={!!errors.agentes}
-                          helperText={errors.agentes?.message}
+                          helperText={
+                            !isEditing && (!field.value || field.value.length === 0)
+                              ? 'Debe seleccionar al menos un agente'
+                              : errors.agentes?.message
+                          }
                           InputProps={{
                             ...params.InputProps,
                             startAdornment: (
@@ -114,14 +138,20 @@ export function AssignAgentsDialog({
           </Grid>
         </DialogContent>
         <DialogActions>
-          <Button onClick={onClose} color="error">
+          <Button variant="outlined" onClick={onClose} color="error">
             Cancelar
           </Button>
-          <Button type="submit" variant="contained">
-            Asignar
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={!isEditing && (!agentes || agentes.length === 0)}
+          >
+            Guardar
           </Button>
         </DialogActions>
       </form>
     </Dialog>
   );
-}
+};
+
+export default AssignAgentsDialog;

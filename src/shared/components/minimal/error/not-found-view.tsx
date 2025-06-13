@@ -8,7 +8,7 @@ import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 
 import { SimpleLayout } from 'src/shared/layouts/simple';
-import { PageNotFoundIllustration } from 'src/shared/assets/illustrations';
+import { PageNotFoundIllustration } from 'src/shared/components/minimal/illustrations';
 
 import { varBounce, MotionContainer } from '../animate';
 

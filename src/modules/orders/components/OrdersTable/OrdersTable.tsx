@@ -1,5 +1,4 @@
 import type { Order } from 'src/modules/orders/interfaces';
-import type { OrderStatusEnum } from 'src/modules/orders/enums';
 
 import { useMemo, useState } from 'react';
 
@@ -17,13 +16,13 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
-  Chip,
   Menu,
+  Chip,
   Paper,
-  Stack,
   Table,
-  Tooltip,
+  Stack,
   Divider,
+  Tooltip,
   MenuItem,
   TableRow,
   useTheme,
@@ -31,62 +30,72 @@ import {
   TableCell,
   TableHead,
   IconButton,
-  Typography,
   Pagination,
+  Typography,
   TableContainer,
   CircularProgress,
 } from '@mui/material';
 
 import { fDate } from 'src/shared/utils/format-time';
+
+import OrdersFilter from '../OrdersFilter';
+import { useAdminOrders } from '../../hooks';
+import { SortedTableCell } from './SortableColumn';
+import AssignAgentsDialog from '../AssignAgentsDialog';
 import {
   getStatusIcon,
   getPriorityIcon,
   statusChipColorMap,
   priorityChipColorMap,
-} from 'src/modules/orders/utils';
+} from '../../utils';
 
-import { SortableTableCell } from './SortedTableCell';
-import { AssignAgentsDialog } from '../AssignAgentsDialog';
+import type { OrderStatusEnum } from '../../enums';
 
-interface OrdersTableProps {
-  orders: Order[];
-  orderBy: keyof Order | '';
-  orderDirection: 'asc' | 'desc';
-  selectedOrder: Order | null;
-  setSelectedOrder: (order: Order | null) => void;
-  onSort: (column: keyof Order) => void;
-  onEdit: (order: Order) => void;
-  onDelete: (orderId: number) => void;
-  onOpenChat: (order: Order) => void;
-  onChangeStatus: (statusId: number) => void;
-  onAssignAgents: (orderId: number, agentes: number[]) => void;
-  loading: boolean;
-  page: number;
-  totalPages: number;
-  onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
-}
+export type OrderTableColumn = {
+  id: string;
+  label: string;
+  align?: 'left' | 'center' | 'right' | 'justify' | 'inherit';
+  width?: string | number;
+};
 
-export function OrdersTable({
-  orders,
-  orderBy,
-  orderDirection,
-  onSort,
-  onEdit,
-  onDelete,
-  onOpenChat,
-  onChangeStatus,
-  onAssignAgents,
-  selectedOrder,
-  setSelectedOrder,
-  loading,
-  page,
-  totalPages,
-  onPageChange,
-}: OrdersTableProps) {
+const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
+  { id: 'titulo', label: 'Título', width: '250px' },
+  { id: 'cliente', label: 'Cliente' },
+  { id: 'estado', label: 'Estado', align: 'center' },
+  { id: 'prioridad', label: 'Prioridad', align: 'center' },
+  { id: 'agentes', label: 'Agentes Asignados' },
+  { id: 'tags', label: 'Categorías' },
+  {
+    id: 'created_at',
+    label: 'Fecha de Creación',
+    width: '190px',
+  },
+];
+
+const OrdersTable = () => {
+  const {
+    orderBy,
+    orderDirection,
+    page,
+    selectedOrder,
+    setSelectedOrder,
+    showLoading,
+    totalPages,
+    orders,
+    filters,
+    hasActiveFilters,
+    handleSort,
+    handlePageChange,
+    handleEdit,
+    handleDelete,
+    handleOpenChat,
+    handleChangeStatus,
+    handleAssignAgents,
+    handleFiltersChange,
+  } = useAdminOrders();
+
   const [anchorActionsEl, setAnchorActionsEl] = useState<HTMLElement | null>(null);
   const [assignAgentsModalOpen, setAssignAgentsModalOpen] = useState(false);
-
-  console.log(selectedOrder);
 
   const theme = useTheme();
   const open = Boolean(anchorActionsEl);
@@ -105,10 +114,9 @@ export function OrdersTable({
     handleCloseActionsMenu();
   };
 
-  const handleAssignAgents = (values: { agentes: number[] }) => {
+  const handleAssignAgentsSubmit = (values: { agentes: number[] }) => {
     if (selectedOrder) {
-      console.log(values);
-      onAssignAgents(selectedOrder.id, values.agentes);
+      handleAssignAgents(selectedOrder.id, values.agentes);
       setAssignAgentsModalOpen(false);
     }
   };
@@ -155,11 +163,23 @@ export function OrdersTable({
           <Group fontSize="small" color="secondary" sx={{ mr: 1 }} /> Asignar Agentes
         </MenuItem>
       );
+    } else {
+      menuItems.push(
+        <MenuItem
+          key="edit-agents"
+          onClick={() => {
+            setAssignAgentsModalOpen(true);
+            handleCloseActionsMenu();
+          }}
+        >
+          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} /> Editar Agentes
+        </MenuItem>
+      );
     }
 
     if (order.estado === 3 || order.estado === 2) {
       menuItems.push(
-        <MenuItem key="reopen" onClick={() => handleAction(() => onChangeStatus(1))}>
+        <MenuItem key="reopen" onClick={() => handleAction(() => handleChangeStatus(1))}>
           <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Re abrir
         </MenuItem>
       );
@@ -167,10 +187,10 @@ export function OrdersTable({
 
     if (order.estado === 1) {
       menuItems.push(
-        <MenuItem key="complete" onClick={() => handleAction(() => onChangeStatus(2))}>
+        <MenuItem key="complete" onClick={() => handleAction(() => handleChangeStatus(2))}>
           <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} /> Finalizar
         </MenuItem>,
-        <MenuItem key="cancel" onClick={() => handleAction(() => onChangeStatus(3))}>
+        <MenuItem key="cancel" onClick={() => handleAction(() => handleChangeStatus(3))}>
           <Cancel fontSize="small" color="error" sx={{ mr: 1 }} /> Cancelar
         </MenuItem>
       );
@@ -228,7 +248,13 @@ export function OrdersTable({
 
   return (
     <>
-      {loading ? (
+      <OrdersFilter
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
+        hasActiveFilters={hasActiveFilters}
+      />
+
+      {showLoading ? (
         <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
           <CircularProgress />
         </Box>
@@ -238,55 +264,15 @@ export function OrdersTable({
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <SortableTableCell
-                    column="titulo"
-                    label="Título"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="cliente"
-                    label="Cliente"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="estado"
-                    label="Estado"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="prioridad"
-                    label="Prioridad"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="agentes"
-                    label="Agentes Asignados"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="tags"
-                    label="Categorías"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
-                  <SortableTableCell
-                    column="created_at"
-                    label="Fecha de Creación"
-                    orderBy={orderBy}
-                    orderDirection={orderDirection}
-                    onSort={onSort}
-                  />
+                  {ORDERS_TABLE_COLUMNS.map((column) => (
+                    <SortedTableCell
+                      key={column.id}
+                      column={column}
+                      orderBy={orderBy}
+                      orderDirection={orderDirection}
+                      onSort={handleSort as (property: string) => void}
+                    />
+                  ))}
                   <TableCell>Acciones</TableCell>
                 </TableRow>
               </TableHead>
@@ -303,7 +289,7 @@ export function OrdersTable({
                     }}
                   >
                     <TableCell
-                      onClick={() => onOpenChat(order)}
+                      onClick={() => handleOpenChat(order)}
                       sx={{
                         maxWidth: 250,
                         overflow: 'hidden',
@@ -361,7 +347,7 @@ export function OrdersTable({
             <Pagination
               count={totalPages}
               page={page}
-              onChange={onPageChange}
+              onChange={handlePageChange}
               color="primary"
               showFirstButton
               showLastButton
@@ -389,13 +375,13 @@ export function OrdersTable({
         {selectedOrder && (
           <>
             <Divider />
-            <MenuItem onClick={() => handleAction(() => onOpenChat(selectedOrder))}>
+            <MenuItem onClick={() => handleAction(() => handleOpenChat(selectedOrder))}>
               <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
             </MenuItem>
-            <MenuItem onClick={() => handleAction(() => onEdit(selectedOrder))}>
+            <MenuItem onClick={() => handleAction(() => handleEdit(selectedOrder))}>
               <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
             </MenuItem>
-            <MenuItem onClick={() => handleAction(() => onDelete(selectedOrder.id))}>
+            <MenuItem onClick={() => handleAction(() => handleDelete(selectedOrder.id))}>
               <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
             </MenuItem>
           </>
@@ -407,9 +393,13 @@ export function OrdersTable({
         onClose={() => {
           setAssignAgentsModalOpen(false);
         }}
-        onSubmit={handleAssignAgents}
+        onSubmit={handleAssignAgentsSubmit}
         initialValues={{ agentes: selectedOrder?.agentes?.map((a) => a.id) || [] }}
+        title={selectedOrder?.agentes?.length ? 'Editar Agentes Asignados' : 'Asignar Agentes'}
+        isEditing={!!selectedOrder?.agentes?.length}
       />
     </>
   );
-}
+};
+
+export default OrdersTable;

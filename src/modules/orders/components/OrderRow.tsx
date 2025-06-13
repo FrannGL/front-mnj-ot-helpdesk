@@ -15,7 +15,7 @@ interface OrderRowProps {
 
 const MotionBox = m(Box);
 
-export function OrderRow({ order, onOrderClick, index = 0 }: OrderRowProps) {
+const OrderRow = ({ order, onOrderClick, index = 0 }: OrderRowProps) => {
   const theme = useTheme();
   const color = statusColorMap[order.estado];
 
@@ -145,4 +145,6 @@ export function OrderRow({ order, onOrderClick, index = 0 }: OrderRowProps) {
       </Stack>
     </MotionBox>
   );
-}
+};
+
+export default OrderRow;

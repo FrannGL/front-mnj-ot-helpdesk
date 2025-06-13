@@ -1,7 +1,11 @@
-export * from './OrderRow';
-export * from './OrderChat';
-export * from './OrderForm';
-export * from './OrdersList';
-export * from './OrdersFilter';
-export * from './OrderSearchBar';
-export * from './OrdersFiltersMenu';
+export { default as OrderRow } from './OrderRow';
+export { default as OrderForm } from './OrderForm';
+export { default as OrdersList } from './OrdersList';
+export { default as AdminOrders } from './AdminOrders';
+export { default as OrdersFilter } from './OrdersFilter';
+export { default as CreateButton } from './CreateButton';
+export { default as OrderChat } from './OrderChat/OrderChat';
+export { default as OrderSearchBar } from './OrderSearchBar';
+export { default as OrdersTable } from './OrdersTable/OrdersTable';
+export { default as OrdersFiltersMenu } from './OrdersFiltersMenu';
+export { default as AssignAgentsDialog } from './AssignAgentsDialog';

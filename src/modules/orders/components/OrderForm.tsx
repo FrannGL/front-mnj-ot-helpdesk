@@ -39,7 +39,7 @@ interface OrderFormProps {
   orderId?: number;
 }
 
-export function OrderForm({ open, onClose, defaultValues, type, orderId }: OrderFormProps) {
+const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
   const { data: tagsData } = useTags();
 
@@ -299,4 +299,6 @@ export function OrderForm({ open, onClose, defaultValues, type, orderId }: Order
       </form>
     </Dialog>
   );
-}
+};
+
+export default OrderForm;

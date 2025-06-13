@@ -41,7 +41,7 @@ type OrdersFilterProps = {
   hasActiveFilters?: boolean;
 };
 
-export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: OrdersFilterProps) {
+const OrdersFilter = ({ filters, onFiltersChange, hasActiveFilters }: OrdersFilterProps) => {
   const { data: users } = useUsers();
   const { data: availableTags } = useTags();
 
@@ -278,6 +278,7 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
                     ...filters,
                     tags: newTags.length ? newTags : undefined,
                   });
+                  setAnchorTags(null);
                 }}
               >
                 {tag.nombre}
@@ -373,4 +374,6 @@ export function OrdersFilter({ filters, onFiltersChange, hasActiveFilters }: Ord
       </Stack>
     </Box>
   );
-}
+};
+
+export default OrdersFilter;

@@ -1,4 +1,4 @@
-import { OrderRow } from './OrderRow';
+import OrderRow from './OrderRow';
 
 import type { Order } from '../interfaces';
 
@@ -7,12 +7,12 @@ interface OrdersListProps {
   onOrderClick?: (id: number) => void;
 }
 
-export function OrdersList({ orders, onOrderClick }: OrdersListProps) {
-  return (
-    <>
-      {orders.map((order, index) => (
-        <OrderRow key={order.id} order={order} onOrderClick={onOrderClick} index={index} />
-      ))}
-    </>
-  );
-}
+const OrdersList = ({ orders, onOrderClick }: OrdersListProps) => (
+  <>
+    {orders.map((order, index) => (
+      <OrderRow key={order.id} order={order} onOrderClick={onOrderClick} index={index} />
+    ))}
+  </>
+);
+
+export default OrdersList;

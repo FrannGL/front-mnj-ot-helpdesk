@@ -6,16 +6,16 @@ import { useMemo, useState } from 'react';
 import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
-import { CreateButton } from 'src/shared/components/custom/CreateButton';
-import { ConfirmationModal } from 'src/shared/components/custom/ConfirmationModal';
+import { CreateButton } from 'src/modules/orders/components';
+import { ConfirmationModal } from 'src/shared/components/custom';
 
 import { Filters } from './Filters';
+import { UserModal } from './UserModal';
 import { UsersTable } from './UsersTable';
-import { UserModal } from '../users/components/UserModal';
-import { useUsersMutations } from '../users/hooks/useUsersMutations';
+import { useUsersMutations } from '../hooks/useUsersMutations';
 
-import type { User } from '../users/interfaces';
-import type { UserGroups } from '../users/enums';
+import type { User } from '../interfaces';
+import type { UserGroups } from '../enums';
 
 export function AdminUser() {
   const { data, isLoading } = useUsers();

@@ -3,15 +3,18 @@
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
 
-import { Box, Stack, Typography, Pagination, useMediaQuery } from '@mui/material';
+import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 
-import { CreateButton } from 'src/shared/components/custom/CreateButton';
+import CreateButton from 'src/modules/orders/components/CreateButton';
 
-import { useOrders, useDebouncedValue } from '../orders/hooks';
-import { AdminOrders } from '../admin-orders/components/AdminOrders';
-import { OrderChat, OrdersList, OrderSearchBar, OrdersFiltersMenu } from '../orders/components';
+import OrdersList from './OrdersList';
+import AdminOrders from './AdminOrders';
+import OrderSearchBar from './OrderSearchBar';
+import OrderChat from './OrderChat/OrderChat';
+import OrdersFiltersMenu from './OrdersFiltersMenu';
+import { useOrders, useDebouncedValue } from '../hooks';
 
-import type { OrderFilters } from '../orders/types';
+import type { OrderFilters } from '../types';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
@@ -20,7 +23,7 @@ const firaSans = Fira_Sans({
 
 // ----------------------------------------------------------------------
 
-export function OrdersView() {
+const OrdersView = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
@@ -40,7 +43,7 @@ export function OrdersView() {
     [filters, debouncedSearchTerm]
   );
 
-  const { data, error } = useOrders(page, debouncedFilters);
+  const { data, isLoading, error } = useOrders(page, debouncedFilters);
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 
@@ -75,6 +78,14 @@ export function OrdersView() {
 
     return page;
   }, [data, page]);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   if (!data?.results.length) {
     return (
@@ -168,4 +179,6 @@ export function OrdersView() {
       <CreateButton type="order" />
     </Stack>
   );
-}
+};
+
+export default OrdersView;

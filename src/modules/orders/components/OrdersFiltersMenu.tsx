@@ -34,7 +34,7 @@ interface OrdersFiltersMenuProps {
   onFiltersChange: (filters: OrderFilters) => void;
 }
 
-export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMenuProps) {
+const OrdersFiltersMenu = ({ filters, onFiltersChange }: OrdersFiltersMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [tempFilters, setTempFilters] = useState<OrderFilters>(filters);
   const open = Boolean(anchorEl);
@@ -490,4 +490,6 @@ export function OrdersFiltersMenu({ filters, onFiltersChange }: OrdersFiltersMen
       </Menu>
     </>
   );
-}
+};
+
+export default OrdersFiltersMenu;

@@ -1,11 +1,11 @@
 import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 
-import { useDebouncedValue } from '../../orders/hooks';
-import { useOrders } from '../../orders/hooks/useOrders';
+import { useOrders } from './useOrders';
+import { useDebouncedValue } from './useDebouncedValue';
 
-import type { Order } from '../../orders/interfaces';
-import type { OrderFilters } from '../../orders/types';
+import type { Order } from '../interfaces';
+import type { OrderFilters } from '../types';
 
 export function useAdminOrders() {
   const [orderBy, setOrderBy] = useState<keyof Order | ''>('');

@@ -15,7 +15,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { UserGroups } from '../users/enums';
+import { UserGroups } from '../enums';
 
 interface FiltersType {
   group: UserGroups | '';

@@ -4,47 +4,31 @@ import { Fira_Sans } from 'next/font/google';
 
 import { Box, Stack, Typography } from '@mui/material';
 
-import { CreateButton } from 'src/shared/components/custom/CreateButton';
-import { ConfirmationModal } from 'src/shared/components/custom/ConfirmationModal';
+import { ConfirmationModal } from 'src/shared/components/custom';
 
-import { OrderChat } from '../../orders/components';
-import { OrdersTable } from './OrdersTable/OrdersTable';
+import OrderForm from './OrderForm';
+import CreateButton from './CreateButton';
+import OrderChat from './OrderChat/OrderChat';
+import OrdersTable from './OrdersTable/OrdersTable';
 import { useAdminOrders } from '../hooks/useAdminOrders';
-import { OrderForm } from '../../orders/components/OrderForm';
-import { OrdersFilter } from '../../orders/components/OrdersFilter';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
   weight: ['400', '600'],
 });
 
-export function AdminOrders() {
+const AdminOrders = () => {
   const {
-    orderBy,
-    orderDirection,
-    page,
     confirmationOpen,
     editModalOpen,
     openChat,
     isStatusChangeConfirmOpen,
     selectedOrder,
-    filters,
-    showLoading,
-    totalPages,
     orders,
     error,
-    hasActiveFilters,
-    handleSort,
-    handleFiltersChange,
-    handlePageChange,
-    handleEdit,
-    handleDelete,
-    handleOpenChat,
-    handleChangeStatus,
     handleCloseEditModal,
     handleConfirmDelete,
     handleConfirmChangeStatus,
-    handleAssignAgents,
     setConfirmationOpen,
     setIsStatusChangeConfirmOpen,
     setOpenChat,
@@ -90,11 +74,6 @@ export function AdminOrders() {
         >
           Administrar Tareas
         </Typography>
-        <OrdersFilter
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          hasActiveFilters={hasActiveFilters}
-        />
         <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
           <Typography>No se encontraron resultados con los parámetros otorgados</Typography>
         </Box>
@@ -113,29 +92,7 @@ export function AdminOrders() {
         Administrar Tareas
       </Typography>
 
-      <OrdersFilter
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        hasActiveFilters={hasActiveFilters}
-      />
-
-      <OrdersTable
-        orders={orders}
-        orderBy={orderBy}
-        orderDirection={orderDirection}
-        selectedOrder={selectedOrder}
-        setSelectedOrder={setSelectedOrder}
-        loading={showLoading}
-        onSort={handleSort}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onOpenChat={handleOpenChat}
-        onChangeStatus={handleChangeStatus}
-        onAssignAgents={handleAssignAgents}
-        page={page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <OrdersTable />
 
       <OrderForm
         open={editModalOpen}
@@ -185,4 +142,6 @@ export function AdminOrders() {
       <CreateButton type="order" />
     </Stack>
   );
-}
+};
+
+export default AdminOrders;
