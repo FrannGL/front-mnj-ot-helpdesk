@@ -22,6 +22,7 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
 
   return response.data;
 }
+
 export async function createOrder(newOrder: CreateOrderType): Promise<Order> {
   const response = await request('ordenes', 'POST', newOrder);
   if (response.error) throw new Error(response.error);
