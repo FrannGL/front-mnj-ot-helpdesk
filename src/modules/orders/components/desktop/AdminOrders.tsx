@@ -7,7 +7,6 @@ import { Box, Stack, Typography } from '@mui/material';
 import { ConfirmationModal } from 'src/shared/components/custom';
 
 import OrderForm from '../OrderForm';
-import { OrderChat } from '../OrderChat';
 import CreateButton from '../CreateButton';
 import { useAdminOrders } from '../../hooks';
 import OrdersTable from './OrdersTable/OrdersTable';
@@ -21,7 +20,6 @@ const AdminOrders = () => {
   const {
     confirmationOpen,
     editModalOpen,
-    openChat,
     isStatusChangeConfirmOpen,
     selectedOrder,
     orders,
@@ -31,8 +29,6 @@ const AdminOrders = () => {
     handleConfirmChangeStatus,
     setConfirmationOpen,
     setIsStatusChangeConfirmOpen,
-    setOpenChat,
-    setSelectedOrder,
   } = useAdminOrders();
 
   if (error) {

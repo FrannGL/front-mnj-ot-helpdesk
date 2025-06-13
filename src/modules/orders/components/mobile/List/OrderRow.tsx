@@ -2,7 +2,7 @@ import type { Order } from 'src/modules/orders/interfaces';
 
 import { m } from 'framer-motion';
 
-import { Box, Chip, Stack, Divider, useTheme, Typography, Grid } from '@mui/material';
+import { Box, Chip, Grid, Stack, Divider, useTheme, Typography } from '@mui/material';
 
 import { statusColorMap, priorityChipColorMap } from 'src/modules/orders/utils';
 

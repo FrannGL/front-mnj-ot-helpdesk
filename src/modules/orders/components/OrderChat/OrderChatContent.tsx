@@ -1,6 +1,5 @@
 import type { User } from 'src/modules/users/interfaces';
 import type { Message } from 'src/modules/orders/interfaces';
-import type { Tag } from 'src/modules/tags/interfaces/tag.interface';
 
 import { useRef, useEffect } from 'react';
 
