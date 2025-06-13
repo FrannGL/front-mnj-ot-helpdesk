@@ -1,9 +1,19 @@
 'use client';
 
+import type { Tag } from 'src/modules/tags/interfaces/tag.interface';
+
 import { Fira_Sans } from 'next/font/google';
 
 import { Close } from '@mui/icons-material';
-import { Stack, Dialog, IconButton, Typography, DialogTitle, useMediaQuery } from '@mui/material';
+import {
+  Chip,
+  Stack,
+  Dialog,
+  IconButton,
+  Typography,
+  DialogTitle,
+  useMediaQuery,
+} from '@mui/material';
 
 import { fDate } from 'src/shared/utils/format-time';
 
@@ -51,16 +61,28 @@ const OrderChat = ({ orderId, open, onClose }: Props) => {
         </IconButton>
 
         <Stack direction="column" sx={{ mb: isMobile ? 1 : 2, mt: isMobile ? 3 : 0 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              fontFamily: `${firaSans.style.fontFamily} !important`,
-              lineHeight: 1.3,
-              fontSize: isMobile ? '1.3rem' : '2rem',
-            }}
-          >
-            {order.titulo ?? 'Sin título'}
-          </Typography>
+          <Stack direction="row" spacing={1} flexWrap="wrap">
+            <Typography
+              variant="h4"
+              sx={{
+                fontFamily: `${firaSans.style.fontFamily} !important`,
+                lineHeight: 1.3,
+                fontSize: isMobile ? '1.3rem' : '2rem',
+              }}
+            >
+              {order.titulo ?? 'Sin título'}
+            </Typography>
+            {order.tags?.length > 0 &&
+              order.tags.map((tag: Tag, i: number) => (
+                <Chip
+                  key={`${tag.id}-${i}`}
+                  label={tag.nombre}
+                  variant="soft"
+                  color="secondary"
+                  sx={{ width: 'fit-content' }}
+                />
+              ))}
+          </Stack>
           <Typography variant="caption" color="textSecondary" sx={{ pt: isMobile ? 0.8 : 0 }}>
             Creado por <strong>{order.cliente?.username ?? 'Desconocido'}</strong> el{' '}
             {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}

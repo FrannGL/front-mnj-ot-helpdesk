@@ -5,14 +5,14 @@ import { Box, useTheme, TextField, IconButton, InputAdornment } from '@mui/mater
 
 import { varAlpha } from 'src/shared/theme/styles';
 
-import type { OrderFilters } from '../types';
+import type { OrderFilters } from '../../../types';
 
-type OrderSearchBarProps = {
+type MobileSearchBarProps = {
   filters: OrderFilters;
   onFiltersChange: (filters: OrderFilters) => void;
 };
 
-const OrderSearchBar = ({ filters, onFiltersChange }: OrderSearchBarProps) => {
+const MobileSearchBar = ({ filters, onFiltersChange }: MobileSearchBarProps) => {
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState(filters.searchTerm || '');
 
@@ -113,4 +113,4 @@ const OrderSearchBar = ({ filters, onFiltersChange }: OrderSearchBarProps) => {
   );
 };
 
-export default OrderSearchBar;
+export default MobileSearchBar;

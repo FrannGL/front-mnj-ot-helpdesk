@@ -1,11 +1,10 @@
+import type { Order } from 'src/modules/orders/interfaces';
+
 import { m } from 'framer-motion';
 
-import { Box, Chip, Stack, Divider, useTheme, Typography } from '@mui/material';
+import { Box, Chip, Stack, Divider, useTheme, Typography, Grid } from '@mui/material';
 
-import { priorityChipColorMap } from '../utils';
-import { statusColorMap } from '../utils/statusColorsMap';
-
-import type { Order } from '../interfaces';
+import { statusColorMap, priorityChipColorMap } from 'src/modules/orders/utils';
 
 interface OrderRowProps {
   order: Order;
@@ -83,36 +82,39 @@ const OrderRow = ({ order, onOrderClick, index = 0 }: OrderRowProps) => {
         />
       </Box>
 
-      <Stack width="100%" direction="row" spacing={1} alignItems="center">
-        <Typography
-          variant="caption"
-          sx={{
-            color,
-            fontWeight: 'medium',
-            width: 95,
-            pl: 1.5,
-          }}
-        >
-          {order.estado_display}
-        </Typography>
+      <Grid container>
+        <Grid item xs={3.5} alignSelf="center">
+          <Typography
+            variant="caption"
+            sx={{
+              color,
+              fontWeight: 'medium',
+              pl: 1.5,
+            }}
+          >
+            {order.estado_display}
+          </Typography>
+        </Grid>
 
-        <Divider
-          orientation="vertical"
-          flexItem
-          sx={{
-            borderStyle: 'dashed',
-            mx: 1,
-          }}
-        />
+        <Grid item xs={1} sx={{ display: 'flex', justifyContent: 'center' }}>
+          <Divider
+            orientation="vertical"
+            flexItem
+            sx={{
+              borderStyle: 'dashed',
+              height: '100%',
+            }}
+          />
+        </Grid>
 
-        <Stack width="100%" direction="column" spacing={0.5}>
+        <Grid item xs={7.5}>
           <Typography
             variant="body2"
             sx={{
               whiteSpace: 'nowrap',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
-              maxWidth: '85%',
+              maxWidth: '100%',
             }}
           >
             {order.titulo}
@@ -141,8 +143,8 @@ const OrderRow = ({ order, onOrderClick, index = 0 }: OrderRowProps) => {
               sx={{ fontSize: 10 }}
             />
           </Stack>
-        </Stack>
-      </Stack>
+        </Grid>
+      </Grid>
     </MotionBox>
   );
 };

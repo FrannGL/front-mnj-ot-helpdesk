@@ -6,11 +6,11 @@ import { Box, Stack, Typography } from '@mui/material';
 
 import { ConfirmationModal } from 'src/shared/components/custom';
 
-import OrderForm from './OrderForm';
-import CreateButton from './CreateButton';
-import OrderChat from './OrderChat/OrderChat';
+import OrderForm from '../OrderForm';
+import { OrderChat } from '../OrderChat';
+import CreateButton from '../CreateButton';
+import { useAdminOrders } from '../../hooks';
 import OrdersTable from './OrdersTable/OrdersTable';
-import { useAdminOrders } from '../hooks/useAdminOrders';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
@@ -107,17 +107,6 @@ const AdminOrders = () => {
           tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
         }}
       />
-
-      {selectedOrder && (
-        <OrderChat
-          orderId={selectedOrder.id}
-          open={openChat}
-          onClose={() => {
-            setOpenChat(false);
-            setSelectedOrder(null);
-          }}
-        />
-      )}
 
       <ConfirmationModal
         open={confirmationOpen}

@@ -95,7 +95,7 @@ export function useAdminOrders() {
       },
       {
         onSuccess: () => {
-          toast.success('Agentes asignados exitosamente');
+          toast.success('Agentes actualizados exitosamente');
           setSelectedOrder(null);
         },
       }

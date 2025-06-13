@@ -38,18 +38,19 @@ import {
 
 import { fDate } from 'src/shared/utils/format-time';
 
-import OrdersFilter from '../OrdersFilter';
-import { useAdminOrders } from '../../hooks';
+import { OrderChat } from '../../OrderChat';
+import { DesktopFilterMenu } from '../Filters';
+import { useAdminOrders } from '../../../hooks';
 import { SortedTableCell } from './SortableColumn';
-import AssignAgentsDialog from '../AssignAgentsDialog';
+import AssignAgentsDialog from './AssignAgentsDialog';
 import {
   getStatusIcon,
   getPriorityIcon,
   statusChipColorMap,
   priorityChipColorMap,
-} from '../../utils';
+} from '../../../utils';
 
-import type { OrderStatusEnum } from '../../enums';
+import type { OrderStatusEnum } from '../../../enums';
 
 export type OrderTableColumn = {
   id: string;
@@ -84,6 +85,8 @@ const OrdersTable = () => {
     orders,
     filters,
     hasActiveFilters,
+    openChat,
+    setOpenChat,
     handleSort,
     handlePageChange,
     handleEdit,
@@ -233,7 +236,7 @@ const OrdersTable = () => {
       return (
         <Stack direction="row" spacing={0.5} flexWrap="wrap">
           {tags.map((tag, idx) => (
-            <Chip variant="soft" color="secondary" key={idx} label={tag.tag} size="small" />
+            <Chip variant="soft" color="secondary" key={idx} label={tag.nombre} size="small" />
           ))}
         </Stack>
       );
@@ -248,7 +251,7 @@ const OrdersTable = () => {
 
   return (
     <>
-      <OrdersFilter
+      <DesktopFilterMenu
         filters={filters}
         onFiltersChange={handleFiltersChange}
         hasActiveFilters={hasActiveFilters}
@@ -372,21 +375,30 @@ const OrdersTable = () => {
       >
         {selectedOrder && renderStatusMenu(selectedOrder)}
 
-        {selectedOrder && (
-          <>
-            <Divider />
-            <MenuItem onClick={() => handleAction(() => handleOpenChat(selectedOrder))}>
-              <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
-            </MenuItem>
-            <MenuItem onClick={() => handleAction(() => handleEdit(selectedOrder))}>
-              <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
-            </MenuItem>
-            <MenuItem onClick={() => handleAction(() => handleDelete(selectedOrder.id))}>
-              <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
-            </MenuItem>
-          </>
-        )}
+        {selectedOrder && [
+          <Divider key="divider" />,
+          <MenuItem key="chat" onClick={() => handleAction(() => handleOpenChat(selectedOrder))}>
+            <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
+          </MenuItem>,
+          <MenuItem key="edit" onClick={() => handleAction(() => handleEdit(selectedOrder))}>
+            <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
+          </MenuItem>,
+          <MenuItem key="delete" onClick={() => handleAction(() => handleDelete(selectedOrder.id))}>
+            <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
+          </MenuItem>,
+        ]}
       </Menu>
+
+      {selectedOrder && (
+        <OrderChat
+          orderId={selectedOrder.id}
+          open={openChat}
+          onClose={() => {
+            setOpenChat(false);
+            setSelectedOrder(null);
+          }}
+        />
+      )}
 
       <AssignAgentsDialog
         open={assignAgentsModalOpen}

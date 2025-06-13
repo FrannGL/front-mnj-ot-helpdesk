@@ -1,6 +1,8 @@
+import type { Order } from 'src/modules/orders/interfaces';
+
 import OrderRow from './OrderRow';
 
-import type { Order } from '../interfaces';
+
 
 interface OrdersListProps {
   orders: Order[];

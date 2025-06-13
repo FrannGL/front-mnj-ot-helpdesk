@@ -7,12 +7,11 @@ import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } f
 
 import CreateButton from 'src/modules/orders/components/CreateButton';
 
-import OrdersList from './OrdersList';
-import AdminOrders from './AdminOrders';
-import OrderSearchBar from './OrderSearchBar';
-import OrderChat from './OrderChat/OrderChat';
-import OrdersFiltersMenu from './OrdersFiltersMenu';
+import { OrderChat } from './OrderChat';
+import AdminOrders from './desktop/AdminOrders';
+import OrdersList from './mobile/List/OrdersList';
 import { useOrders, useDebouncedValue } from '../hooks';
+import { MobileSearchBar, MobileFilterMenu } from './mobile/Filters';
 
 import type { OrderFilters } from '../types';
 
@@ -151,8 +150,8 @@ const OrdersView = () => {
               alignItems="center"
               spacing={1}
             >
-              <OrderSearchBar filters={filters} onFiltersChange={handleFiltersChange} />
-              <OrdersFiltersMenu filters={filters} onFiltersChange={handleFiltersChange} />
+              <MobileSearchBar filters={filters} onFiltersChange={handleFiltersChange} />
+              <MobileFilterMenu filters={filters} onFiltersChange={handleFiltersChange} />
             </Stack>
 
             <Stack width="100%" direction="column" justifyContent="center" alignItems="center">

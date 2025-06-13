@@ -24,17 +24,17 @@ import {
   FormControlLabel,
 } from '@mui/material';
 
-import { statusColorMap } from '../utils/statusColorsMap';
-import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
+import { statusColorMap } from '../../../utils';
+import { OrderStatusEnum, OrderPriorityEnum } from '../../../enums';
 
-import type { OrderFilters } from '../types';
+import type { OrderFilters } from '../../../types';
 
-interface OrdersFiltersMenuProps {
+interface MobileFilterMenuProps {
   filters: OrderFilters;
   onFiltersChange: (filters: OrderFilters) => void;
 }
 
-const OrdersFiltersMenu = ({ filters, onFiltersChange }: OrdersFiltersMenuProps) => {
+const MobileFilterMenu = ({ filters, onFiltersChange }: MobileFilterMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [tempFilters, setTempFilters] = useState<OrderFilters>(filters);
   const open = Boolean(anchorEl);
@@ -492,4 +492,4 @@ const OrdersFiltersMenu = ({ filters, onFiltersChange }: OrdersFiltersMenuProps)
   );
 };
 
-export default OrdersFiltersMenu;
+export default MobileFilterMenu;

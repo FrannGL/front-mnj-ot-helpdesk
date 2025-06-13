@@ -6,8 +6,8 @@ import { useMemo, useState } from 'react';
 import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
-import { CreateButton } from 'src/modules/orders/components';
 import { ConfirmationModal } from 'src/shared/components/custom';
+import CreateButton from 'src/modules/orders/components/CreateButton';
 
 import { Filters } from './Filters';
 import { UserModal } from './UserModal';
