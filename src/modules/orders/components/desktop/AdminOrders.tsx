@@ -4,9 +4,6 @@ import { Fira_Sans } from 'next/font/google';
 
 import { Box, Stack, Typography } from '@mui/material';
 
-import { ConfirmationModal } from 'src/shared/components/custom';
-
-import OrderForm from '../OrderForm';
 import CreateButton from '../CreateButton';
 import { useAdminOrders } from '../../hooks';
 import OrdersTable from './OrdersTable/OrdersTable';
@@ -17,19 +14,7 @@ const firaSans = Fira_Sans({
 });
 
 const AdminOrders = () => {
-  const {
-    confirmationOpen,
-    editModalOpen,
-    isStatusChangeConfirmOpen,
-    selectedOrder,
-    orders,
-    error,
-    handleCloseEditModal,
-    handleConfirmDelete,
-    handleConfirmChangeStatus,
-    setConfirmationOpen,
-    setIsStatusChangeConfirmOpen,
-  } = useAdminOrders();
+  const { orders, error } = useAdminOrders();
 
   if (error) {
     return (
@@ -89,40 +74,6 @@ const AdminOrders = () => {
       </Typography>
 
       <OrdersTable />
-
-      <OrderForm
-        open={editModalOpen}
-        onClose={handleCloseEditModal}
-        type="edit"
-        orderId={selectedOrder?.id ?? 0}
-        defaultValues={{
-          cliente: selectedOrder?.cliente.id,
-          titulo: selectedOrder?.titulo,
-          estado: selectedOrder?.estado,
-          prioridad: selectedOrder?.prioridad,
-          tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
-        }}
-      />
-
-      <ConfirmationModal
-        open={confirmationOpen}
-        onClose={() => setConfirmationOpen(false)}
-        onConfirm={handleConfirmDelete}
-        title="¿Estás seguro que deseas eliminar esta tarea?"
-        content="Esta acción eliminará la tarea seleccionada. ¿Deseas continuar?"
-        confirmText="Sí, eliminar"
-        cancelText="Cancelar"
-      />
-
-      <ConfirmationModal
-        open={isStatusChangeConfirmOpen}
-        onClose={() => setIsStatusChangeConfirmOpen(false)}
-        onConfirm={handleConfirmChangeStatus}
-        title="¿Estás seguro que deseas cambiar el estado?"
-        content="Esta acción actualizará el estado de la tarea seleccionada. ¿Deseas continuar?"
-        confirmText="Sí, cambiar estado"
-        cancelText="Cancelar"
-      />
 
       <CreateButton type="order" />
     </Stack>

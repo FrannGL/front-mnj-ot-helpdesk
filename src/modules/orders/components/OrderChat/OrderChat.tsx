@@ -1,7 +1,5 @@
 'use client';
 
-import type { Tag } from 'src/modules/tags/interfaces/tag.interface';
-
 import { Fira_Sans } from 'next/font/google';
 
 import { Close } from '@mui/icons-material';
@@ -20,6 +18,8 @@ import { fDate } from 'src/shared/utils/format-time';
 import { useOrderById } from '../../hooks';
 import { OrderChatInput } from './OrderChatInput';
 import { OrderChatContent } from './OrderChatContent';
+
+import type { Tag } from '../../interfaces';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
@@ -76,7 +76,7 @@ const OrderChat = ({ orderId, open, onClose }: Props) => {
               order.tags.map((tag: Tag, i: number) => (
                 <Chip
                   key={`${tag.id}-${i}`}
-                  label={tag.nombre}
+                  label={tag.tag}
                   variant="soft"
                   color="secondary"
                   sx={{ width: 'fit-content' }}

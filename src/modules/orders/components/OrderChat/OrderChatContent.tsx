@@ -209,9 +209,6 @@ export function OrderChatContent({ orderId }: Props) {
                                 const fileName = adjunto.archivo.split('/').pop();
                                 const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName || '');
 
-                                console.log(fileName);
-                                console.log(adjunto.archivo);
-
                                 return (
                                   <Box
                                     key={`${msg.id}-adj-${adjunto.id}`}

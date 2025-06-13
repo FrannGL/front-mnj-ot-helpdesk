@@ -1,4 +1,4 @@
-import type { Order } from 'src/modules/orders/interfaces';
+import type { Tag, Order } from 'src/modules/orders/interfaces';
 
 import { useMemo, useState } from 'react';
 
@@ -37,7 +37,9 @@ import {
 } from '@mui/material';
 
 import { fDate } from 'src/shared/utils/format-time';
+import { ConfirmationModal } from 'src/shared/components/custom';
 
+import OrderForm from '../../OrderForm';
 import { OrderChat } from '../../OrderChat';
 import { DesktopFilterMenu } from '../Filters';
 import { useAdminOrders } from '../../../hooks';
@@ -79,13 +81,16 @@ const OrdersTable = () => {
     orderDirection,
     page,
     selectedOrder,
-    setSelectedOrder,
+    confirmationOpen,
+    editModalOpen,
+    isStatusChangeConfirmOpen,
     showLoading,
     totalPages,
     orders,
     filters,
     hasActiveFilters,
     openChat,
+    setSelectedOrder,
     setOpenChat,
     handleSort,
     handlePageChange,
@@ -95,6 +100,11 @@ const OrdersTable = () => {
     handleChangeStatus,
     handleAssignAgents,
     handleFiltersChange,
+    handleCloseEditModal,
+    handleConfirmDelete,
+    handleConfirmChangeStatus,
+    setConfirmationOpen,
+    setIsStatusChangeConfirmOpen,
   } = useAdminOrders();
 
   const [anchorActionsEl, setAnchorActionsEl] = useState<HTMLElement | null>(null);
@@ -231,12 +241,12 @@ const OrdersTable = () => {
     );
   };
 
-  const renderTagsCell = (tags: Order['tags']) => {
+  const renderTagsCell = (tags: Tag[]) => {
     if (tags && tags.length > 0) {
       return (
         <Stack direction="row" spacing={0.5} flexWrap="wrap">
           {tags.map((tag, idx) => (
-            <Chip variant="soft" color="secondary" key={idx} label={tag.nombre} size="small" />
+            <Chip variant="soft" color="secondary" key={idx} label={tag.tag} size="small" />
           ))}
         </Stack>
       );
@@ -409,6 +419,40 @@ const OrdersTable = () => {
         initialValues={{ agentes: selectedOrder?.agentes?.map((a) => a.id) || [] }}
         title={selectedOrder?.agentes?.length ? 'Editar Agentes Asignados' : 'Asignar Agentes'}
         isEditing={!!selectedOrder?.agentes?.length}
+      />
+
+      <OrderForm
+        open={editModalOpen}
+        onClose={handleCloseEditModal}
+        type="edit"
+        orderId={selectedOrder?.id ?? 0}
+        defaultValues={{
+          cliente: selectedOrder?.cliente.id,
+          titulo: selectedOrder?.titulo,
+          estado: selectedOrder?.estado,
+          prioridad: selectedOrder?.prioridad,
+          tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
+        }}
+      />
+
+      <ConfirmationModal
+        open={confirmationOpen}
+        onClose={() => setConfirmationOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="¿Estás seguro que deseas eliminar esta tarea?"
+        content="Esta acción eliminará la tarea seleccionada. ¿Deseas continuar?"
+        confirmText="Sí, eliminar"
+        cancelText="Cancelar"
+      />
+
+      <ConfirmationModal
+        open={isStatusChangeConfirmOpen}
+        onClose={() => setIsStatusChangeConfirmOpen(false)}
+        onConfirm={handleConfirmChangeStatus}
+        title="¿Estás seguro que deseas cambiar el estado?"
+        content="Esta acción actualizará el estado de la tarea seleccionada. ¿Deseas continuar?"
+        confirmText="Sí, cambiar estado"
+        cancelText="Cancelar"
       />
     </>
   );
