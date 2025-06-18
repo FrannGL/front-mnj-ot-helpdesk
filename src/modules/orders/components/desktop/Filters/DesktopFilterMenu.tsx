@@ -35,7 +35,7 @@ const DesktopFilterMenu = ({
   hasActiveFilters,
 }: DesktopFilterMenuProps) => {
   const { data: users } = useUsers();
-  const { data: availableTags } = useTags();
+  const { tags } = useTags();
 
   const {
     anchorStatus,
@@ -163,7 +163,7 @@ const DesktopFilterMenu = ({
           label="Tags"
           icon={<Tag fontSize="small" />}
           options={
-            availableTags?.map((tag) => ({
+            tags?.map((tag) => ({
               id: tag.id,
               label: tag.nombre,
             })) || []

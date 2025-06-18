@@ -279,7 +279,7 @@ export function OrderChatContent({ orderId }: Props) {
             </>
           ) : (
             <Typography variant="body1" color="textSecondary">
-              No hay mensajes disponibles.
+              Indique su inconveniente o requisitos, pronto será asignado a un agente.
             </Typography>
           )}
         </Paper>

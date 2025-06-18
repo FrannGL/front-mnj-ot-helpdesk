@@ -41,7 +41,7 @@ interface OrderFormProps {
 
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
-  const { data: tagsData } = useTags();
+  const { tags } = useTags();
 
   const { createMutation, updateMutation } = useOrders();
 
@@ -191,15 +191,15 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                 render={({ field }) => (
                   <FormControl error={!!errors.tags} fullWidth>
                     <Autocomplete
-                      {...field}
                       multiple
                       disableCloseOnSelect
-                      options={tagsData || []}
+                      options={tags || []}
                       getOptionLabel={(option) => option?.nombre || ''}
-                      value={field.value?.map((id) => tagsData?.find((tag) => tag.id === id)) || []}
+                      value={tags?.filter((tag) => field.value?.includes(tag.id)) || []}
                       onChange={(_, newValue) => {
-                        field.onChange(newValue.map((tag) => tag?.id));
+                        field.onChange(newValue.map((tag) => tag.id));
                       }}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
                       renderInput={(params) => (
                         <TextField
                           {...params}

@@ -20,8 +20,9 @@ const TagsView = () => {
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<number | null>(null);
   const [editTag, setEditTag] = useState<Tag | null>(null);
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, error } = useTags();
+  const { tags, count, isLoading, error } = useTags(page);
   const { createTag, updateTag, deleteTag } = useTagMutations();
 
   const handleOpenCreateModal = () => {
@@ -99,7 +100,14 @@ const TagsView = () => {
           </Button>
         </Stack>
 
-        <TagsTable data={data} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+        <TagsTable
+          data={tags}
+          totalCount={count}
+          page={page}
+          onPageChange={setPage}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+        />
 
         <ConfirmationModal
           open={deleteModalOpen}

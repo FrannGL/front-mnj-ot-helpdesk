@@ -23,15 +23,24 @@ import {
 import type { Tag } from '../interfaces/tag.interface';
 
 interface TagsTableProps {
-  data: Tag[] | undefined;
+  data: Tag[];
+  totalCount: number;
+  page: number;
+  onPageChange: (newPage: number) => void;
   onEdit: (tag: Tag) => void;
   onDelete: (id: number) => void;
 }
 
 const ITEMS_PER_PAGE = 10;
 
-export const TagsTable = ({ data, onEdit, onDelete }: TagsTableProps) => {
-  const [page, setPage] = useState(1);
+export const TagsTable = ({
+  data,
+  totalCount,
+  page,
+  onPageChange,
+  onEdit,
+  onDelete,
+}: TagsTableProps) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
 
@@ -43,14 +52,10 @@ export const TagsTable = ({ data, onEdit, onDelete }: TagsTableProps) => {
     );
   }
 
-  const countPages = Math.ceil(data.length / ITEMS_PER_PAGE);
-
-  const startIndex = (page - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
-  const currentData = data.slice(startIndex, endIndex);
+  const countPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const handleChangePage = (_event: React.ChangeEvent<unknown>, value: number) => {
-    setPage(value);
+    onPageChange(value);
   };
 
   const handleOpenMenu = (event: React.MouseEvent<HTMLElement>, tag: Tag) => {
@@ -79,7 +84,7 @@ export const TagsTable = ({ data, onEdit, onDelete }: TagsTableProps) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentData.map((item) => (
+            {data.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.nombre}</TableCell>
                 <TableCell>

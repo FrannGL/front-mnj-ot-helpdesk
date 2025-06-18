@@ -2,10 +2,10 @@ import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 import { request } from 'src/services';
 
-import type { Tag } from '../interfaces/tag.interface';
+import type { Group } from '../interfaces/group.interface';
 
-async function fetchTags(): Promise<Tag[]> {
-  const response = await request(`tags`, 'GET');
+async function fetchTags(): Promise<Group[]> {
+  const response = await request(`grupos`, 'GET');
 
   if (response.error || response.status >= 400) {
     throw new Error(response.error || `Error ${response.status}`);
@@ -16,9 +16,9 @@ async function fetchTags(): Promise<Tag[]> {
   return data.results;
 }
 
-export function useTags() {
+export function useGroups() {
   const { data, isLoading, error } = useQuery({
-    queryKey: ['tags'],
+    queryKey: ['groups'],
     queryFn: fetchTags,
     placeholderData: keepPreviousData,
     staleTime: 1000 * 60 * 5,
