@@ -70,7 +70,7 @@ const OrderChat = ({ orderId, open, onClose }: Props) => {
                 fontSize: isMobile ? '1.3rem' : '2rem',
               }}
             >
-              {order.titulo ?? 'Sin título'}
+              {`#OT${order.id}`} | {order.titulo ?? 'Sin título'}
             </Typography>
             {order.tags?.length > 0 &&
               order.tags.map((tag: Tag, i: number) => (

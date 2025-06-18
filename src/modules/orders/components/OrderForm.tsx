@@ -101,7 +101,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 3 }}>
-        {type === 'edit' ? 'Editar Orden' : 'Crear Nueva Orden'}{' '}
+        {type === 'edit' ? `Editar Orden #OT${orderId}` : 'Crear Nueva Orden'}
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>

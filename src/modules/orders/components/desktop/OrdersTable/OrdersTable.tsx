@@ -2,18 +2,7 @@ import type { Tag, Order } from 'src/modules/orders/interfaces';
 
 import { useMemo, useState } from 'react';
 
-import {
-  Chat,
-  Edit,
-  Sync,
-  Group,
-  Delete,
-  Cancel,
-  Warning,
-  MoreVert,
-  CheckCircle,
-  SupportAgent,
-} from '@mui/icons-material';
+import { Warning, MoreVert, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Menu,
@@ -21,9 +10,7 @@ import {
   Paper,
   Table,
   Stack,
-  Divider,
   Tooltip,
-  MenuItem,
   TableRow,
   useTheme,
   TableBody,
@@ -43,6 +30,7 @@ import OrderForm from '../../OrderForm';
 import { OrderChat } from '../../OrderChat';
 import { DesktopFilterMenu } from '../Filters';
 import { useAdminOrders } from '../../../hooks';
+import { OrderMenuItems } from './OrderMenuItems';
 import { SortedTableCell } from './SortableColumn';
 import AssignAgentsDialog from './AssignAgentsDialog';
 import {
@@ -62,6 +50,7 @@ export type OrderTableColumn = {
 };
 
 const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
+  { id: 'id', label: 'Código', width: '50px' },
   { id: 'titulo', label: 'Título', width: '250px' },
   { id: 'cliente', label: 'Cliente' },
   { id: 'estado', label: 'Estado', align: 'center' },
@@ -122,11 +111,6 @@ const OrdersTable = () => {
     setAnchorActionsEl(null);
   };
 
-  const handleAction = (action: () => void) => {
-    action();
-    handleCloseActionsMenu();
-  };
-
   const handleAssignAgentsSubmit = (values: { agentes: number[] }) => {
     if (selectedOrder) {
       handleAssignAgents(selectedOrder.id, values.agentes);
@@ -160,57 +144,6 @@ const OrdersTable = () => {
       return orderDirection === 'asc' ? comparison : -comparison;
     });
   }, [orders, orderBy, orderDirection]);
-
-  const renderStatusMenu = (order: Order) => {
-    const menuItems = [];
-
-    if (order.agentes.length === 0) {
-      menuItems.push(
-        <MenuItem
-          key="assign-agents"
-          onClick={() => {
-            setAssignAgentsModalOpen(true);
-            handleCloseActionsMenu();
-          }}
-        >
-          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} /> Asignar Agentes
-        </MenuItem>
-      );
-    } else {
-      menuItems.push(
-        <MenuItem
-          key="edit-agents"
-          onClick={() => {
-            setAssignAgentsModalOpen(true);
-            handleCloseActionsMenu();
-          }}
-        >
-          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} /> Editar Agentes
-        </MenuItem>
-      );
-    }
-
-    if (order.estado === 3 || order.estado === 2) {
-      menuItems.push(
-        <MenuItem key="reopen" onClick={() => handleAction(() => handleChangeStatus(1))}>
-          <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Re abrir
-        </MenuItem>
-      );
-    }
-
-    if (order.estado === 1) {
-      menuItems.push(
-        <MenuItem key="complete" onClick={() => handleAction(() => handleChangeStatus(2))}>
-          <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} /> Finalizar
-        </MenuItem>,
-        <MenuItem key="cancel" onClick={() => handleAction(() => handleChangeStatus(3))}>
-          <Cancel fontSize="small" color="error" sx={{ mr: 1 }} /> Cancelar
-        </MenuItem>
-      );
-    }
-
-    return menuItems;
-  };
 
   const renderAgentsCell = (agents: Order['agentes']) => {
     if (agents.length > 0) {
@@ -304,7 +237,6 @@ const OrdersTable = () => {
                     <TableCell
                       onClick={() => handleOpenChat(order)}
                       sx={{
-                        maxWidth: 250,
                         overflow: 'hidden',
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
@@ -317,6 +249,11 @@ const OrdersTable = () => {
                         },
                       }}
                     >
+                      <Typography noWrap component="span" variant="body2" className="title-text">
+                        {`#OT${order.id}`}
+                      </Typography>
+                    </TableCell>
+                    <TableCell>
                       <Tooltip title={order.titulo} arrow placement="top">
                         <Typography noWrap component="span" className="title-text">
                           {order.titulo}
@@ -383,20 +320,17 @@ const OrdersTable = () => {
           },
         }}
       >
-        {selectedOrder && renderStatusMenu(selectedOrder)}
-
-        {selectedOrder && [
-          <Divider key="divider" />,
-          <MenuItem key="chat" onClick={() => handleAction(() => handleOpenChat(selectedOrder))}>
-            <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
-          </MenuItem>,
-          <MenuItem key="edit" onClick={() => handleAction(() => handleEdit(selectedOrder))}>
-            <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
-          </MenuItem>,
-          <MenuItem key="delete" onClick={() => handleAction(() => handleDelete(selectedOrder.id))}>
-            <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
-          </MenuItem>,
-        ]}
+        {selectedOrder && (
+          <OrderMenuItems
+            order={selectedOrder}
+            onAssignAgents={() => setAssignAgentsModalOpen(true)}
+            onChangeStatus={handleChangeStatus}
+            onOpenChat={() => handleOpenChat(selectedOrder)}
+            onEdit={() => handleEdit(selectedOrder)}
+            onDelete={() => handleDelete(selectedOrder.id)}
+            closeMenu={handleCloseActionsMenu}
+          />
+        )}
       </Menu>
 
       {selectedOrder && (
