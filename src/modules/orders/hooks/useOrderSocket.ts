@@ -23,11 +23,11 @@ export function useOrderSocket(
     socketRef.current = socket;
 
     const handleOpen = () => {
-      console.log(`📡 WebSocket connected for order_${orderId}`);
+      // console.log(`📡 WebSocket connected for order_${orderId}`);
     };
 
     const handleMessage = (event: MessageEvent) => {
-      console.log('📩 Mensaje recibido:', event.data);
+      // console.log('📩 Mensaje recibido:', event.data);
 
       try {
         const data = JSON.parse(event.data);
@@ -43,11 +43,11 @@ export function useOrderSocket(
     };
 
     const handleClose = (event: CloseEvent) => {
-      console.log(`📴 WebSocket cerrado para order_${orderId}`, {
-        code: event.code,
-        reason: event.reason,
-        wasClean: event.wasClean,
-      });
+      // console.log(`📴 WebSocket cerrado para order_${orderId}`, {
+      //   code: event.code,
+      //   reason: event.reason,
+      //   wasClean: event.wasClean,
+      // });
     };
 
     socket.onopen = handleOpen;
@@ -68,7 +68,7 @@ export function useOrderSocket(
   const sendSocketMessage = useCallback((msg: object) => {
     if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(msg));
-      console.log('📤 Mensaje enviado:', msg);
+      // console.log('📤 Mensaje enviado:', msg);
     } else {
       console.warn('⚠️ WebSocket is not open. Cannot send message:', msg);
     }
