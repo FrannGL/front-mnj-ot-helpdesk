@@ -1,2 +1,1 @@
-export * from './CreateButton';
-export * from './ConfirmationModal';
+export { default as ConfirmationModal } from './ConfirmationModal';

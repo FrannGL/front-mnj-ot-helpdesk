@@ -1,4 +1,4 @@
-import { request } from 'src/shared/services/request';
+import { request } from 'src/services/request';
 
 import type { CreateOrderType } from '../schemas/order.schema';
 import type { Order, ServerResponse, OrderQueryParams, SendMessagePayload } from '../interfaces';
@@ -22,6 +22,7 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
 
   return response.data;
 }
+
 export async function createOrder(newOrder: CreateOrderType): Promise<Order> {
   const response = await request('ordenes?frontend=2', 'POST', newOrder);
   if (response.error) throw new Error(response.error);

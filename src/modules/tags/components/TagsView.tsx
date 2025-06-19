@@ -13,29 +13,25 @@ import { useTags } from '../hooks/useTags';
 import { useTagMutations } from '../hooks/useTagsMutation';
 
 import type { Tag } from '../interfaces/tag.interface';
+import type { TagFormData } from '../schemas/tag.schema';
 
 const TagsView = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<number | null>(null);
   const [editTag, setEditTag] = useState<Tag | null>(null);
-  const [formState, setFormState] = useState<{ nombre: string; tags: string[] }>({
-    nombre: '',
-    tags: [],
-  });
+  const [page, setPage] = useState(1);
 
-  const { data, isLoading, error } = useTags();
+  const { tags, count, isLoading, error } = useTags(page);
   const { createTag, updateTag, deleteTag } = useTagMutations();
 
   const handleOpenCreateModal = () => {
-    setFormState({ nombre: '', tags: [] });
     setEditTag(null);
     setModalOpen(true);
   };
 
   const handleEditClick = (tag: Tag) => {
     setEditTag(tag);
-    setFormState({ nombre: tag.nombre, tags: tag.tags });
     setModalOpen(true);
   };
 
@@ -47,7 +43,6 @@ const TagsView = () => {
   const handleCancel = () => {
     setModalOpen(false);
     setEditTag(null);
-    setFormState({ nombre: '', tags: [] });
   };
 
   const handleConfirmDelete = () => {
@@ -58,15 +53,14 @@ const TagsView = () => {
     }
   };
 
-  const handleSubmitTag = (values: { nombre: string; tags: string[] }) => {
+  const handleSubmitTag = (values: TagFormData) => {
     if (editTag) {
-      updateTag.mutate({ ...editTag, nombre: values.nombre, tags: values.tags });
+      updateTag.mutate({ ...editTag, nombre: values.nombre });
       setEditTag(null);
     } else {
       createTag.mutate(values);
     }
     setModalOpen(false);
-    setFormState({ nombre: '', tags: [] });
   };
 
   if (isLoading) {
@@ -91,7 +85,7 @@ const TagsView = () => {
           justifyContent: 'center',
           alignItems: 'center',
           gap: 2,
-          mt: 10,
+          mt: 5,
         }}
       >
         <Stack width="100%" direction="row" justifyContent="space-between">
@@ -106,7 +100,14 @@ const TagsView = () => {
           </Button>
         </Stack>
 
-        <TagsTable data={data} onEdit={handleEditClick} onDelete={handleDeleteClick} />
+        <TagsTable
+          data={tags}
+          totalCount={count}
+          page={page}
+          onPageChange={setPage}
+          onEdit={handleEditClick}
+          onDelete={handleDeleteClick}
+        />
 
         <ConfirmationModal
           open={deleteModalOpen}
@@ -122,8 +123,7 @@ const TagsView = () => {
           open={modalOpen}
           onClose={handleCancel}
           onSubmit={handleSubmitTag}
-          initialValues={formState}
-          setFormState={setFormState}
+          initialValues={editTag || { nombre: '' }}
         />
       </Box>
     </Stack>

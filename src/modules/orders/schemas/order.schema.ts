@@ -6,9 +6,6 @@ export const createOrderSchema = z.object({
   cliente: z.union([z.literal(undefined), z.number()]).refine((val) => typeof val === 'number', {
     message: 'El cliente es requerido',
   }),
-  agentes: z.array(z.number(), {
-    required_error: 'Debe seleccionar al menos un agente',
-  }),
   titulo: z
     .string({
       required_error: 'El título es requerido',
@@ -21,18 +18,7 @@ export const createOrderSchema = z.object({
     required_error: 'La prioridad es requerida',
   }),
   tags: z.array(z.number()).optional(),
-  archivo: z
-    .any()
-    .refine(
-      (file) =>
-        !file ||
-        (file instanceof File &&
-          ['application/pdf', 'image/png', 'image/jpeg'].includes(file.type)),
-      {
-        message: 'Debe ser un PDF, PNG o JPEG',
-      }
-    )
-    .optional(),
+  agentes: z.array(z.number()).optional(),
 });
 
 export type CreateOrderType = z.infer<typeof createOrderSchema>;

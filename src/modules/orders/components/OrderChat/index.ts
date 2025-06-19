@@ -1,3 +1,1 @@
-export * from './OrderChat';
-export * from './OrderChatInput';
-export * from './OrderChatContent';
+export { default as OrderChat } from './OrderChat';

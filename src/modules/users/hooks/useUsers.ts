@@ -2,7 +2,7 @@ import type { User } from 'src/modules/users/interfaces';
 
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
-import { request } from 'src/shared/services/request';
+import { request } from 'src/services/request';
 
 interface ServerResponse {
   count: number;

@@ -1,4 +1,5 @@
 import type { User } from 'src/modules/users/interfaces';
+import type { Message } from 'src/modules/orders/interfaces';
 
 import { useRef, useEffect } from 'react';
 
@@ -17,6 +18,7 @@ import {
   DialogContent,
 } from '@mui/material';
 
+import { CONFIG } from 'src/config';
 import { fDate } from 'src/shared/utils/format-time';
 
 import { useOrderById } from '../../hooks';
@@ -28,7 +30,6 @@ import {
   priorityChipColorMap,
 } from '../../utils';
 
-import type { Message } from '../../interfaces';
 import type { OrderStatusEnum, OrderPriorityEnum } from '../../enums';
 
 type Props = {
@@ -85,7 +86,7 @@ export function OrderChatContent({ orderId }: Props) {
                   color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
                   icon={getStatusIcon(order.estado as OrderStatusEnum)}
                   variant="outlined"
-                  sx={{ minWidth: '150px' }}
+                  sx={{ minWidth: isMobile ? 'fit-content' : '150px' }}
                 />
               </Tooltip>
             </Grid>
@@ -97,21 +98,21 @@ export function OrderChatContent({ orderId }: Props) {
                   color={priorityChipColorMap[order.prioridad as OrderPriorityEnum] ?? 'default'}
                   icon={getPriorityIcon(order.prioridad as OrderPriorityEnum)}
                   variant="outlined"
-                  sx={{ minWidth: '150px' }}
+                  sx={{ minWidth: isMobile ? 'fit-content' : '150px' }}
                 />
               </Tooltip>
             </Grid>
 
             {order.agentes && order.agentes.length > 0 ? (
-              order.agentes.map((agente: User) => (
-                <Grid item xs={isMobile ? 6 : 'auto'} key={agente.id}>
+              order.agentes.map((agente: User, i: number) => (
+                <Grid item xs={isMobile ? 6 : 'auto'} key={`${agente.id}-${i}`}>
                   <Tooltip title="Agente asignado" arrow>
                     <Chip
                       label={agente.username ?? 'N/A'}
                       icon={<SupportAgent />}
                       color="secondary"
                       variant="outlined"
-                      sx={{ minWidth: '150px' }}
+                      sx={{ minWidth: isMobile ? 'fit-content' : '150px' }}
                     />
                   </Tooltip>
                 </Grid>
@@ -152,13 +153,12 @@ export function OrderChatContent({ orderId }: Props) {
         >
           {order.mensajes?.length ? (
             <>
-              {' '}
-              {order.mensajes.map((msg: Message) => {
+              {order.mensajes.map((msg: Message, i: number) => {
                 const isClient = msg.usuario.id === order.cliente.id;
 
                 return (
                   <Box
-                    key={msg.id}
+                    key={`${msg.id}-${i}`}
                     sx={{
                       display: 'flex',
                       flexDirection: isClient ? 'row' : 'row-reverse',
@@ -207,10 +207,11 @@ export function OrderChatContent({ orderId }: Props) {
                             <Stack spacing={1} mt={2}>
                               {msg.adjuntos.map((adjunto) => {
                                 const fileName = adjunto.archivo.split('/').pop();
+                                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName || '');
 
                                 return (
                                   <Box
-                                    key={adjunto.id}
+                                    key={`${msg.id}-adj-${adjunto.id}`}
                                     onClick={() => downloadAttachment(msg.id, fileName!)}
                                     sx={{
                                       cursor: 'pointer',
@@ -228,10 +229,26 @@ export function OrderChatContent({ orderId }: Props) {
                                       },
                                     }}
                                   >
-                                    <AttachFile sx={{ fontSize: 20, color: '#fff' }} />
-                                    <Typography variant="caption" sx={{ color: '#fff' }} noWrap>
-                                      {fileName}
-                                    </Typography>
+                                    {isImage ? (
+                                      <Box
+                                        component="img"
+                                        src={`${CONFIG.site.serverJST}${adjunto.archivo}`}
+                                        alt={fileName}
+                                        sx={{
+                                          width: 100,
+                                          height: 100,
+                                          objectFit: 'cover',
+                                          borderRadius: 1,
+                                        }}
+                                      />
+                                    ) : (
+                                      <>
+                                        <AttachFile sx={{ fontSize: 20, color: '#fff' }} />
+                                        <Typography variant="caption" sx={{ color: '#fff' }} noWrap>
+                                          {fileName}
+                                        </Typography>
+                                      </>
+                                    )}
                                   </Box>
                                 );
                               })}
@@ -262,7 +279,7 @@ export function OrderChatContent({ orderId }: Props) {
             </>
           ) : (
             <Typography variant="body1" color="textSecondary">
-              No hay mensajes disponibles.
+              Indique su inconveniente o requisitos, pronto será asignado a un agente.
             </Typography>
           )}
         </Paper>

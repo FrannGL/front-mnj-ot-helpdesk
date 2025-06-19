@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import { useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Send, AttachFile, AutoAwesome } from '@mui/icons-material';
+import { Send, AttachFile } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
 import { UserGroups } from 'src/modules/users/enums';
@@ -189,12 +189,12 @@ export function OrderChatInput({ orderId }: Props) {
           <Send />
         </IconButton>
 
-        <IconButton
+        {/* <IconButton
           color={theme.palette.mode === 'dark' ? 'inherit' : 'primary'}
           onClick={() => console.log('IA clicked')}
         >
           <AutoAwesome />
-        </IconButton>
+        </IconButton> */}
       </Box>
     </DialogActions>
   );

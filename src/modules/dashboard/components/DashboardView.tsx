@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 
 import { Box, CircularProgress } from '@mui/material';
 
-const OrderStatusChart = dynamic(() => import('../charts').then((mod) => mod.OrderStatusChart), {
+const OrderStatusChart = dynamic(() => import('./charts').then((mod) => mod.OrderStatusChart), {
   loading: () => (
     <Box sx={{ width: '100%', height: '100vh', display: 'flex', justifyContent: 'center' }}>
       <CircularProgress />
@@ -14,7 +14,7 @@ const OrderStatusChart = dynamic(() => import('../charts').then((mod) => mod.Ord
 });
 
 const MantenimientoCategoriasChart = dynamic(
-  () => import('../charts').then((mod) => mod.MantenimientoCategoriasChart),
+  () => import('./charts').then((mod) => mod.MantenimientoCategoriasChart),
   {
     loading: () => (
       <Box sx={{ width: '100%', height: '100vh', display: 'flex', justifyContent: 'center' }}>

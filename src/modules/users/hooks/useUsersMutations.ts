@@ -3,7 +3,7 @@ import type { CreateUserType } from 'src/modules/users/schemas/user.schema';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import { request } from 'src/shared/services/request';
+import { request } from 'src/services/request';
 
 async function createUser(newUser: CreateUserType): Promise<User> {
   const dataToSend = {

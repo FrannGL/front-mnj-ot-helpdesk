@@ -1,8 +1,8 @@
-import { request } from 'src/shared/services/request';
+import { request } from 'src/services/request';
 
 export async function downloadAttachment(messageId: number, fileName: string) {
   try {
-    const response = await request(`mensajes/${messageId}/${fileName}`, 'GET', undefined, 'blob');
+    const response = await request(`/media/mensajes/${messageId}/${fileName}`, 'GET', undefined, 'blob');
 
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');

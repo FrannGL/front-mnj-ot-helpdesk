@@ -1,54 +1,87 @@
+import { useRef, useEffect } from 'react';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm, Controller } from 'react-hook-form';
+
 import {
-  Dialog,
   Button,
+  Dialog,
   TextField,
   DialogTitle,
-  DialogContent,
   DialogActions,
+  DialogContent,
 } from '@mui/material';
 
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
+import { tagSchema } from '../schemas/tag.schema';
+
+import type { TagFormData} from '../schemas/tag.schema';
+
 interface TagFormProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (values: { nombre: string; tags: string[] }) => void;
-  initialValues: { nombre: string; tags: string[] };
-  setFormState: React.Dispatch<React.SetStateAction<{ nombre: string; tags: string[] }>>;
+  onSubmit: (values: TagFormData) => void;
+  initialValues: TagFormData;
 }
 
-export const TagForm = ({ open, onClose, onSubmit, initialValues, setFormState }: TagFormProps) => {
-  const handleChangeNombre = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormState((prev) => ({ ...prev, nombre: e.target.value }));
-  };
+export const TagForm = ({ open, onClose, onSubmit, initialValues }: TagFormProps) => {
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = () => {
-    if (!initialValues.nombre || initialValues.nombre.trim() === '') return;
-    onSubmit(initialValues);
+  const {
+    control,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<TagFormData>({
+    resolver: zodResolver(tagSchema),
+    defaultValues: initialValues,
+  });
+
+  useEffect(() => {
+    if (open) {
+      reset(initialValues);
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [open, initialValues, reset]);
+
+  const onSubmitForm = (data: TagFormData) => {
+    onSubmit(data);
+    onClose();
   };
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="xs" fullWidth>
-      <DialogTitle>{initialValues ? 'Editar Tag' : 'Nuevo Tag'}</DialogTitle>
-      <DialogContent>
-        <TextField
-          autoFocus
-          fullWidth
-          margin="dense"
-          label="Nombre del Tag"
-          sx={inputStyles}
-          value={initialValues.nombre}
-          onChange={handleChangeNombre}
-        />
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} color="error">
-          Cancelar
-        </Button>
-        <Button onClick={handleSubmit} variant="contained">
-          {initialValues ? 'Guardar' : 'Crear'}
-        </Button>
-      </DialogActions>
+      <form onSubmit={handleSubmit(onSubmitForm)}>
+        <DialogTitle>{initialValues.nombre ? 'Editar Tag' : 'Nuevo Tag'}</DialogTitle>
+        <DialogContent>
+          <Controller
+            name="nombre"
+            control={control}
+            render={({ field }) => (
+              <TextField
+                {...field}
+                inputRef={inputRef}
+                fullWidth
+                margin="dense"
+                label="Nombre del Tag"
+                sx={inputStyles}
+                error={!!errors.nombre}
+                helperText={errors.nombre?.message}
+              />
+            )}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="error">
+            Cancelar
+          </Button>
+          <Button type="submit" variant="contained">
+            {initialValues.nombre ? 'Guardar' : 'Crear'}
+          </Button>
+        </DialogActions>
+      </form>
     </Dialog>
   );
 };

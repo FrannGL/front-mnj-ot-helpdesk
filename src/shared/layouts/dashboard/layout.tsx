@@ -4,12 +4,14 @@ import type { SettingsState } from 'src/shared/components/minimal/settings';
 import type { Theme, SxProps, CSSObject, Breakpoint } from '@mui/material/styles';
 
 import { useMemo } from 'react';
+import { useUser } from '@clerk/nextjs';
 
 import Alert from '@mui/material/Alert';
 import { GlobalStyles } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
+import { isAdmin } from 'src/shared/utils/verifyUserRole';
 import { varAlpha, stylesMode } from 'src/shared/theme/styles';
 import { useBoolean } from 'src/shared/hooks/minimal/use-boolean';
 import { useSettingsContext } from 'src/shared/components/minimal/settings';
@@ -37,6 +39,8 @@ export type DashboardLayoutProps = {
 };
 
 export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
+  const { user } = useUser();
+
   const theme = useTheme();
 
   const mobileNavOpen = useBoolean();
@@ -47,13 +51,20 @@ export function DashboardLayout({ sx, children, data }: DashboardLayoutProps) {
 
   const layoutQuery: Breakpoint = 'lg';
 
-  const navData = data?.nav ?? dashboardNavData;
-
   const isNavMini = settings.navLayout === 'mini';
 
   const isNavHorizontal = settings.navLayout === 'horizontal';
 
   const isNavVertical = isNavMini || settings.navLayout === 'vertical';
+
+  const publicMetadata = user?.publicMetadata || {};
+
+  const navData = (data?.nav ?? dashboardNavData).filter((group) => {
+    if (group.subheader === 'Administración' && !isAdmin(publicMetadata)) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <>

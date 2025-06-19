@@ -1,5 +1,5 @@
-import { AdminOrders } from 'src/modules/admin-orders/components/AdminOrders';
+import OrdersView from 'src/modules/orders/components/OrdersView';
 
 export default function Page() {
-  return <AdminOrders />;
+  return <OrdersView />;
 }
