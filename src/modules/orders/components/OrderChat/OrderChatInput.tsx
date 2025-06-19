@@ -1,13 +1,9 @@
-import type { User } from 'src/modules/users/interfaces';
-
 import { toast } from 'sonner';
 import { useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { Send, AttachFile } from '@mui/icons-material';
-import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
-
-import { UserGroups } from 'src/modules/users/enums';
+import { Box, useTheme, InputBase, IconButton, DialogActions, useMediaQuery } from '@mui/material';
 
 import { useOrders, useOrderById, useOrderSocket } from '../../hooks';
 
@@ -16,8 +12,6 @@ import type { Message } from '../../interfaces';
 type Props = {
   orderId: number;
 };
-
-type IncomingWSMessage = { message: string } | Partial<Message>;
 
 export function OrderChatInput({ orderId }: Props) {
   const theme = useTheme();
@@ -36,36 +30,15 @@ export function OrderChatInput({ orderId }: Props) {
   const clearFile = () => setArchivo(null);
 
   const handleNewMessage = useCallback(
-    (incoming: IncomingWSMessage) => {
-      const defaultUser: User = {
-        id: 0,
-        username: 'Sistema',
-        email: '',
-        groups: [{ id: UserGroups.DIRECTOR, name: 'Director' }],
-      };
-
-      const newMessage: Message = {
-        id: Date.now(),
-        texto: 'message' in incoming ? incoming.message ?? '' : incoming.texto ?? '',
-        usuario: defaultUser,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        adjuntos: [],
-      };
-
+    (incoming: Message) => {
       queryClient.setQueryData(['order', orderId], (oldData: any) => {
         if (!oldData) return oldData;
-
-        const mensajes = oldData.data.mensajes ?? [];
-        const lastMessage = mensajes[mensajes.length - 1];
-
-        if (lastMessage?.texto === newMessage.texto) return oldData;
 
         return {
           ...oldData,
           data: {
             ...oldData.data,
-            mensajes: [...mensajes, newMessage],
+            mensajes: [...(oldData.data.mensajes ?? []), incoming],
           },
         };
       });
@@ -73,7 +46,7 @@ export function OrderChatInput({ orderId }: Props) {
     [orderId, queryClient]
   );
 
-  const { sendSocketMessage, sendNotification } = useOrderSocket(orderId, handleNewMessage);
+  const { sendNotification } = useOrderSocket(orderId, handleNewMessage);
 
   const handleAttachClick = () => {
     fileInputRef.current?.click();
@@ -90,8 +63,6 @@ export function OrderChatInput({ orderId }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!mensaje.trim() && !archivo) return;
-
-    sendSocketMessage({ message: mensaje });
 
     sendMessageMutation.mutate(
       {

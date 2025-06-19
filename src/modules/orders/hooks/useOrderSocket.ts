@@ -5,72 +5,40 @@ import { buildWebSocketUrl } from 'src/shared/utils/buildWebsocketUrl';
 
 import type { Message } from '../interfaces';
 
-type IncomingWSMessage = { message: string } | Partial<Message>;
-
-export function useOrderSocket(
-  orderId: number | null,
-  onNewMessage: (message: IncomingWSMessage) => void
-) {
+export function useOrderSocket(orderId: number | null, onNewMessage: (message: Message) => void) {
   const socketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    if (!orderId) {
-      return undefined;
-    }
+    if (!orderId) return;
 
     const wsUrl = buildWebSocketUrl(CONFIG.site.serverJST, orderId);
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
 
-    const handleOpen = () => {
-      // console.log(`📡 WebSocket connected for order_${orderId}`);
-    };
-
-    const handleMessage = (event: MessageEvent) => {
-      // console.log('📩 Mensaje recibido:', event.data);
-
+    socket.onmessage = (event: MessageEvent) => {
       try {
         const data = JSON.parse(event.data);
 
         if (data.message) {
-          onNewMessage(data);
-        } else {
-          console.warn('⚠️ Mensaje con formato desconocido:', data);
+          onNewMessage(data.message);
         }
       } catch (err) {
-        console.error('❌ Error al parsear el mensaje del WebSocket:', err);
+        console.error('❌ Error al parsear mensaje del WS', err);
       }
     };
 
-    const handleClose = (event: CloseEvent) => {
-      // console.log(`📴 WebSocket cerrado para order_${orderId}`, {
-      //   code: event.code,
-      //   reason: event.reason,
-      //   wasClean: event.wasClean,
-      // });
-    };
-
-    socket.onopen = handleOpen;
-    socket.onmessage = handleMessage;
-    socket.onclose = handleClose;
-
-    socket.onerror = (err) => {
-      console.error('⚠️ WebSocket error', err);
-    };
-
+    // eslint-disable-next-line consistent-return
     return () => {
-      if (socket.readyState === WebSocket.OPEN) {
-        socket.close();
-      }
+      if (socket.readyState === WebSocket.OPEN) socket.close();
     };
   }, [orderId, onNewMessage]);
 
   const sendSocketMessage = useCallback((msg: object) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(JSON.stringify(msg));
-      // console.log('📤 Mensaje enviado:', msg);
+      console.log('📤 Mensaje enviado:', msg);
     } else {
-      console.warn('⚠️ WebSocket is not open. Cannot send message:', msg);
+      console.warn('⚠️ WebSocket no abierto:', msg);
     }
   }, []);
 
