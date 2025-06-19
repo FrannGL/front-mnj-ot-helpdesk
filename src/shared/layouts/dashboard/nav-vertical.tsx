@@ -64,15 +64,15 @@ export function NavVertical({
               <Image
                 src="/logo/logo-white.png"
                 alt="Logo"
-                width={isNavMini ? 100 : 180}
-                height={40}
+                width={isNavMini ? 100 : 299}
+                height={70}
               />
             ) : (
               <Image
                 src="/logo/logo-dark.png"
                 alt="Logo"
-                width={isNavMini ? 100 : 180}
-                height={40}
+                width={isNavMini ? 100 : 299}
+                height={70}
               />
             ))}
           <Stack
@@ -111,15 +111,15 @@ export function NavVertical({
               <Image
                 src={isNavMini ? '/logo/logo-white-mini.png' : '/logo/logo-white.png'}
                 alt="Logo"
-                width={isNavMini ? 50 : 180}
-                height={40}
+                width={isNavMini ? 70 : 299}
+                height={isNavMini ? 50 : 70}
               />
             ) : (
               <Image
                 src={isNavMini ? '/logo/logo-dark-mini.png' : '/logo/logo-dark.png'}
                 alt="Logo"
-                width={isNavMini ? 50 : 180}
-                height={40}
+                width={isNavMini ? 70 : 299}
+                height={isNavMini ? 50 : 70}
               />
             ))}
         </Box>

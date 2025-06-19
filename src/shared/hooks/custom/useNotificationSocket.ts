@@ -20,7 +20,7 @@ export function useNotificationsSocket({ onMessage }: UseNotificationsSocketProp
   useEffect(() => {
     if (socketRef.current) return undefined;
 
-    const wsUrl = buildWebSocketUrl(CONFIG.site.serverJST);
+    const wsUrl = buildWebSocketUrl(CONFIG.site.serverJST, undefined, true);
     console.log('[Socket] Intentando conectar a:', wsUrl);
 
     const socket = new WebSocket(wsUrl);

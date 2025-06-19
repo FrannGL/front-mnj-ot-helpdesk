@@ -23,19 +23,19 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
   return response.data;
 }
 export async function createOrder(newOrder: CreateOrderType): Promise<Order> {
-  const response = await request('ordenes', 'POST', newOrder);
+  const response = await request('ordenes?frontend=2', 'POST', newOrder);
   if (response.error) throw new Error(response.error);
   return response.data;
 }
 
 export async function updateOrder(orderId: number, updatedOrder: CreateOrderType): Promise<Order> {
-  const response = await request(`ordenes/${orderId}`, 'PUT', updatedOrder);
+  const response = await request(`ordenes/${orderId}?frontend=2`, 'PUT', updatedOrder);
   if (response.error) throw new Error(response.error);
   return response.data;
 }
 
 export async function deleteOrder(orderId: number) {
-  const response = await request(`ordenes/${orderId}`, 'DELETE');
+  const response = await request(`ordenes/${orderId}?frontend=2`, 'DELETE');
   if (response.error) throw new Error(response.error);
   return response;
 }
@@ -52,7 +52,7 @@ export async function sendMessageToOrder({ orderId, message }: SendMessagePayloa
     formData.append('adjuntos', file);
   });
 
-  const response = await request(`ordenes/${orderId}/mensajes/`, 'POST', formData, 'formData');
+  const response = await request(`ordenes/${orderId}/mensajes/?frontend=2`, 'POST', formData, 'formData');
 
   if (response.error) throw new Error(response.error);
   return response.data;

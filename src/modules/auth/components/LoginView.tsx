@@ -16,6 +16,12 @@ export function LoginView() {
           logoImageUrl:
             theme.palette.mode === 'dark' ? '/logo/logo-white.png' : '/logo/logo-dark.png',
         },
+        elements: {
+          logoImage: {
+            width: '300px',
+            height: 'auto',
+          },
+        },
       }}
     />
   );

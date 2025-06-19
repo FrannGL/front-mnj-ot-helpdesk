@@ -18,7 +18,7 @@ export function useOrderSocket(
       return undefined;
     }
 
-    const wsUrl = buildWebSocketUrl(CONFIG.site.serverJST, orderId);
+    const wsUrl = buildWebSocketUrl(CONFIG.site.serverJST, orderId, true);
     const socket = new WebSocket(wsUrl);
     socketRef.current = socket;
 

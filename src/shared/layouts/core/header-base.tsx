@@ -147,9 +147,9 @@ export function HeaderBase({
             {/* -- Logo -- */}
             {pathname.includes('sign-in') &&
               (theme.palette.mode === 'dark' ? (
-                <Image src="/logo/logo-white.png" alt="Logo" width={180} height={40} />
+                <Image src="/logo/logo-white.png" alt="Logo" width={299} height={70} />
               ) : (
-                <Image src="/logo/logo-dark.png" alt="Logo" width={180} height={40} />
+                <Image src="/logo/logo-dark.png" alt="Logo" width={299} height={70} />
               ))}
             {/* -- Divider -- */}
             <StyledDivider data-slot="divider" />

@@ -1,4 +1,8 @@
-export function buildWebSocketUrl(baseHttpUrl: string, orderId?: number): string {
+export function buildWebSocketUrl(
+  baseHttpUrl: string,
+  orderId?: number,
+  useSecondFrontend = false
+): string {
   const protocol = baseHttpUrl.startsWith('https') ? 'wss' : 'ws';
   const host = baseHttpUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
 
@@ -6,5 +10,6 @@ export function buildWebSocketUrl(baseHttpUrl: string, orderId?: number): string
     return `${protocol}://${host}/ws/chat/orden_${orderId}/`;
   }
 
-  return `${protocol}://${host}/ws/notif/ordenes/`;
+  const path = useSecondFrontend ? '/ws/notif/ordenes2/?frontend=2' : '/ws/notif/ordenes/';
+  return `${protocol}://${host}${path}`;
 }

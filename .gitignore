@@ -38,3 +38,6 @@ build
 .eslintcache
 .unimportedrc.json
 tsconfig.tsbuildinfo
+
+# clerk configuration (can include secrets)
+/.clerk/
