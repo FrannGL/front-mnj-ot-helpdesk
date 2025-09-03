@@ -24,19 +24,19 @@ type Props = {
   children: React.ReactNode;
 };
 
-export const customEsLocalization = {
-  ...esES,
-  signIn: {
-    ...esES.signIn,
-    start: {
-      ...esES.signIn?.start,
-      title: 'Por favor, Inicia Sesión',
-    },
-    formButtonPrimary: 'Continuar',
-  },
-};
 
 export default async function RootLayout({ children }: Props) {
+  const customEsLocalization = {
+    ...esES,
+    signIn: {
+      ...esES.signIn,
+      start: {
+        ...esES.signIn?.start,
+        title: 'Por favor, Inicia Sesión',
+      },
+      formButtonPrimary: 'Continuar',
+    },
+  };
   const settings = CONFIG.isStaticExport ? defaultSettings : await detectSettings();
 
   return (
