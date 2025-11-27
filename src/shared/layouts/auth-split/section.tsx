@@ -6,7 +6,6 @@ import { useTheme } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 
 import { CONFIG } from 'src/config';
-import { varAlpha, bgGradient } from 'src/shared/theme/styles';
 
 // ----------------------------------------------------------------------
 

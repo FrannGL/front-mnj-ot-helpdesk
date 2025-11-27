@@ -7,12 +7,11 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import Avatar from '@mui/material/Avatar';
 import Typography from '@mui/material/Typography';
-import { alpha as hexAlpha } from '@mui/material/styles';
 
 import { paths } from 'src/config/paths';
 import { CONFIG } from 'src/config/config-global';
 import { Label } from 'src/shared/components/minimal/label';
-import { varAlpha, bgGradient } from 'src/shared/theme/styles';
+import { varAlpha } from 'src/shared/theme/styles';
 
 // ----------------------------------------------------------------------
 

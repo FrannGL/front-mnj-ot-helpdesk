@@ -64,6 +64,7 @@
     "sonner": "^2.0.3",
     "stylis": "^4.3.2",
     "stylis-plugin-rtl": "^2.1.1",
+    "svix": "^1.81.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
