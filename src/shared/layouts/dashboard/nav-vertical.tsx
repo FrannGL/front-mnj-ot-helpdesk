@@ -54,7 +54,7 @@ export function NavVertical({
             pb: 1,
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
+            alignItems: 'flex-start',
             gap: 1,
           }}
         >
@@ -62,17 +62,17 @@ export function NavVertical({
           {mounted &&
             (theme.palette.mode === 'dark' ? (
               <Image
-                src="/logo/logo-white.png"
+                src="/assets/images/logo/logo-white.png"
                 alt="Logo"
-                width={isNavMini ? 100 : 299}
-                height={70}
+                width={isNavMini ? 100 : 260}
+                height={60}
               />
             ) : (
               <Image
-                src="/logo/logo-dark.png"
+                src="/assets/images/logo/logo-dark.png"
                 alt="Logo"
-                width={isNavMini ? 100 : 299}
-                height={70}
+                width={isNavMini ? 100 : 260}
+                height={60}
               />
             ))}
           <Stack

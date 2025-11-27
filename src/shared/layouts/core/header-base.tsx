@@ -117,8 +117,8 @@ export function HeaderBase({
   const imageSrc = useMemo(
     () =>
       isMounted
-        ? `/assets/icons/setting/ic-${mode === 'light' ? 'sun' : 'moon'}.svg`
-        : '/assets/icons/setting/ic-moon.svg',
+        ? `/assets/icons/navbar/ic-${mode === 'light' ? 'sun' : 'moon'}.svg`
+        : '/assets/icons/navbar/ic-moon.svg',
     [isMounted, mode]
   );
 
@@ -147,9 +147,9 @@ export function HeaderBase({
             {/* -- Logo -- */}
             {pathname.includes('sign-in') &&
               (theme.palette.mode === 'dark' ? (
-                <Image src="/logo/logo-white.png" alt="Logo" width={299} height={70} />
+                <Image src="/logo/logo-white.png" alt="Logo" width={100} height={50} />
               ) : (
-                <Image src="/logo/logo-dark.png" alt="Logo" width={299} height={70} />
+                <Image src="/logo/logo-dark.png" alt="Logo" width={100} height={50} />
               ))}
             {/* -- Divider -- */}
             <StyledDivider data-slot="divider" />

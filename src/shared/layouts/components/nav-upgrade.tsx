@@ -73,10 +73,6 @@ export function UpgradeBlock({ sx, ...other }: StackProps) {
   return (
     <Stack
       sx={{
-        ...bgGradient({
-          color: `135deg, ${hexAlpha('#F7BB95', 0.92)}, ${hexAlpha('#5B2FF3', 0.92)}`,
-          imgUrl: `${CONFIG.site.basePath}/assets/background/background-7.webp`,
-        }),
         px: 3,
         py: 4,
         borderRadius: 2,

@@ -29,7 +29,7 @@ export function Section({
   layoutQuery,
   methods,
   title = 'Manage the job',
-  imgUrl = `${CONFIG.site.basePath}/assets/illustrations/login.svg`,
+  imgUrl = `${CONFIG.site.basePath}/assets/images/login.svg`,
   subtitle = 'More effectively with optimized workflows.',
   ...other
 }: SectionProps) {
@@ -38,10 +38,6 @@ export function Section({
   return (
     <Box
       sx={{
-        ...bgGradient({
-          color: `0deg, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)}, ${varAlpha(theme.vars.palette.background.defaultChannel, 0.92)}`,
-          imgUrl: `${CONFIG.site.basePath}/assets/background/background-3-blur.webp`,
-        }),
         px: 3,
         pb: 3,
         width: 1,
@@ -78,8 +74,6 @@ export function Section({
         src={imgUrl}
         sx={{ width: 1, aspectRatio: '4/3', objectFit: 'cover' }}
       />
-
-      
     </Box>
   );
 }

@@ -12,7 +12,7 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
     }
   });
 
-  searchParams.set('order_by', '-created_at');
+  searchParams.set('ordering', '');
 
   const url = `ordenes?${searchParams}`;
   const response = await request(url, 'GET');
@@ -53,7 +53,12 @@ export async function sendMessageToOrder({ orderId, message }: SendMessagePayloa
     formData.append('adjuntos', file);
   });
 
-  const response = await request(`ordenes/${orderId}/mensajes/?frontend=2`, 'POST', formData, 'formData');
+  const response = await request(
+    `ordenes/${orderId}/mensajes/?frontend=2`,
+    'POST',
+    formData,
+    'formData'
+  );
 
   if (response.error) throw new Error(response.error);
   return response.data;
