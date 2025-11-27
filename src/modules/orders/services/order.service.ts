@@ -12,9 +12,11 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
     }
   });
 
-  searchParams.set('ordering', '');
+  if (!searchParams.has('order_by')) {
+    searchParams.set('order_by', '-created_at');
+  }
 
-  const url = `ordenes?${searchParams}`;
+  const url = `ordenes?${searchParams.toString()}`;
   const response = await request(url, 'GET');
 
   if (response.error || response.status >= 400)

@@ -109,14 +109,22 @@ export function NavVertical({
           {mounted &&
             (theme.palette.mode === 'dark' ? (
               <Image
-                src={isNavMini ? '/logo/logo-white-mini.png' : '/logo/logo-white.png'}
+                src={
+                  isNavMini
+                    ? '/assets/images/logo/logo-white-mini.png'
+                    : '/assets/images/logo/logo-white.png'
+                }
                 alt="Logo"
                 width={isNavMini ? 70 : 299}
                 height={isNavMini ? 50 : 70}
               />
             ) : (
               <Image
-                src={isNavMini ? '/logo/logo-dark-mini.png' : '/logo/logo-dark.png'}
+                src={
+                  isNavMini
+                    ? '/assets/images/logo/logo-dark-mini.png'
+                    : '/assets/images/logo/logo-dark.png'
+                }
                 alt="Logo"
                 width={isNavMini ? 70 : 299}
                 height={isNavMini ? 50 : 70}

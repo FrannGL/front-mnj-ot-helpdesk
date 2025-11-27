@@ -14,7 +14,9 @@ export function RegisterView() {
         baseTheme: theme.palette.mode === 'dark' ? dark : undefined,
         layout: {
           logoImageUrl:
-            theme.palette.mode === 'dark' ? '/logo/logo-white.png' : '/logo/logo-dark.png',
+            theme.palette.mode === 'dark'
+              ? '/assets/images/logo/logo-white.png'
+              : '/assets/images/logo/logo-dark.png',
         },
       }}
     />

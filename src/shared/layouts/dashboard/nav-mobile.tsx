@@ -58,9 +58,9 @@ export function NavMobile({
       {slots?.topArea ?? (
         <Box sx={{ pl: 3.5, pt: 2.5, pb: 1 }}>
           {theme.palette.mode === 'dark' ? (
-            <Image src="/logo/logo-white.png" alt="Logo" width={299} height={70} />
+            <Image src="/assets/images/logo/logo-white.png" alt="Logo" width={299} height={70} />
           ) : (
-            <Image src="/logo/logo-dark.png" alt="Logo" width={299} height={70} />
+            <Image src="/assets/images/logo/logo-dark.png" alt="Logo" width={299} height={70} />
           )}
         </Box>
       )}
