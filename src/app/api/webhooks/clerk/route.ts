@@ -56,12 +56,8 @@ export async function POST(req: Request) {
       try {
         const checkResponse = await request(`usuarios?email=${email}`, 'GET');
 
-        let userExists = false;
-        if (checkResponse.data && Array.isArray(checkResponse.data.results)) {
-          userExists = checkResponse.data.results.some((u: any) => u.email === email);
-        } else if (checkResponse.data && Array.isArray(checkResponse.data)) {
-          userExists = checkResponse.data.some((u: any) => u.email === email);
-        }
+        const users = checkResponse.data?.results || checkResponse.data || [];
+        const userExists = Array.isArray(users) && users.length > 0;
 
         if (!userExists) {
           // console.log(`User with email ${email} not found, creating...`);
