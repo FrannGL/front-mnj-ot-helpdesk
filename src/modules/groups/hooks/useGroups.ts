@@ -5,7 +5,7 @@ import { request } from 'src/services';
 import type { Group } from '../interfaces/group.interface';
 
 async function fetchTags(): Promise<Group[]> {
-  const response = await request(`/api/grupos`, 'GET');
+  const response = await request(`grupos`, 'GET');
 
   if (response.error || response.status >= 400) {
     throw new Error(response.error || `Error ${response.status}`);

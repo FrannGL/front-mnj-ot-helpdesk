@@ -16,7 +16,7 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
     searchParams.set('order_by', '-created_at');
   }
 
-  const url = `/api/ordenes?${searchParams.toString()}`;
+  const url = `ordenes?${searchParams.toString()}`;
   const response = await request(url, 'GET');
 
   if (response.error || response.status >= 400)
