@@ -1,6 +1,6 @@
 {
-  "name": "ordenes-trabajo",
-  "author": "Minimals",
+  "name": "mnj-ot-helpdesk",
+  "author": "Franco Galluccio",
   "version": "6.0.1",
   "description": "Sistema de gestión de tickets y mesa de ayuda",
   "private": true,

@@ -1,6 +1,4 @@
-/**
- * @type {import('next').NextConfig}
- */
+/** @type {import('next').NextConfig} */
 
 const isStaticExport = 'false';
 
@@ -28,6 +26,14 @@ const nextConfig = {
     });
 
     return config;
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'https://otback.jst.gob.ar/:path*',
+      },
+    ];
   },
   ...(isStaticExport === 'true' && {
     output: 'export',
