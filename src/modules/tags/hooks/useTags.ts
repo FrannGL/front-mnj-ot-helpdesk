@@ -1,5 +1,4 @@
-import { useEffect } from 'react';
-import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
 import { request } from 'src/services';
 
@@ -12,6 +11,10 @@ interface PaginatedTagsResponse {
   results: Tag[];
 }
 
+interface UseTagsOptions {
+  initialData?: PaginatedTagsResponse;
+}
+
 async function fetchTags(page: number): Promise<PaginatedTagsResponse> {
   const response = await request(`tags?page=${page}`, 'GET');
 
@@ -22,26 +25,16 @@ async function fetchTags(page: number): Promise<PaginatedTagsResponse> {
   return response.data;
 }
 
-export function useTags(page: number = 1) {
-  const queryClient = useQueryClient();
-
+export function useTags(page: number = 1, options?: UseTagsOptions) {
   const { data, isLoading, error, isFetching } = useQuery<PaginatedTagsResponse>({
     queryKey: ['tags', page],
     queryFn: () => fetchTags(page),
     placeholderData: keepPreviousData,
+    initialData: options?.initialData,
     staleTime: 1000 * 60 * 5,
     retry: 3,
     retryDelay: 2000,
   });
-
-  useEffect(() => {
-    if (data?.next) {
-      queryClient.prefetchQuery({
-        queryKey: ['tags', page + 1],
-        queryFn: () => fetchTags(page + 1),
-      });
-    }
-  }, [data?.next, page, queryClient]);
 
   return {
     tags: data?.results || [],

@@ -15,14 +15,27 @@ import { useTagMutations } from '../hooks/useTagsMutation';
 import type { Tag } from '../interfaces/tag.interface';
 import type { TagFormData } from '../schemas/tag.schema';
 
-const TagsView = () => {
+interface PaginatedTagsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Tag[];
+}
+
+interface TagsViewProps {
+  initialData?: PaginatedTagsResponse;
+}
+
+const TagsView = ({ initialData }: TagsViewProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [tagToDelete, setTagToDelete] = useState<number | null>(null);
   const [editTag, setEditTag] = useState<Tag | null>(null);
   const [page, setPage] = useState(1);
 
-  const { tags, count, isLoading, error } = useTags(page);
+  const { tags, count, isLoading, error } = useTags(page, {
+    initialData: page === 1 ? initialData : undefined,
+  });
   const { createTag, updateTag, deleteTag } = useTagMutations();
 
   const handleOpenCreateModal = () => {

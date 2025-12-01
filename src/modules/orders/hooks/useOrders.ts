@@ -9,7 +9,12 @@ import {
 } from '../services/order.service';
 
 import type { OrderFilters } from '../types';
+import type { ServerResponse } from '../interfaces';
 import type { CreateOrderType } from '../schemas/order.schema';
+
+interface UseOrdersOptions {
+  initialData?: ServerResponse;
+}
 
 export function useOrders(
   page: number = 1,
@@ -20,7 +25,8 @@ export function useOrders(
     assignedTo: undefined,
     searchTerm: undefined,
     tags: undefined,
-  }
+  },
+  options?: UseOrdersOptions
 ) {
   const queryClient = useQueryClient();
 
@@ -38,6 +44,7 @@ export function useOrders(
     queryKey: ['orders', queryParams],
     queryFn: () => fetchOrders(queryParams),
     placeholderData: keepPreviousData,
+    initialData: options?.initialData,
     staleTime: 1000 * 60 * 5,
     retry: 3,
     retryDelay: 2000,

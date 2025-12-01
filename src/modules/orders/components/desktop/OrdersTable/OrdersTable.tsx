@@ -334,10 +334,10 @@ const OrdersTable = () => {
           <OrderMenuItems
             order={selectedOrder}
             onAssignAgents={() => setAssignAgentsModalOpen(true)}
-            onChangeStatus={handleChangeStatus}
+            onChangeStatus={(statusId) => handleChangeStatus(statusId, handleCloseActionsMenu)}
             onOpenChat={() => handleOpenChat(selectedOrder)}
             onEdit={() => handleEdit(selectedOrder)}
-            onDelete={() => handleDelete(selectedOrder.id)}
+            onDelete={() => handleDelete(selectedOrder.id, handleCloseActionsMenu)}
             closeMenu={handleCloseActionsMenu}
           />
         )}

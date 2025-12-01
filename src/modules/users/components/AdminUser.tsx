@@ -14,17 +14,26 @@ import { UserModal } from './UserModal';
 import { UsersTable } from './UsersTable';
 import { useUsersMutations } from '../hooks/useUsersMutations';
 
-import type { User } from '../interfaces';
 import type { UserGroups } from '../enums';
+import type { User, ServerResponse } from '../interfaces';
 
-export function AdminUser() {
-  const { data, isLoading } = useUsers();
-  const { deleteMutation } = useUsersMutations();
+interface AdminUserProps {
+  initialData?: ServerResponse;
+}
+
+export function AdminUser({ initialData }: AdminUserProps) {
+  const [page, setPage] = useState(1);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [page, setPage] = useState(1);
+
+  const { data, isLoading } = useUsers(page, {
+    initialData: page === 1 ? initialData : undefined,
+  });
+
+  const { deleteMutation } = useUsersMutations();
+
   const [filters, setFilters] = useState({
     group: '' as unknown as UserGroups | '',
     searchTerm: '',
@@ -61,6 +70,7 @@ export function AdminUser() {
     return data.results.filter((user) => {
       const matchesGroup =
         !filters.group || user.groups.some((group) => group.id === filters.group);
+
       const matchesSearch =
         !filters.searchTerm ||
         user.username.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
@@ -70,8 +80,7 @@ export function AdminUser() {
     });
   }, [data?.results, filters]);
 
-  const paginatedUsers = filteredUsers.slice((page - 1) * rowsPerPage, page * rowsPerPage);
-  const totalPages = Math.ceil(filteredUsers.length / rowsPerPage);
+  const totalPages = Math.ceil((data?.count ?? 0) / rowsPerPage);
 
   if (isLoading) {
     return (
@@ -98,12 +107,12 @@ export function AdminUser() {
       <Filters filters={filters} setFilters={setFilters} />
 
       <UsersTable
-        users={paginatedUsers}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        users={filteredUsers}
         page={page}
         totalPages={totalPages}
         onPageChange={handlePageChange}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
       />
 
       <CreateButton type="user" />

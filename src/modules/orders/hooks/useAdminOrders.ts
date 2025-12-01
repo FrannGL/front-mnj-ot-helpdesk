@@ -57,12 +57,13 @@ export function useAdminOrders() {
     setEditModalOpen(true);
   };
 
-  const handleDelete = (orderId: number) => {
+  const handleDelete = (orderId: number, closeMenu?: () => void) => {
     const order = data?.results.find((o) => o.id === orderId);
     if (order) {
       setSelectedOrder(order);
       setSelectedOrderId(orderId);
       setConfirmationOpen(true);
+      closeMenu?.();
     }
   };
 
@@ -71,10 +72,11 @@ export function useAdminOrders() {
     setOpenChat(true);
   };
 
-  const handleChangeStatus = (statusId: number) => {
+  const handleChangeStatus = (statusId: number, closeMenu?: () => void) => {
     if (selectedOrder) {
       setPendingStatusId(statusId);
       setIsStatusChangeConfirmOpen(true);
+      closeMenu?.();
     }
   };
 
@@ -114,6 +116,7 @@ export function useAdminOrders() {
           toast.success('Tarea eliminada exitosamente');
           setConfirmationOpen(false);
           setSelectedOrderId(null);
+          setSelectedOrder(null);
         },
       });
     }
@@ -134,6 +137,7 @@ export function useAdminOrders() {
 
     setIsStatusChangeConfirmOpen(false);
     setPendingStatusId(null);
+    setSelectedOrder(null);
   };
 
   const showLoading = isLoading || isFetching;

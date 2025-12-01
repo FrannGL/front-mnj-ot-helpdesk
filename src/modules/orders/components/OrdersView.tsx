@@ -14,6 +14,7 @@ import { useOrders, useDebouncedValue } from '../hooks';
 import { MobileSearchBar, MobileFilterMenu } from './mobile/Filters';
 
 import type { OrderFilters } from '../types';
+import type { ServerResponse } from '../interfaces';
 
 const firaSans = Fira_Sans({
   subsets: ['latin'],
@@ -22,7 +23,11 @@ const firaSans = Fira_Sans({
 
 // ----------------------------------------------------------------------
 
-const OrdersView = () => {
+interface OrdersViewProps {
+  initialData?: ServerResponse;
+}
+
+const OrdersView = ({ initialData }: OrdersViewProps) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
@@ -42,7 +47,9 @@ const OrdersView = () => {
     [filters, debouncedSearchTerm]
   );
 
-  const { data, isLoading, error } = useOrders(page, debouncedFilters);
+  const { data, isLoading, error } = useOrders(page, debouncedFilters, {
+    initialData: page === 1 ? initialData : undefined,
+  });
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
 

@@ -1,6 +1,6 @@
 'use client';
 
-import type { IconButtonProps } from '@mui/material/IconButton';
+import type { BoxProps } from '@mui/material/Box';
 
 import { useState, useCallback } from 'react';
 import { useUser, useClerk, UserButton } from '@clerk/nextjs';
@@ -21,7 +21,7 @@ import { SignOutButton } from './sign-out-button';
 
 // ----------------------------------------------------------------------
 
-export type AccountDrawerProps = IconButtonProps & {
+export type AccountDrawerProps = BoxProps & {
   data?: {
     label: string;
     href: string;
@@ -35,8 +35,6 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
 
   const { user } = useUser();
   const { signOut } = useClerk();
-
-
 
   const [open, setOpen] = useState(false);
 
@@ -70,7 +68,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   );
 
   return (
-    <>
+    <Box sx={{ display: 'inline-flex', ...sx }} {...other}>
       {/* <AccountButton
         open={open}
         onClick={handleOpenDrawer}
@@ -183,6 +181,6 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
           <SignOutButton onClose={handleSignOut} />
         </Box>
       </Drawer>
-    </>
+    </Box>
   );
 }

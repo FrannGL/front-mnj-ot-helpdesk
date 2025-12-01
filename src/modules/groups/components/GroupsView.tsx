@@ -5,8 +5,21 @@ import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 import { GroupsTable } from './GroupsTable';
 import { useGroups } from '../hooks/useGroups';
 
-const GroupsView = () => {
-  const { data, isLoading, error } = useGroups();
+import type { Group } from '../interfaces/group.interface';
+
+interface GroupsResponse {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: Group[];
+}
+
+interface GroupsViewProps {
+  initialData?: GroupsResponse;
+}
+
+const GroupsView = ({ initialData }: GroupsViewProps) => {
+  const { groups, isLoading, error } = useGroups({ initialData });
 
   if (isLoading) {
     return (
@@ -37,7 +50,7 @@ const GroupsView = () => {
           <Typography variant="h5">Listado de Grupos registrados</Typography>
         </Stack>
 
-        <GroupsTable data={data} />
+        <GroupsTable data={groups} />
       </Box>
     </Stack>
   );
