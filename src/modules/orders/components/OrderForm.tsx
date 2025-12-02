@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
-import { Tag, Toc, Task, Group, PriorityHigh } from '@mui/icons-material';
+import { Tag, Toc, Task, Group, Category, PriorityHigh, LocationCity } from '@mui/icons-material';
 import {
   Chip,
   Grid,
@@ -39,6 +39,24 @@ interface OrderFormProps {
   orderId?: number;
 }
 
+const MOCK_BUILDINGS = [
+  '25 de mayo N° 350',
+  'Av. del Libertador 8150',
+  'Av Belgrano 1130-Venezuela 1135',
+  'Campichuelo 553',
+];
+
+const MOCK_SECTORS = [
+  'Automotores',
+  'Autos con chofer',
+  'Fotocopiadoras/Impresoras',
+  'Intendencia',
+  'Limpieza',
+  'Logistica',
+  'Mantenimiento',
+  'Servicio Terciarizado',
+];
+
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
   const { tags } = useTags();
@@ -60,6 +78,8 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
       estado: OrderStatusEnum.ABIERTO,
       prioridad: OrderPriorityEnum.MEDIA,
       tags: [],
+      edificio: '',
+      sector: '',
       ...defaultValues,
     },
   });
@@ -179,6 +199,60 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                     {errors.prioridad && (
                       <FormHelperText>{errors.prioridad.message}</FormHelperText>
                     )}
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={isMobileScreen ? 12 : 6}>
+              <Controller
+                name="edificio"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Edificio</InputLabel>
+                    <Select
+                      {...field}
+                      label="Edificio"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <LocationCity />
+                        </InputAdornment>
+                      }
+                    >
+                      {MOCK_BUILDINGS.map((building) => (
+                        <MenuItem key={building} value={building}>
+                          {building}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={isMobileScreen ? 12 : 6}>
+              <Controller
+                name="sector"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Sector</InputLabel>
+                    <Select
+                      {...field}
+                      label="Sector"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Category />
+                        </InputAdornment>
+                      }
+                    >
+                      {MOCK_SECTORS.map((sector) => (
+                        <MenuItem key={sector} value={sector}>
+                          {sector}
+                        </MenuItem>
+                      ))}
+                    </Select>
                   </FormControl>
                 )}
               />

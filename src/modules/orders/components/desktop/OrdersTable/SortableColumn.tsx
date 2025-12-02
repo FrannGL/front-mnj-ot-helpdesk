@@ -21,6 +21,7 @@ export const SortedTableCell = ({
     sx={{
       fontWeight: 'bold',
       width: column.width || 'auto',
+      whiteSpace: 'nowrap',
     }}
   >
     <TableSortLabel

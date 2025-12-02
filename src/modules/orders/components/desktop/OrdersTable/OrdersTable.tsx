@@ -53,6 +53,8 @@ const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
   { id: 'id', label: 'Código', width: '50px' },
   { id: 'titulo', label: 'Título', width: '250px' },
   { id: 'cliente', label: 'Cliente' },
+  { id: 'edificio', label: 'Edificio', width: '250px' },
+  { id: 'sector', label: 'Sector' },
   { id: 'estado', label: 'Estado', align: 'center' },
   { id: 'prioridad', label: 'Prioridad', align: 'center' },
   { id: 'agentes', label: 'Agentes Asignados' },
@@ -62,6 +64,24 @@ const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
     label: 'Fecha de Creación',
     width: '190px',
   },
+];
+
+const MOCK_BUILDINGS = [
+  '25 de mayo N° 350',
+  'Av. del Libertador 8150',
+  'Av Belgrano 1130-Venezuela 1135',
+  'Campichuelo 553',
+];
+
+const MOCK_SECTORS = [
+  'Automotores',
+  'Autos con chofer',
+  'Fotocopiadoras/Impresoras',
+  'Intendencia',
+  'Limpieza',
+  'Logistica',
+  'Mantenimiento',
+  'Servicio Terciarizado',
 ];
 
 const OrdersTable = () => {
@@ -270,6 +290,10 @@ const OrdersTable = () => {
                         </Tooltip>
                       </TableCell>
                       <TableCell>{order.cliente.username}</TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        {MOCK_BUILDINGS[order.id % MOCK_BUILDINGS.length]}
+                      </TableCell>
+                      <TableCell>{MOCK_SECTORS[order.id % MOCK_SECTORS.length]}</TableCell>
                       <TableCell>
                         <Chip
                           label={order.estado_display ?? 'N/A'}
@@ -290,7 +314,9 @@ const OrdersTable = () => {
                       </TableCell>
                       <TableCell>{renderAgentsCell(order.agentes)}</TableCell>
                       <TableCell>{renderTagsCell(order.tags)}</TableCell>
-                      <TableCell>{fDate(order.created_at, 'DD-MM-YYYY h:mm a')}</TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                        {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
+                      </TableCell>
                       <TableCell>
                         <IconButton onClick={(e) => handleOpenActionsMenu(e, order)} size="small">
                           <MoreVert />
