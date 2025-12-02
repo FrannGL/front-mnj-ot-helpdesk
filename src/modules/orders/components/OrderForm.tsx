@@ -1,26 +1,44 @@
 import { toast } from 'sonner';
-import { useEffect } from 'react';
+import { useDropzone } from 'react-dropzone';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect, useCallback } from 'react';
 
-import { Tag, Toc, Task, Group, Category, PriorityHigh, LocationCity } from '@mui/icons-material';
 import {
+  Tag,
+  Toc,
+  Task,
+  Group,
+  Close,
+  Category,
+  CloudUpload,
+  PriorityHigh,
+  LocationCity,
+} from '@mui/icons-material';
+import {
+  Box,
   Chip,
   Grid,
+  List,
   Button,
   Dialog,
   Select,
   MenuItem,
+  ListItem,
   TextField,
   InputLabel,
+  Typography,
+  IconButton,
   DialogTitle,
   FormControl,
   Autocomplete,
+  ListItemText,
   DialogActions,
   DialogContent,
   useMediaQuery,
   FormHelperText,
   InputAdornment,
+  ListItemSecondaryAction,
 } from '@mui/material';
 
 import { useTags } from 'src/modules/tags/hooks/useTags';
@@ -64,6 +82,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
   const { createMutation, updateMutation } = useOrders();
 
   const isMobileScreen = useMediaQuery('(max-width:600px)');
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const {
     control,
@@ -86,11 +105,15 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
 
   const handleClose = () => {
     reset();
+    setUploadedFiles([]);
     onClose();
   };
 
   const onSubmit = async (data: CreateOrderType) => {
     try {
+      // TODO: Handle file upload - uploadedFiles array contains the files
+      console.log('Files to upload:', uploadedFiles);
+
       if (type === 'edit' && orderId) {
         await updateMutation.mutateAsync({ orderId, updatedOrder: data });
         toast.success('Orden actualizada exitosamente.');
@@ -105,6 +128,26 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
       handleClose();
     }
   };
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setUploadedFiles((prev) => [...prev, ...acceptedFiles]);
+  }, []);
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      'application/pdf': ['.pdf'],
+      'text/plain': ['.txt'],
+      'image/jpeg': ['.jpg', '.jpeg'],
+      'image/png': ['.png'],
+      'image/webp': ['.webp'],
+    },
+    maxSize: 10485760, // 10MB
+  });
 
   useEffect(() => {
     if (open && type === 'edit') {
@@ -359,6 +402,69 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                   />
                 )}
               />
+            </Grid>
+
+            <Grid item xs={12}>
+              <Box
+                {...getRootProps()}
+                sx={{
+                  border: '2px dashed',
+                  borderColor: isDragActive ? 'primary.main' : 'grey.300',
+                  borderRadius: 2,
+                  p: 3,
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  bgcolor: isDragActive ? 'action.hover' : 'background.paper',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    borderColor: 'primary.main',
+                    bgcolor: 'action.hover',
+                  },
+                }}
+              >
+                <input {...getInputProps()} />
+                <CloudUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
+                <Typography variant="h6" gutterBottom>
+                  {isDragActive
+                    ? 'Suelta los archivos aquí'
+                    : 'Arrastra archivos o haz clic para seleccionar'}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  PDF, TXT, JPG, PNG, WEBP (máx. 10MB)
+                </Typography>
+              </Box>
+
+              {uploadedFiles.length > 0 && (
+                <List sx={{ mt: 2 }}>
+                  {uploadedFiles.map((file, index) => (
+                    <ListItem
+                      key={index}
+                      sx={{
+                        bgcolor: 'background.paper',
+                        mb: 1,
+                        borderRadius: 1,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                      }}
+                    >
+                      <ListItemText
+                        primary={file.name}
+                        secondary={`${(file.size / 1024).toFixed(2)} KB`}
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => removeFile(index)}
+                          size="small"
+                        >
+                          <Close />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              )}
             </Grid>
           </Grid>
         </DialogContent>
