@@ -8,4 +8,5 @@ export interface User {
   username: string;
   email: string;
   groups: Group[];
+  clerk_id: string;
 }

@@ -42,6 +42,7 @@ export function OrderChatInput({ orderId }: Props) {
         username: 'Sistema',
         email: '',
         groups: [{ id: UserGroups.DIRECTOR, name: 'Director' }],
+        clerk_id: '',
       };
 
       const newMessage: Message = {

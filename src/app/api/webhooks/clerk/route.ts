@@ -43,10 +43,8 @@ export async function POST(req: Request) {
     });
   }
 
-  // const { id } = evt.data;
+  const { id: clerkId } = evt.data;
   const eventType = evt.type;
-
-  // console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
 
   if (eventType === 'user.created') {
     const { email_addresses, username } = evt.data;
@@ -69,6 +67,7 @@ export async function POST(req: Request) {
             email,
             password: 'admin123',
             groups: [],
+            clerk_id: clerkId,
           };
 
           const createResponse = await request('usuarios', 'POST', newUser);
@@ -78,7 +77,7 @@ export async function POST(req: Request) {
             return new Response('Error creating user', { status: 500 });
           }
 
-          // console.log('User created in DB:', createResponse.data);
+          // console.log('User created successfully in DB:', createResponse.data);
         }
         // } else {
         //   console.log(`User with email ${email} already exists.`);
