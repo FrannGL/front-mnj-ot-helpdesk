@@ -14,7 +14,7 @@ import {
   PictureAsPdf,
 } from '@mui/icons-material';
 
-import { isAdmin } from 'src/shared/utils/verifyUserRole';
+import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 import { generateOrderPdf } from 'src/modules/orders/utils/generateOrderPdf';
 
 import type { OrderStatusEnum } from '../../../enums';
@@ -41,33 +41,36 @@ export const OrderMenuItems = ({
   const { user } = useUser();
   const publicMetadata = user?.publicMetadata || {};
   const admin = isAdmin(publicMetadata);
+  const superAdmin = isSuperAdmin(publicMetadata);
 
   return (
     <>
-      {admin && (
-        <MenuItem
-          onClick={() => {
-            onAssignAgents();
-            closeMenu();
-          }}
-        >
-          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} />
-          {order.agentes.length === 0 ? 'Asignar Agentes' : 'Editar Agentes'}
-        </MenuItem>
-      )}
+      {admin ||
+        (superAdmin && (
+          <MenuItem
+            onClick={() => {
+              onAssignAgents();
+              closeMenu();
+            }}
+          >
+            <Group fontSize="small" color="secondary" sx={{ mr: 1 }} />
+            {order.agentes.length === 0 ? 'Asignar Agentes' : 'Editar Agentes'}
+          </MenuItem>
+        ))}
 
       <MenuItem onClick={() => generateOrderPdf(order)}>
         <PictureAsPdf fontSize="small" color="error" sx={{ mr: 1 }} />
-        {admin ? 'Generar Remito' : 'Ver Remito'}
+        {admin || superAdmin ? 'Generar Remito' : 'Ver Remito'}
       </MenuItem>
 
-      {admin && (order.estado === 2 || order.estado === 3) && (
-        <MenuItem onClick={() => onChangeStatus(1)}>
-          <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Reabrir
-        </MenuItem>
-      )}
+      {admin ||
+        (superAdmin && (order.estado === 2 || order.estado === 3) && (
+          <MenuItem onClick={() => onChangeStatus(1)}>
+            <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Reabrir
+          </MenuItem>
+        ))}
 
-      {admin && order.estado === 1 && (
+      {(admin || superAdmin) && order.estado === 1 && (
         <>
           <MenuItem onClick={() => onChangeStatus(2)}>
             <CheckCircle fontSize="small" color="success" sx={{ mr: 1 }} /> Finalizar
@@ -84,7 +87,7 @@ export const OrderMenuItems = ({
         <Chat fontSize="small" color="info" sx={{ mr: 1 }} /> Ver Conversación
       </MenuItem>
 
-      {admin && (
+      {(admin || superAdmin) && (
         <>
           <MenuItem onClick={() => onEdit()}>
             <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar

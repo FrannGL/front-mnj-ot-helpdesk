@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 
 const isPublicRoute = createRouteMatcher(['/auth/(.*)', '/api/webhooks(.*)']);
 const isAdminRoute = createRouteMatcher(['/admin/(.*)']);
@@ -11,10 +12,12 @@ export default clerkMiddleware(async (auth, req) => {
 
   const { sessionClaims } = await auth();
 
-  if (isAdminRoute(req)) {
-    const role = (sessionClaims?.public_metadata as { role?: string })?.role;
+  const publicMetadata = (sessionClaims?.public_metadata as { role?: string }) ?? {};
 
-    if (role !== 'admin') {
+  if (isAdminRoute(req)) {
+    const allowed = isAdmin(publicMetadata) || isSuperAdmin(publicMetadata);
+
+    if (!allowed) {
       return NextResponse.redirect(new URL('/unauthorized', req.url));
     }
   } else {

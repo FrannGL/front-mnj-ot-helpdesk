@@ -66,24 +66,6 @@ const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
   },
 ];
 
-const MOCK_BUILDINGS = [
-  '25 de mayo N° 350',
-  'Av. del Libertador 8150',
-  'Av Belgrano 1130-Venezuela 1135',
-  'Campichuelo 553',
-];
-
-const MOCK_SECTORS = [
-  'Automotores',
-  'Autos con chofer',
-  'Fotocopiadoras/Impresoras',
-  'Intendencia',
-  'Limpieza',
-  'Logistica',
-  'Mantenimiento',
-  'Servicio Terciarizado',
-];
-
 const OrdersTable = () => {
   const {
     orderBy,
@@ -291,9 +273,15 @@ const OrdersTable = () => {
                       </TableCell>
                       <TableCell>{order.cliente.username}</TableCell>
                       <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        {MOCK_BUILDINGS[order.id % MOCK_BUILDINGS.length]}
+                        {[
+                          order.edificio_display,
+                          order.piso != null ? `Piso ${order.piso}` : null,
+                          order.oficina ? `Oficina ${order.oficina}` : null,
+                        ]
+                          .filter(Boolean)
+                          .join(' - ')}
                       </TableCell>
-                      <TableCell>{MOCK_SECTORS[order.id % MOCK_SECTORS.length]}</TableCell>
+                      <TableCell>{order.sector_display}</TableCell>
                       <TableCell>
                         <Chip
                           label={order.estado_display ?? 'N/A'}
@@ -401,6 +389,10 @@ const OrdersTable = () => {
           titulo: selectedOrder?.titulo,
           estado: selectedOrder?.estado,
           prioridad: selectedOrder?.prioridad,
+          edificio: selectedOrder?.edificio,
+          piso: selectedOrder?.piso,
+          oficina: selectedOrder?.oficina,
+          sector: selectedOrder?.sector,
           tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
         }}
       />

@@ -11,16 +11,22 @@ export const createOrderSchema = z.object({
       required_error: 'El título es requerido',
     })
     .min(3, 'El título debe tener al menos 3 caracteres'),
+  detalle: z.string().min(3, 'El detalle debe tener al menos 3 caracteres').optional(),
+  edificio: z.number().optional(),
+  piso: z.preprocess(
+    (val) => (val === '' || val === null || val === undefined ? undefined : Number(val)),
+    z.number().optional()
+  ),
+  oficina: z.string().optional(),
   estado: z.nativeEnum(OrderStatusEnum, {
     required_error: 'El estado es requerido',
   }),
   prioridad: z.nativeEnum(OrderPriorityEnum, {
     required_error: 'La prioridad es requerida',
   }),
+  sector: z.number().optional(),
   tags: z.array(z.number()).optional(),
   agentes: z.array(z.number()).optional(),
-  edificio: z.string().optional(),
-  sector: z.string().optional(),
 });
 
 export type CreateOrderType = z.infer<typeof createOrderSchema>;

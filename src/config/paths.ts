@@ -34,5 +34,7 @@ export const paths = {
     usuarios: `${ROOTS.ADMIN}/usuarios`,
     grupos: `${ROOTS.ADMIN}/grupos`,
     tags: `${ROOTS.ADMIN}/tags`,
+    edificios: `${ROOTS.ADMIN}/edificios`,
+    sectores: `${ROOTS.ADMIN}/sectores`,
   },
 };

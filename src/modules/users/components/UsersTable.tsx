@@ -25,8 +25,9 @@ interface UsersTableProps {
   page: number;
   totalPages: number;
   onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
-  onEdit: (user: User) => void;
-  onDelete: (userId: number) => void;
+  onEdit?: (user: User) => void;
+  onDelete?: (userId: number) => void;
+  disableActions?: boolean;
 }
 
 export function UsersTable({
@@ -36,6 +37,7 @@ export function UsersTable({
   onPageChange,
   onEdit,
   onDelete,
+  disableActions,
 }: UsersTableProps) {
   const theme = useTheme();
 
@@ -73,7 +75,7 @@ export function UsersTable({
                       user.groups.map((group) => (
                         <Chip
                           key={group.id}
-                          label={group.name} 
+                          label={group.name}
                           size="small"
                           variant="soft"
                           color="primary"
@@ -86,12 +88,30 @@ export function UsersTable({
                   </Stack>
                 </TableCell>
                 <TableCell>
-                  <IconButton onClick={() => onEdit(user)} size="small" color="primary">
-                    <Edit />
-                  </IconButton>
-                  <IconButton onClick={() => onDelete(user.id)} size="small" color="error">
-                    <Delete />
-                  </IconButton>
+                  {onEdit || onDelete ? (
+                    <Stack direction="row" spacing={0.5}>
+                      {onEdit && (
+                        <IconButton
+                          onClick={() => onEdit(user)}
+                          size="small"
+                          color="primary"
+                          disabled={disableActions}
+                        >
+                          <Edit />
+                        </IconButton>
+                      )}
+                      {onDelete && (
+                        <IconButton
+                          onClick={() => onDelete(user.id)}
+                          size="small"
+                          color="error"
+                          disabled={disableActions}
+                        >
+                          <Delete />
+                        </IconButton>
+                      )}
+                    </Stack>
+                  ) : null}
                 </TableCell>
               </TableRow>
             ))}

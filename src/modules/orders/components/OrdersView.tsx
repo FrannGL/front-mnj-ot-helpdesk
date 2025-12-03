@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
+import Image from 'next/image';
 
 import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 
@@ -96,9 +97,30 @@ const OrdersView = ({ initialData }: OrdersViewProps) => {
   if (!data?.results.length) {
     return (
       <>
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={400}>
-          <Typography>No hay tareas disponibles</Typography>
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="center"
+          minHeight={400}
+          gap={2}
+        >
+          <Image
+            src="/assets/images/error/no-data.svg"
+            alt="No hay órdenes"
+            width={500}
+            height={500}
+          />
+
+          <Typography variant="h6" textAlign="center">
+            ⚙️ ¡Ups! Parece que aún no hay ninguna orden por aquí…
+          </Typography>
+
+          <Typography color="text.secondary" textAlign="center">
+            📝 ¿Qué tal si creás la primera? ¡Hacelo rápidamente desde el botón +! 😎
+          </Typography>
         </Box>
+
         <CreateButton type="order" />
       </>
     );

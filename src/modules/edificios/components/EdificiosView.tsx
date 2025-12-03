@@ -7,71 +7,71 @@ import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material'
 
 import { ConfirmationModal } from 'src/shared/components/custom';
 
-import { TagForm } from './TagForm';
-import { TagsTable } from './TagsTable';
-import { useTags } from '../hooks/useTags';
-import { useTagMutations } from '../hooks/useTagsMutation';
+import { EdificioForm } from './EdificioForm';
+import { EdificiosTable } from './EdificiosTable';
+import { useEdificios } from '../hooks/useEdificios';
+import { useEdificioMutations } from '../hooks/useEdificiosMutation';
 
-import type { Tag } from '../interfaces/tag.interface';
-import type { TagFormData } from '../schemas/tag.schema';
+import type { Edificio } from '../interfaces/edificio.interface';
+import type { EdificioFormData } from '../schemas/edificio.schema';
 
-interface PaginatedTagsResponse {
+interface PaginatedEdificiosResponse {
   count: number;
   next: string | null;
   previous: string | null;
-  results: Tag[];
+  results: Edificio[];
 }
 
-interface TagsViewProps {
-  initialData?: PaginatedTagsResponse;
+interface EdificiosViewProps {
+  initialData?: PaginatedEdificiosResponse;
 }
 
-const TagsView = ({ initialData }: TagsViewProps) => {
+const EdificiosView = ({ initialData }: EdificiosViewProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [tagToDelete, setTagToDelete] = useState<number | null>(null);
-  const [editTag, setEditTag] = useState<Tag | null>(null);
+  const [edificioToDelete, setEdificioToDelete] = useState<number | null>(null);
+  const [editEdificio, setEditEdificio] = useState<Edificio | null>(null);
   const [page, setPage] = useState(1);
 
-  const { tags, count, isLoading, error } = useTags(page, {
+  const { edificios, count, isLoading, error } = useEdificios(page, {
     initialData: page === 1 ? initialData : undefined,
   });
-  const { createTag, updateTag, deleteTag } = useTagMutations();
+  const { createEdificio, updateEdificio, deleteEdificio } = useEdificioMutations();
 
   const handleOpenCreateModal = () => {
-    setEditTag(null);
+    setEditEdificio(null);
     setModalOpen(true);
   };
 
-  const handleEditClick = (tag: Tag) => {
-    setEditTag(tag);
+  const handleEditClick = (edificio: Edificio) => {
+    setEditEdificio(edificio);
     setModalOpen(true);
   };
 
   const handleDeleteClick = (id: number) => {
-    setTagToDelete(id);
+    setEdificioToDelete(id);
     setDeleteModalOpen(true);
   };
 
   const handleCancel = () => {
     setModalOpen(false);
-    setEditTag(null);
+    setEditEdificio(null);
   };
 
   const handleConfirmDelete = () => {
-    if (tagToDelete !== null) {
-      deleteTag.mutate(tagToDelete);
+    if (edificioToDelete !== null) {
+      deleteEdificio.mutate(edificioToDelete);
       setDeleteModalOpen(false);
-      setTagToDelete(null);
+      setEdificioToDelete(null);
     }
   };
 
-  const handleSubmitTag = (values: TagFormData) => {
-    if (editTag) {
-      updateTag.mutate({ ...editTag, nombre: values.nombre });
-      setEditTag(null);
+  const handleSubmitEdificio = (values: EdificioFormData) => {
+    if (editEdificio) {
+      updateEdificio.mutate({ ...editEdificio, nombre: values.nombre });
+      setEditEdificio(null);
     } else {
-      createTag.mutate(values);
+      createEdificio.mutate(values);
     }
     setModalOpen(false);
   };
@@ -102,19 +102,19 @@ const TagsView = ({ initialData }: TagsViewProps) => {
         }}
       >
         <Stack width="100%" direction="row" justifyContent="space-between">
-          <Typography variant="h5">Listado de Categorías registradas</Typography>
+          <Typography variant="h5">Listado de Edificios registrados</Typography>
           <Button
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleOpenCreateModal}
           >
-            Nueva Categoría
+            Nuevo Edificio
           </Button>
         </Stack>
 
-        <TagsTable
-          data={tags}
+        <EdificiosTable
+          data={edificios}
           totalCount={count}
           page={page}
           onPageChange={setPage}
@@ -126,21 +126,21 @@ const TagsView = ({ initialData }: TagsViewProps) => {
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          title="Eliminar Categoría"
-          content="¿Estás seguro de que deseas eliminar este categoría? Esta acción no se puede deshacer."
+          title="Eliminar Edificio"
+          content="¿Estás seguro de que deseas eliminar este edificio? Esta acción no se puede deshacer."
           confirmText="Eliminar"
           cancelText="Cancelar"
         />
 
-        <TagForm
+        <EdificioForm
           open={modalOpen}
           onClose={handleCancel}
-          onSubmit={handleSubmitTag}
-          initialValues={editTag || { nombre: '' }}
+          onSubmit={handleSubmitEdificio}
+          initialValues={editEdificio || { nombre: '' }}
         />
       </Box>
     </Stack>
   );
 };
 
-export default TagsView;
+export default EdificiosView;

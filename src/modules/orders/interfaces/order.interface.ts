@@ -10,10 +10,17 @@ export interface Order {
   cliente: User;
   agentes: User[];
   titulo: string;
+  detalle: string;
+  edificio: number;
+  piso: number;
+  oficina: string;
+  edificio_display: string;
   estado: OrderStatusEnum;
   estado_display: StatusType;
   prioridad: OrderPriorityEnum;
   prioridad_display: PriorityType;
+  sector: number;
+  sector_display: string;
   created_at: string;
   updated_at: string;
   closed_at: string | null;

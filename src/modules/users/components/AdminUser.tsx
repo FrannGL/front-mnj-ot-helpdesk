@@ -7,7 +7,11 @@ import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { ConfirmationModal } from 'src/shared/components/custom';
-import CreateButton from 'src/modules/orders/components/CreateButton';
+// import CreateButton from 'src/modules/orders/components/CreateButton';
+
+import { useUser } from '@clerk/nextjs';
+
+import { isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 
 import { Filters } from './Filters';
 import { UserModal } from './UserModal';
@@ -28,6 +32,11 @@ export function AdminUser({ initialData }: AdminUserProps) {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
+  const { user } = useUser();
+  const publicMetadata = (user?.publicMetadata ?? {}) as { role?: string };
+
+  const canManageUsers = isSuperAdmin(publicMetadata);
+
   const { data, isLoading } = useUsers(page, {
     initialData: page === 1 ? initialData : undefined,
   });
@@ -41,17 +50,21 @@ export function AdminUser({ initialData }: AdminUserProps) {
 
   const rowsPerPage = 10;
 
-  const handleEdit = (user: User) => {
-    setSelectedUser(user);
+  const handleEdit = (u: User) => {
+    if (!canManageUsers) return;
+    setSelectedUser(u);
     setEditModalOpen(true);
   };
 
   const handleDelete = (userId: number) => {
+    if (!canManageUsers) return;
     setSelectedUserId(userId);
     setConfirmationOpen(true);
   };
 
   const handleConfirmDelete = () => {
+    if (!canManageUsers) return;
+
     if (selectedUserId) {
       deleteMutation.mutate(selectedUserId, {
         onSuccess: () => {
@@ -67,14 +80,14 @@ export function AdminUser({ initialData }: AdminUserProps) {
   const filteredUsers = useMemo(() => {
     if (!data?.results) return [];
 
-    return data.results.filter((user) => {
+    return data.results.filter((u) => {
       const matchesGroup =
-        !filters.group || user.groups.some((group) => group.id === filters.group);
+        !filters.group || u.groups.some((group) => group.id === filters.group);
 
       const matchesSearch =
         !filters.searchTerm ||
-        user.username.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
-        (user.email?.toLowerCase() || '').includes(filters.searchTerm.toLowerCase());
+        u.username.toLowerCase().includes(filters.searchTerm.toLowerCase()) ||
+        (u.email?.toLowerCase() || '').includes(filters.searchTerm.toLowerCase());
 
       return matchesGroup && matchesSearch;
     });
@@ -103,33 +116,29 @@ export function AdminUser({ initialData }: AdminUserProps) {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Administrar Usuarios
       </Typography>
-
       <Filters filters={filters} setFilters={setFilters} />
-
       <UsersTable
         users={filteredUsers}
         page={page}
         totalPages={totalPages}
         onPageChange={handlePageChange}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
+        onEdit={canManageUsers ? handleEdit : undefined}
+        onDelete={canManageUsers ? handleDelete : undefined}
+        disableActions={!canManageUsers}
       />
-
-      <CreateButton type="user" />
-
+      {/* {canManageUsers && <CreateButton type="user" />} */}
       <UserModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         type="edit"
         userId={selectedUser?.id}
-        disabled
+        disabled={!canManageUsers}
         defaultValues={{
           username: selectedUser?.username,
           email: selectedUser?.email,
           groups: selectedUser?.groups?.map((group) => group.id),
         }}
       />
-
       <ConfirmationModal
         open={confirmationOpen}
         onClose={() => setConfirmationOpen(false)}

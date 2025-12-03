@@ -7,71 +7,71 @@ import { Box, Stack, Button, Typography, CircularProgress } from '@mui/material'
 
 import { ConfirmationModal } from 'src/shared/components/custom';
 
-import { TagForm } from './TagForm';
-import { TagsTable } from './TagsTable';
-import { useTags } from '../hooks/useTags';
-import { useTagMutations } from '../hooks/useTagsMutation';
+import { SectorForm } from './SectorForm';
+import { SectoresTable } from './SectoresTable';
+import { useSectores } from '../hooks/useSectores';
+import { useSectorMutations } from '../hooks/useSectoresMutation';
 
-import type { Tag } from '../interfaces/tag.interface';
-import type { TagFormData } from '../schemas/tag.schema';
+import type { Sector } from '../interfaces/sector.interface';
+import type { SectorFormData } from '../schemas/sector.schema';
 
-interface PaginatedTagsResponse {
+interface PaginatedSectoresResponse {
   count: number;
   next: string | null;
   previous: string | null;
-  results: Tag[];
+  results: Sector[];
 }
 
-interface TagsViewProps {
-  initialData?: PaginatedTagsResponse;
+interface SectoresViewProps {
+  initialData?: PaginatedSectoresResponse;
 }
 
-const TagsView = ({ initialData }: TagsViewProps) => {
+const SectoresView = ({ initialData }: SectoresViewProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [tagToDelete, setTagToDelete] = useState<number | null>(null);
-  const [editTag, setEditTag] = useState<Tag | null>(null);
+  const [sectorToDelete, setSectorToDelete] = useState<number | null>(null);
+  const [editSector, setEditSector] = useState<Sector | null>(null);
   const [page, setPage] = useState(1);
 
-  const { tags, count, isLoading, error } = useTags(page, {
+  const { sectores, count, isLoading, error } = useSectores(page, {
     initialData: page === 1 ? initialData : undefined,
   });
-  const { createTag, updateTag, deleteTag } = useTagMutations();
+  const { createSector, updateSector, deleteSector } = useSectorMutations();
 
   const handleOpenCreateModal = () => {
-    setEditTag(null);
+    setEditSector(null);
     setModalOpen(true);
   };
 
-  const handleEditClick = (tag: Tag) => {
-    setEditTag(tag);
+  const handleEditClick = (sector: Sector) => {
+    setEditSector(sector);
     setModalOpen(true);
   };
 
   const handleDeleteClick = (id: number) => {
-    setTagToDelete(id);
+    setSectorToDelete(id);
     setDeleteModalOpen(true);
   };
 
   const handleCancel = () => {
     setModalOpen(false);
-    setEditTag(null);
+    setEditSector(null);
   };
 
   const handleConfirmDelete = () => {
-    if (tagToDelete !== null) {
-      deleteTag.mutate(tagToDelete);
+    if (sectorToDelete !== null) {
+      deleteSector.mutate(sectorToDelete);
       setDeleteModalOpen(false);
-      setTagToDelete(null);
+      setSectorToDelete(null);
     }
   };
 
-  const handleSubmitTag = (values: TagFormData) => {
-    if (editTag) {
-      updateTag.mutate({ ...editTag, nombre: values.nombre });
-      setEditTag(null);
+  const handleSubmitSector = (values: SectorFormData) => {
+    if (editSector) {
+      updateSector.mutate({ ...editSector, nombre: values.nombre });
+      setEditSector(null);
     } else {
-      createTag.mutate(values);
+      createSector.mutate(values);
     }
     setModalOpen(false);
   };
@@ -102,19 +102,19 @@ const TagsView = ({ initialData }: TagsViewProps) => {
         }}
       >
         <Stack width="100%" direction="row" justifyContent="space-between">
-          <Typography variant="h5">Listado de Categorías registradas</Typography>
+          <Typography variant="h5">Listado de Sectores registrados</Typography>
           <Button
             variant="contained"
             color="primary"
             startIcon={<AddIcon />}
             onClick={handleOpenCreateModal}
           >
-            Nueva Categoría
+            Nuevo Sector
           </Button>
         </Stack>
 
-        <TagsTable
-          data={tags}
+        <SectoresTable
+          data={sectores}
           totalCount={count}
           page={page}
           onPageChange={setPage}
@@ -126,21 +126,21 @@ const TagsView = ({ initialData }: TagsViewProps) => {
           open={deleteModalOpen}
           onClose={() => setDeleteModalOpen(false)}
           onConfirm={handleConfirmDelete}
-          title="Eliminar Categoría"
-          content="¿Estás seguro de que deseas eliminar este categoría? Esta acción no se puede deshacer."
+          title="Eliminar Sector"
+          content="¿Estás seguro de que deseas eliminar este sector? Esta acción no se puede deshacer."
           confirmText="Eliminar"
           cancelText="Cancelar"
         />
 
-        <TagForm
+        <SectorForm
           open={modalOpen}
           onClose={handleCancel}
-          onSubmit={handleSubmitTag}
-          initialValues={editTag || { nombre: '' }}
+          onSubmit={handleSubmitSector}
+          initialValues={editSector || { nombre: '' }}
         />
       </Box>
     </Stack>
   );
 };
 
-export default TagsView;
+export default SectoresView;

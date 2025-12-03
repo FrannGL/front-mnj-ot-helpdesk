@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { useUser } from '@clerk/nextjs';
 import { useDropzone } from 'react-dropzone';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
@@ -17,7 +18,6 @@ import {
 } from '@mui/icons-material';
 import {
   Box,
-  Chip,
   Grid,
   List,
   Button,
@@ -35,7 +35,6 @@ import {
   ListItemText,
   DialogActions,
   DialogContent,
-  useMediaQuery,
   FormHelperText,
   InputAdornment,
   ListItemSecondaryAction,
@@ -44,6 +43,8 @@ import {
 import { useTags } from 'src/modules/tags/hooks/useTags';
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { inputStyles } from 'src/shared/utils/shared-styles';
+import { useSectores } from 'src/modules/sectores/hooks/useSectores';
+import { useEdificios } from 'src/modules/edificios/hooks/useEdificios';
 
 import { useOrders } from '../hooks/useOrders';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
@@ -57,31 +58,19 @@ interface OrderFormProps {
   orderId?: number;
 }
 
-const MOCK_BUILDINGS = [
-  '25 de mayo N° 350',
-  'Av. del Libertador 8150',
-  'Av Belgrano 1130-Venezuela 1135',
-  'Campichuelo 553',
-];
-
-const MOCK_SECTORS = [
-  'Automotores',
-  'Autos con chofer',
-  'Fotocopiadoras/Impresoras',
-  'Intendencia',
-  'Limpieza',
-  'Logistica',
-  'Mantenimiento',
-  'Servicio Terciarizado',
-];
-
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
   const { tags } = useTags();
+  const { edificios } = useEdificios();
+  const { sectores } = useSectores();
 
   const { createMutation, updateMutation } = useOrders();
 
-  const isMobileScreen = useMediaQuery('(max-width:600px)');
+  const { user } = useUser();
+  const activeClerkId = user?.id;
+
+  const currentUser = users?.results.find((u) => u.clerk_id === activeClerkId);
+
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const {
@@ -92,13 +81,13 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
   } = useForm<CreateOrderType>({
     resolver: zodResolver(createOrderSchema),
     defaultValues: {
-      cliente: undefined,
+      cliente: currentUser?.id ?? undefined,
       titulo: '',
       estado: OrderStatusEnum.ABIERTO,
       prioridad: OrderPriorityEnum.MEDIA,
       tags: [],
-      edificio: '',
-      sector: '',
+      edificio: undefined,
+      sector: undefined,
       ...defaultValues,
     },
   });
@@ -150,26 +139,37 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
   });
 
   useEffect(() => {
-    if (open && type === 'edit') {
-      reset({
-        cliente: 1,
-        titulo: '',
-        estado: OrderStatusEnum.ABIERTO,
-        prioridad: OrderPriorityEnum.MEDIA,
-        ...defaultValues,
-      });
+    if (open) {
+      if (type === 'edit') {
+        reset({
+          ...defaultValues,
+        });
+      } else {
+        reset({
+          cliente: currentUser?.id ?? undefined,
+          titulo: '',
+          estado: OrderStatusEnum.ABIERTO,
+          prioridad: OrderPriorityEnum.MEDIA,
+          tags: [],
+          edificio: undefined,
+          sector: undefined,
+          detalle: '',
+        });
+      }
     }
-  }, [open, defaultValues, type, reset]);
+  }, [open, type, defaultValues, reset, currentUser]);
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
       <DialogTitle sx={{ pb: 3 }}>
         {type === 'edit' ? `Editar Orden #OT${orderId}` : 'Crear Nueva Orden'}
       </DialogTitle>
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
-            <Grid item xs={isMobileScreen ? 12 : 6}>
+            {/* Cliente */}
+            <Grid item xs={12} md={4}>
               <Controller
                 name="cliente"
                 control={control}
@@ -185,10 +185,8 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                         }
                         return option.username || '';
                       }}
-                      value={users?.results.find((user) => user.id === field.value) || null}
-                      onChange={(_, newValue) => {
-                        field.onChange(newValue?.id || '');
-                      }}
+                      value={users?.results.find((u) => u.id === field.value) || null}
+                      onChange={(_, newValue) => field.onChange(newValue?.id || '')}
                       renderInput={(params) => (
                         <TextField
                           {...params}
@@ -214,7 +212,8 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
               />
             </Grid>
 
-            <Grid item xs={isMobileScreen ? 12 : 6}>
+            {/* Prioridad */}
+            <Grid item xs={12} md={4}>
               <Controller
                 name="prioridad"
                 control={control}
@@ -224,7 +223,6 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                     <Select
                       {...field}
                       label="Prioridad"
-                      placeholder="Seleccione una prioridad"
                       startAdornment={
                         <InputAdornment position="start">
                           <PriorityHigh />
@@ -247,119 +245,17 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
               />
             </Grid>
 
-            <Grid item xs={isMobileScreen ? 12 : 6}>
-              <Controller
-                name="edificio"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel>Edificio</InputLabel>
-                    <Select
-                      {...field}
-                      label="Edificio"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <LocationCity />
-                        </InputAdornment>
-                      }
-                    >
-                      {MOCK_BUILDINGS.map((building) => (
-                        <MenuItem key={building} value={building}>
-                          {building}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={isMobileScreen ? 12 : 6}>
-              <Controller
-                name="sector"
-                control={control}
-                render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel>Sector</InputLabel>
-                    <Select
-                      {...field}
-                      label="Sector"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <Category />
-                        </InputAdornment>
-                      }
-                    >
-                      {MOCK_SECTORS.map((sector) => (
-                        <MenuItem key={sector} value={sector}>
-                          {sector}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={isMobileScreen ? 12 : 8}>
-              <Controller
-                name="tags"
-                control={control}
-                render={({ field }) => (
-                  <FormControl error={!!errors.tags} fullWidth>
-                    <Autocomplete
-                      multiple
-                      disableCloseOnSelect
-                      options={tags || []}
-                      getOptionLabel={(option) => option?.nombre || ''}
-                      value={tags?.filter((tag) => field.value?.includes(tag.id)) || []}
-                      onChange={(_, newValue) => {
-                        field.onChange(newValue.map((tag) => tag.id));
-                      }}
-                      isOptionEqualToValue={(option, value) => option.id === value.id}
-                      renderInput={(params) => (
-                        <TextField
-                          {...params}
-                          label="Tags"
-                          error={!!errors.tags}
-                          helperText={errors.tags?.message}
-                          InputProps={{
-                            ...params.InputProps,
-                            startAdornment: (
-                              <>
-                                <Tag sx={{ mr: 1, color: 'action.active' }} />
-                                {params.InputProps.startAdornment}
-                              </>
-                            ),
-                          }}
-                        />
-                      )}
-                      renderTags={(tagValue, getTagProps) =>
-                        tagValue.map((option, index) => (
-                          <Chip
-                            label={option?.nombre}
-                            {...getTagProps({ index })}
-                            onMouseDown={(event) => event.stopPropagation()}
-                          />
-                        ))
-                      }
-                    />
-                  </FormControl>
-                )}
-              />
-            </Grid>
-
-            <Grid item xs={isMobileScreen ? 12 : 4}>
+            {/* Estado */}
+            <Grid item xs={12} md={4}>
               <Controller
                 name="estado"
                 control={control}
                 render={({ field }) => (
-                  <FormControl error={!!errors.estado} fullWidth>
+                  <FormControl fullWidth error={!!errors.estado}>
                     <InputLabel>Estado</InputLabel>
                     <Select
                       {...field}
                       label="Estado"
-                      placeholder="Seleccione un estado"
                       disabled
                       startAdornment={
                         <InputAdornment position="start">
@@ -381,6 +277,136 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
               />
             </Grid>
 
+            {/* Edificio */}
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="edificio"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Edificio</InputLabel>
+                    <Select
+                      {...field}
+                      label="Edificio"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <LocationCity />
+                        </InputAdornment>
+                      }
+                    >
+                      {edificios.map((building) => (
+                        <MenuItem key={building.id} value={building.id}>
+                          {building.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            {/* Piso */}
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="piso"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Piso"
+                    type="number"
+                    error={!!errors.piso}
+                    helperText={errors.piso?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Oficina */}
+            <Grid item xs={12} md={4}>
+              <Controller
+                name="oficina"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Oficina"
+                    error={!!errors.oficina}
+                    helperText={errors.oficina?.message}
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Sector */}
+            <Grid item xs={12} md={6}>
+              <Controller
+                name="sector"
+                control={control}
+                render={({ field }) => (
+                  <FormControl fullWidth>
+                    <InputLabel>Sector</InputLabel>
+                    <Select
+                      {...field}
+                      label="Sector"
+                      startAdornment={
+                        <InputAdornment position="start">
+                          <Category />
+                        </InputAdornment>
+                      }
+                    >
+                      {sectores.map((sector) => (
+                        <MenuItem key={sector.id} value={sector.id}>
+                          {sector.nombre}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            {/* Tags */}
+            <Grid item xs={6}>
+              <Controller
+                name="tags"
+                control={control}
+                render={({ field }) => (
+                  <FormControl error={!!errors.tags} fullWidth>
+                    <Autocomplete
+                      multiple
+                      disableCloseOnSelect
+                      options={tags || []}
+                      getOptionLabel={(option) => option?.nombre || ''}
+                      value={tags?.filter((tag) => field.value?.includes(tag.id)) || []}
+                      onChange={(_, newValue) => field.onChange(newValue.map((t) => t.id))}
+                      isOptionEqualToValue={(option, value) => option.id === value.id}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Tags"
+                          error={!!errors.tags}
+                          helperText={errors.tags?.message}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <Tag sx={{ mr: 1, color: 'action.active' }} />
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
+                  </FormControl>
+                )}
+              />
+            </Grid>
+
+            {/* Título */}
             <Grid item xs={12}>
               <Controller
                 name="titulo"
@@ -390,12 +416,10 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                     {...field}
                     fullWidth
                     label="Título de la orden"
+                    multiline
                     error={!!errors.titulo}
                     helperText={errors.titulo?.message}
                     sx={inputStyles}
-                    multiline
-                    rows={2.5}
-                    placeholder="Ingrese el título de la orden"
                     InputProps={{
                       startAdornment: <Toc sx={{ mr: 1, color: 'action.active' }} />,
                     }}
@@ -404,6 +428,31 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
               />
             </Grid>
 
+            {/* Detalle */}
+            <Grid item xs={12}>
+              <Controller
+                name="detalle"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Detalle"
+                    multiline
+                    rows={4}
+                    error={!!errors.detalle}
+                    helperText={errors.detalle?.message}
+                    sx={inputStyles}
+                    placeholder="Ingrese una descripción detallada del problema"
+                    InputProps={{
+                      startAdornment: <Toc sx={{ mr: 1, color: 'action.active' }} />,
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+
+            {/* Dropzone */}
             <Grid item xs={12}>
               <Box
                 {...getRootProps()}
@@ -416,18 +465,12 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                   cursor: 'pointer',
                   bgcolor: isDragActive ? 'action.hover' : 'background.paper',
                   transition: 'all 0.2s ease',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                    bgcolor: 'action.hover',
-                  },
                 }}
               >
                 <input {...getInputProps()} />
                 <CloudUpload sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
                 <Typography variant="h6" gutterBottom>
-                  {isDragActive
-                    ? 'Suelta los archivos aquí'
-                    : 'Arrastra archivos o haz clic para seleccionar'}
+                  {isDragActive ? 'Suelta los archivos aquí' : 'Arrastra archivos o hacé clic'}
                 </Typography>
                 <Typography variant="body2" color="text.secondary">
                   PDF, TXT, JPG, PNG, WEBP (máx. 10MB)
@@ -452,12 +495,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                         secondary={`${(file.size / 1024).toFixed(2)} KB`}
                       />
                       <ListItemSecondaryAction>
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => removeFile(index)}
-                          size="small"
-                        >
+                        <IconButton edge="end" onClick={() => removeFile(index)} size="small">
                           <Close />
                         </IconButton>
                       </ListItemSecondaryAction>
@@ -468,6 +506,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
             </Grid>
           </Grid>
         </DialogContent>
+
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button onClick={handleClose} variant="outlined" color="inherit">
             Cancelar

@@ -34,6 +34,7 @@ export function AccountDrawer({ data = [], sx, ...other }: AccountDrawerProps) {
   const theme = useTheme();
 
   const { user } = useUser();
+
   const { signOut } = useClerk();
 
   const [open, setOpen] = useState(false);

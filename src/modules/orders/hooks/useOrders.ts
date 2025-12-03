@@ -1,4 +1,7 @@
+import { useUser } from '@clerk/nextjs';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+
+import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 
 import {
   createOrder,
@@ -29,6 +32,12 @@ export function useOrders(
   options?: UseOrdersOptions
 ) {
   const queryClient = useQueryClient();
+  const { user } = useUser();
+
+  const publicMetadata = user?.publicMetadata ?? {};
+
+  const userIsAdmin = isAdmin(publicMetadata);
+  const userIsSuperAdmin = isSuperAdmin(publicMetadata);
 
   const queryParams = {
     page,
@@ -39,6 +48,11 @@ export function useOrders(
     titulo_contains: filters.searchTerm,
     tags: filters.tags,
   };
+
+  // Si NO es admin ni superadmin, filtrar por cliente_clerk_id
+  if (!userIsAdmin && !userIsSuperAdmin && user?.id) {
+    (queryParams as any).cliente_clerk_id = user.id;
+  }
 
   const { data, isLoading, isFetching, error } = useQuery({
     queryKey: ['orders', queryParams],
@@ -94,5 +108,7 @@ export function useOrders(
     deleteMutation,
     sendMessageMutation,
     hasActiveFilters,
+    isAdmin: userIsAdmin,
+    isSuperAdmin: userIsSuperAdmin,
   };
 }
