@@ -13,8 +13,12 @@ import {
   Close,
   Category,
   CloudUpload,
+  Description,
   PriorityHigh,
   LocationCity,
+  PictureAsPdf,
+  InsertDriveFile,
+  Image as ImageIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -33,6 +37,7 @@ import {
   FormControl,
   Autocomplete,
   ListItemText,
+  ListItemIcon,
   DialogActions,
   DialogContent,
   FormHelperText,
@@ -58,13 +63,30 @@ interface OrderFormProps {
   orderId?: number;
 }
 
+const getFileIcon = (fileName: string) => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'pdf':
+      return <PictureAsPdf color="error" />;
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'webp':
+      return <ImageIcon color="primary" />;
+    case 'txt':
+      return <Description color="info" />;
+    default:
+      return <InsertDriveFile color="action" />;
+  }
+};
+
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
   const { tags } = useTags();
   const { edificios } = useEdificios();
   const { sectores } = useSectores();
 
-  const { createMutation, updateMutation } = useOrders();
+  const { createMutation, updateMutation, sendMessageMutation } = useOrders();
 
   const { user } = useUser();
   const activeClerkId = user?.id;
@@ -100,15 +122,25 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
 
   const onSubmit = async (data: CreateOrderType) => {
     try {
-      // TODO: Handle file upload - uploadedFiles array contains the files
-      console.log('Files to upload:', uploadedFiles);
+      let targetOrderId = orderId;
 
       if (type === 'edit' && orderId) {
         await updateMutation.mutateAsync({ orderId, updatedOrder: data });
         toast.success('Orden actualizada exitosamente.');
       } else {
-        await createMutation.mutateAsync(data);
+        const newOrder = await createMutation.mutateAsync(data);
+        targetOrderId = newOrder.id;
         toast.success('Orden creada exitosamente.');
+      }
+
+      if (uploadedFiles.length > 0 && targetOrderId && currentUser?.id) {
+        await sendMessageMutation.mutateAsync({
+          orderId: targetOrderId,
+          message: {
+            usuario: currentUser.id,
+            adjuntos: uploadedFiles,
+          },
+        });
       }
     } catch (error) {
       console.error('Error:', error);
@@ -190,7 +222,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Cliente"
+                          label="Solicitante"
                           error={!!errors.cliente}
                           helperText={errors.cliente?.message}
                           InputProps={{
@@ -386,7 +418,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                       renderInput={(params) => (
                         <TextField
                           {...params}
-                          label="Tags"
+                          label="Categorías"
                           error={!!errors.tags}
                           helperText={errors.tags?.message}
                           InputProps={{
@@ -490,6 +522,7 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                         borderColor: 'divider',
                       }}
                     >
+                      <ListItemIcon>{getFileIcon(file.name)}</ListItemIcon>
                       <ListItemText
                         primary={file.name}
                         secondary={`${(file.size / 1024).toFixed(2)} KB`}

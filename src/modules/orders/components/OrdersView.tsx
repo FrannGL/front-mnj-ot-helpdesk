@@ -1,8 +1,8 @@
 'use client';
 
+import Image from 'next/image';
 import { useMemo, useState } from 'react';
 import { Fira_Sans } from 'next/font/google';
-import Image from 'next/image';
 
 import { Box, Stack, Typography, Pagination, useMediaQuery, CircularProgress } from '@mui/material';
 

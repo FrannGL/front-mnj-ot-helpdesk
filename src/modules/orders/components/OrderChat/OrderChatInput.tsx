@@ -1,6 +1,7 @@
 import type { User } from 'src/modules/users/interfaces';
 
 import { toast } from 'sonner';
+import { useUser } from '@clerk/nextjs';
 import { useRef, useState, useCallback } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 
@@ -8,6 +9,7 @@ import { Send, AttachFile } from '@mui/icons-material';
 import { Box, useTheme, InputBase, IconButton, useMediaQuery, DialogActions } from '@mui/material';
 
 import { UserGroups } from 'src/modules/users/enums';
+import { useUsers } from 'src/modules/users/hooks/useUsers';
 
 import { useOrders, useOrderById, useOrderSocket } from '../../hooks';
 
@@ -30,6 +32,10 @@ export function OrderChatInput({ orderId }: Props) {
   const { data } = useOrderById(orderId);
   const order = data?.data;
 
+  const { user } = useUser();
+  const { data: users } = useUsers();
+  const currentUser = users?.results.find((u) => u.clerk_id === user?.id);
+
   const queryClient = useQueryClient();
   const { sendMessageMutation } = useOrders();
 
@@ -47,7 +53,7 @@ export function OrderChatInput({ orderId }: Props) {
 
       const newMessage: Message = {
         id: Date.now(),
-        texto: 'message' in incoming ? incoming.message ?? '' : incoming.texto ?? '',
+        texto: 'message' in incoming ? (incoming.message ?? '') : (incoming.texto ?? ''),
         usuario: defaultUser,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -99,7 +105,7 @@ export function OrderChatInput({ orderId }: Props) {
         orderId,
         message: {
           texto: mensaje,
-          usuario: order?.cliente.id,
+          usuario: currentUser?.id ?? order?.cliente.id,
           adjuntos: archivo ? [archivo] : [],
         },
       },

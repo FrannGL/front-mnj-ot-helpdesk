@@ -4,6 +4,7 @@ export const generateOrderPdf = (order: {
   id: number;
   cliente: { username: string };
   titulo: string;
+  detalle?: string;
   estado_display: string;
   prioridad_display: string;
   agentes: { username: string }[];
@@ -29,53 +30,93 @@ export const generateOrderPdf = (order: {
     y = 32;
   }
 
-  // Título
-  doc.setFontSize(16);
+  // Título principal
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
   doc.text(`Orden de trabajo #OT${order.id}`, 105, y, { align: 'center' });
 
-  // Cuadro con datos
+  // Tabla de info
   y += 10;
   const startX = 20;
   const col1Width = 50;
   const col2Width = 120;
-  const rowHeight = 10;
 
-  const tableData = [
+  const rows = [
     ['Fecha de solicitud', formatDate(order.created_at)],
     ['Solicitante', order.cliente.username],
-    ...(order.tags.length > 0 ? [['Categoría', order.tags.map((t) => t.tag).join(', ')]] : []),
     ['Prioridad', order.prioridad_display],
   ];
 
-  tableData.forEach(([label, value], i) => {
-    const rowY = y + i * rowHeight;
+  // Categorías con splitTextToSize para no desbordar
+  if (order.tags.length > 0) {
+    const tagsText = order.tags.map((t) => t.tag).join(', ');
+    rows.push(['Categoría', tagsText]);
+  }
+
+  rows.forEach(([label, value]) => {
+    const textLines = doc.splitTextToSize(value, col2Width - 4);
+    const rowHeight = textLines.length * 5 + 4; // altura proporcional
 
     // Bordes
-    doc.rect(startX, rowY, col1Width, rowHeight);
-    doc.rect(startX + col1Width, rowY, col2Width, rowHeight);
+    doc.rect(startX, y, col1Width, rowHeight);
+    doc.rect(startX + col1Width, y, col2Width, rowHeight);
 
-    // Textos
+    // Label
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.text(`${label}:`, startX + 2, y + 5);
+
+    // Valor
     doc.setFont('helvetica', 'normal');
-    doc.text(`${label}:`, startX + 2, rowY + 7);
-    doc.text(value, startX + col1Width + 2, rowY + 7);
+    doc.setFontSize(10);
+    doc.text(textLines, startX + col1Width + 2, y + 5);
+
+    y += rowHeight;
   });
 
-  y += tableData.length * rowHeight + 10;
+  y += 12;
 
-  // Descripción
+  // ============================
+  //   TÍTULO DEL TRABAJO (sin recuadro)
+  // ============================
+
   doc.setFont('helvetica', 'bold');
-  doc.text('Descripción del trabajo a realizar:', startX, y);
+  doc.setFontSize(15);
+  doc.text('Título de la orden', startX, y);
   y += 7;
 
-  doc.setFont('helvetica', 'italic');
-  doc.setFontSize(13);
-  const lines = doc.splitTextToSize(order.titulo, 170);
-  doc.text(lines, startX, y);
-  y += lines.length * 7;
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  const tituloLines = doc.splitTextToSize(order.titulo, 170);
+  doc.text(tituloLines, startX, y);
 
-  // Agentes
-  y += 10;
+  // y += tituloLines.length * 7 + 10;
+
+  // ============================
+  //   DETALLE DEL TRABAJO (sin recuadro)
+  // ============================
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('Detalle del trabajo', startX, y);
+  y += 7;
+
+  if (order.detalle) {
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(12);
+    const detalleLines = doc.splitTextToSize(order.detalle, 170);
+    doc.text(detalleLines, startX, y);
+    y += detalleLines.length * 6 + 10;
+  } else {
+    doc.setFont('helvetica', 'italic');
+    doc.text('Sin detalle proporcionado.', startX, y);
+    y += 10;
+  }
+
+  // ============================
+  //   AGENTES
+  // ============================
+
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
   doc.text('Agentes asignados:', startX, y);
@@ -87,8 +128,11 @@ export const generateOrderPdf = (order: {
     y += 6;
   });
 
-  // Firmas
-  y += 50;
+  // ============================
+  //   FIRMAS
+  // ============================
+
+  y += 40;
   doc.setLineWidth(0.1);
 
   doc.line(30, y + 15, 80, y + 15);

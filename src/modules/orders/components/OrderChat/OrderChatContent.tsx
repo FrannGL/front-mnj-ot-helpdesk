@@ -1,9 +1,9 @@
 import type { User } from 'src/modules/users/interfaces';
 import type { Message } from 'src/modules/orders/interfaces';
 
-import { useRef, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 
-import { AttachFile, SupportAgent } from '@mui/icons-material';
+import { Close, Download, AttachFile, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -11,14 +11,20 @@ import {
   Stack,
   Paper,
   Avatar,
+  Button,
+  Dialog,
   Tooltip,
   useTheme,
   Typography,
+  IconButton,
+  DialogTitle,
+  DialogActions,
   useMediaQuery,
   DialogContent,
 } from '@mui/material';
 
 import { CONFIG } from 'src/config';
+import { request } from 'src/services/request';
 import { fDate } from 'src/shared/utils/format-time';
 
 import { useOrderById } from '../../hooks';
@@ -45,6 +51,11 @@ export function OrderChatContent({ orderId }: Props) {
 
   const theme = useTheme();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [previewFile, setPreviewFile] = useState<{
+    url: string;
+    name: string;
+    messageId: number;
+  } | null>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -53,6 +64,31 @@ export function OrderChatContent({ orderId }: Props) {
   useEffect(() => {
     scrollToBottom();
   }, [order.mensajes]);
+
+  const handlePreview = async (fileUrl: string, fileName: string, messageId: number) => {
+    try {
+      const response = await request(fileUrl, 'GET', undefined, 'blob');
+      if (response.error) {
+        console.error('Error fetching file:', response.error);
+        return;
+      }
+      const blobUrl = URL.createObjectURL(response.data);
+      setPreviewFile({
+        url: blobUrl,
+        name: fileName,
+        messageId,
+      });
+    } catch (error) {
+      console.error('Error in handlePreview:', error);
+    }
+  };
+
+  const handleClosePreview = () => {
+    if (previewFile?.url) {
+      URL.revokeObjectURL(previewFile.url);
+    }
+    setPreviewFile(null);
+  };
 
   if (!order) return null;
 
@@ -172,7 +208,9 @@ export function OrderChatContent({ orderId }: Props) {
                     <Stack direction="row" spacing={2} alignItems="center">
                       <Tooltip
                         title={
-                          isClient ? order.cliente.username : order.agentes[0]?.username ?? 'Agente'
+                          isClient
+                            ? order.cliente.username
+                            : (order.agentes[0]?.username ?? 'Agente')
                         }
                         arrow
                       >
@@ -185,7 +223,7 @@ export function OrderChatContent({ orderId }: Props) {
                         >
                           {isClient
                             ? order.cliente.username.charAt(0).toUpperCase()
-                            : order.agentes[0]?.username?.charAt(0).toUpperCase() ?? 'A'}
+                            : (order.agentes[0]?.username?.charAt(0).toUpperCase() ?? 'A')}
                         </Avatar>
                       </Tooltip>
 
@@ -212,7 +250,9 @@ export function OrderChatContent({ orderId }: Props) {
                                 return (
                                   <Box
                                     key={`${msg.id}-adj-${adjunto.id}`}
-                                    onClick={() => downloadAttachment(msg.id, fileName!)}
+                                    onClick={() =>
+                                      handlePreview(adjunto.archivo, fileName!, msg.id)
+                                    }
                                     sx={{
                                       cursor: 'pointer',
                                       display: 'flex',
@@ -224,8 +264,7 @@ export function OrderChatContent({ orderId }: Props) {
                                       borderRadius: 1,
                                       transition: 'all 0.2s',
                                       '&:hover': {
-                                        bgcolor:
-                                          theme.palette.mode === 'dark' ? 'grey.700' : 'grey.200',
+                                        bgcolor: 'grey.700',
                                       },
                                     }}
                                   >
@@ -284,6 +323,52 @@ export function OrderChatContent({ orderId }: Props) {
           )}
         </Paper>
       </DialogContent>
+
+      {previewFile && (
+        <Dialog
+          open={!!previewFile}
+          onClose={handleClosePreview}
+          maxWidth="lg"
+          fullWidth
+          PaperProps={{
+            sx: { height: '80vh', overflow: 'hidden' },
+          }}
+        >
+          <DialogTitle
+            sx={{
+              m: 0,
+              p: 2,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant="h6">{previewFile.name}</Typography>
+            <IconButton onClick={handleClosePreview}>
+              <Close />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers sx={{ p: 0, height: '100%' }}>
+            <iframe
+              src={previewFile.url}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              title={previewFile.name}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClosePreview} color="inherit">
+              Cerrar
+            </Button>
+            <Button
+              variant="contained"
+              onClick={() => downloadAttachment(previewFile.messageId, previewFile.name)}
+              startIcon={<Download />}
+            >
+              Descargar
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </>
   );
 }

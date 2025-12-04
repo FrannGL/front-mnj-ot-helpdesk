@@ -72,19 +72,27 @@ const OrderChat = ({ orderId, open, onClose }: Props) => {
             >
               {`#OT${order.id}`} | {order.titulo ?? 'Sin título'}
             </Typography>
+
             {order.tags?.length > 0 &&
               order.tags.map((tag: Tag, i: number) => (
                 <Chip
                   key={`${tag.id}-${i}`}
-                  label={tag.tag}
+                  label={`# ${tag.tag}`}
                   variant="soft"
                   color="secondary"
                   sx={{ width: 'fit-content' }}
                 />
               ))}
           </Stack>
+
+          {order.detalle && (
+            <Typography variant="body1" color="text.secondary" sx={{ mt: 1, mb: 1 }}>
+              Detalle: {order.detalle}
+            </Typography>
+          )}
+
           <Typography variant="caption" color="textSecondary" sx={{ pt: isMobile ? 0.8 : 0 }}>
-            Creado por <strong>{order.cliente?.username ?? 'Desconocido'}</strong> el{' '}
+            Solicitado por <strong>{order.cliente?.username ?? 'Desconocido'}</strong> el{' '}
             {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
           </Typography>
         </Stack>

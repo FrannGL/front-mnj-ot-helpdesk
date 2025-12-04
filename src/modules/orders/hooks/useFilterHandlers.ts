@@ -25,8 +25,8 @@ export const useFilterHandlers = (initialFilters?: Partial<OrderFilters>) => {
       : 'Prioridad';
 
   const getTagsButtonText = (tags: number[] | undefined) => {
-    if (!tags || tags.length === 0) return 'Tags';
-    return `${tags.length} tag${tags.length > 1 ? 's' : ''} seleccionado${tags.length > 1 ? 's' : ''}`;
+    if (!tags || tags.length === 0) return 'Categorías';
+    return `${tags.length} categoría${tags.length > 1 ? 's' : ''} seleccionado${tags.length > 1 ? 's' : ''}`;
   };
 
   return {

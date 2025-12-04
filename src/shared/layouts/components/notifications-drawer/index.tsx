@@ -33,8 +33,8 @@ import type { NotificationItemProps } from './notification-item';
 type TabValue = 'all' | 'unread';
 
 const TABS: { value: TabValue; label: string }[] = [
-  { value: 'all', label: 'All' },
-  { value: 'unread', label: 'Unread' },
+  { value: 'all', label: 'Todos' },
+  { value: 'unread', label: 'Sin leer' },
 ];
 
 // ----------------------------------------------------------------------

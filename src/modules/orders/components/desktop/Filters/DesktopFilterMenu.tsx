@@ -160,7 +160,7 @@ const DesktopFilterMenu = ({
         />
 
         <FilterButton
-          label="Tags"
+          label="Categorías"
           icon={<Tag fontSize="small" />}
           options={
             tags?.map((tag) => ({

@@ -52,7 +52,7 @@ export type OrderTableColumn = {
 const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
   { id: 'id', label: 'Código', width: '50px' },
   { id: 'titulo', label: 'Título', width: '250px' },
-  { id: 'cliente', label: 'Cliente' },
+  { id: 'cliente', label: 'Solicitante' },
   { id: 'edificio', label: 'Edificio', width: '250px' },
   { id: 'sector', label: 'Sector' },
   { id: 'estado', label: 'Estado', align: 'center' },

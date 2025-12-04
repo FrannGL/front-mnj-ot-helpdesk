@@ -49,7 +49,6 @@ export function useOrders(
     tags: filters.tags,
   };
 
-  // Si NO es admin ni superadmin, filtrar por cliente_clerk_id
   if (!userIsAdmin && !userIsSuperAdmin && user?.id) {
     (queryParams as any).cliente_clerk_id = user.id;
   }
