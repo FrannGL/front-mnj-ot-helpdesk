@@ -90,7 +90,7 @@ export const generateOrderPdf = (order: {
   const tituloLines = doc.splitTextToSize(order.titulo, 170);
   doc.text(tituloLines, startX, y);
 
-  // y += tituloLines.length * 7 + 10;
+  y += tituloLines.length * 6 + 10;
 
   // ============================
   //   DETALLE DEL TRABAJO (sin recuadro)

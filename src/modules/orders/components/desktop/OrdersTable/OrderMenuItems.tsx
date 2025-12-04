@@ -45,30 +45,28 @@ export const OrderMenuItems = ({
 
   return (
     <>
-      {admin ||
-        (superAdmin && (
-          <MenuItem
-            onClick={() => {
-              onAssignAgents();
-              closeMenu();
-            }}
-          >
-            <Group fontSize="small" color="secondary" sx={{ mr: 1 }} />
-            {order.agentes.length === 0 ? 'Asignar Agentes' : 'Editar Agentes'}
-          </MenuItem>
-        ))}
+      {(admin || superAdmin) && (
+        <MenuItem
+          onClick={() => {
+            onAssignAgents();
+            closeMenu();
+          }}
+        >
+          <Group fontSize="small" color="secondary" sx={{ mr: 1 }} />
+          {order.agentes.length === 0 ? 'Asignar Agentes' : 'Editar Agentes'}
+        </MenuItem>
+      )}
 
       <MenuItem onClick={() => generateOrderPdf(order)}>
         <PictureAsPdf fontSize="small" color="error" sx={{ mr: 1 }} />
         {admin || superAdmin ? 'Generar Remito' : 'Ver Remito'}
       </MenuItem>
 
-      {admin ||
-        (superAdmin && (order.estado === 2 || order.estado === 3) && (
-          <MenuItem onClick={() => onChangeStatus(1)}>
-            <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Reabrir
-          </MenuItem>
-        ))}
+      {(admin || superAdmin) && (order.estado === 2 || order.estado === 3) && (
+        <MenuItem onClick={() => onChangeStatus(1)}>
+          <Sync fontSize="small" color="warning" sx={{ mr: 1 }} /> Reabrir
+        </MenuItem>
+      )}
 
       {(admin || superAdmin) && order.estado === 1 && (
         <>
