@@ -13,12 +13,8 @@ import {
   Close,
   Category,
   CloudUpload,
-  Description,
   PriorityHigh,
   LocationCity,
-  PictureAsPdf,
-  InsertDriveFile,
-  Image as ImageIcon,
 } from '@mui/icons-material';
 import {
   Box,
@@ -45,12 +41,13 @@ import {
   ListItemSecondaryAction,
 } from '@mui/material';
 
-import { useTags } from 'src/modules/tags/hooks/useTags';
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { inputStyles } from 'src/shared/utils/shared-styles';
+import { useAllTags } from 'src/modules/tags/hooks/useAllTags';
 import { useSectores } from 'src/modules/sectores/hooks/useSectores';
-import { useEdificios } from 'src/modules/edificios/hooks/useEdificios';
+import { useAllEdificios } from 'src/modules/edificios/hooks/useAllEdificios';
 
+import { getFileIcon } from '../utils';
 import { useOrders } from '../hooks/useOrders';
 import { OrderStatusEnum, OrderPriorityEnum } from '../enums';
 import { createOrderSchema, type CreateOrderType } from '../schemas/order.schema';
@@ -63,27 +60,10 @@ interface OrderFormProps {
   orderId?: number;
 }
 
-const getFileIcon = (fileName: string) => {
-  const extension = fileName.split('.').pop()?.toLowerCase();
-  switch (extension) {
-    case 'pdf':
-      return <PictureAsPdf color="error" />;
-    case 'jpg':
-    case 'jpeg':
-    case 'png':
-    case 'webp':
-      return <ImageIcon color="primary" />;
-    case 'txt':
-      return <Description color="info" />;
-    default:
-      return <InsertDriveFile color="action" />;
-  }
-};
-
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
   const { data: users } = useUsers();
-  const { tags } = useTags();
-  const { edificios } = useEdificios();
+  const { tags } = useAllTags();
+  const { edificios } = useAllEdificios();
   const { sectores } = useSectores();
 
   const { createMutation, updateMutation, sendMessageMutation } = useOrders();
@@ -315,23 +295,39 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                 name="edificio"
                 control={control}
                 render={({ field }) => (
-                  <FormControl fullWidth>
-                    <InputLabel>Edificio</InputLabel>
-                    <Select
+                  <FormControl error={!!errors.edificio} fullWidth>
+                    <Autocomplete
                       {...field}
-                      label="Edificio"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <LocationCity />
-                        </InputAdornment>
-                      }
-                    >
-                      {edificios.map((building) => (
-                        <MenuItem key={building.id} value={building.id}>
-                          {building.nombre}
-                        </MenuItem>
-                      ))}
-                    </Select>
+                      options={edificios || []}
+                      getOptionLabel={(option) => {
+                        if (!option) return '';
+                        if (typeof option === 'number') {
+                          return edificios?.find((e) => e.id === option)?.nombre || '';
+                        }
+                        return option.nombre || '';
+                      }}
+                      value={edificios?.find((e) => e.id === field.value) || null}
+                      onChange={(_, newValue) => field.onChange(newValue?.id || null)}
+                      renderInput={(params) => (
+                        <TextField
+                          {...params}
+                          label="Edificio"
+                          error={!!errors.edificio}
+                          helperText={errors.edificio?.message}
+                          InputProps={{
+                            ...params.InputProps,
+                            startAdornment: (
+                              <>
+                                <InputAdornment position="start">
+                                  <LocationCity />
+                                </InputAdornment>
+                                {params.InputProps.startAdornment}
+                              </>
+                            ),
+                          }}
+                        />
+                      )}
+                    />
                   </FormControl>
                 )}
               />

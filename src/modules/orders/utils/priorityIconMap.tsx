@@ -15,7 +15,7 @@ export const getPriorityIcon = (priority: OrderPriorityEnum) => {
       return <SignalCellular2Bar fontSize="small" />;
     case OrderPriorityEnum.ALTA:
       return <SignalCellular3Bar fontSize="small" />;
-    case OrderPriorityEnum.CRITICA:
+    case OrderPriorityEnum.URGENTE:
       return <Warning fontSize="small" />;
     default:
       return undefined;

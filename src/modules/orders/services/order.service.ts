@@ -25,6 +25,30 @@ export async function fetchOrders(params: OrderQueryParams = {}): Promise<Server
   return response.data;
 }
 
+export async function fetchAllOrders(params: OrderQueryParams = {}): Promise<Order[]> {
+  const firstResponse = await fetchOrders({ ...params, page: 1 });
+  const allOrders: Order[] = [...firstResponse.results];
+
+  if (!firstResponse.next) {
+    return allOrders;
+  }
+
+  const totalPages = Math.ceil(firstResponse.count / firstResponse.results.length);
+
+  const pagePromises = [];
+  for (let page = 2; page <= totalPages; page += 1) {
+    pagePromises.push(fetchOrders({ ...params, page }));
+  }
+
+  const responses = await Promise.all(pagePromises);
+
+  responses.forEach((response) => {
+    allOrders.push(...response.results);
+  });
+
+  return allOrders;
+}
+
 export async function createOrder(newOrder: CreateOrderType): Promise<Order> {
   const response = await request('ordenes?frontend=2', 'POST', newOrder);
   if (response.error) throw new Error(response.error);

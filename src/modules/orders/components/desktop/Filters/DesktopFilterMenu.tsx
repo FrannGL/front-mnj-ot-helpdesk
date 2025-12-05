@@ -8,6 +8,7 @@ import { m } from 'framer-motion';
 import { Box, Stack, Button, Typography } from '@mui/material';
 import {
   Tag,
+  TableChart,
   SupportAgent,
   Person as AssigneeIcon,
   Assignment as StatusIcon,
@@ -27,12 +28,14 @@ type DesktopFilterMenuProps = {
   filters: OrderFilters;
   onFiltersChange: (filters: OrderFilters) => void;
   hasActiveFilters?: boolean;
+  onExportToExcel: () => void;
 };
 
 const DesktopFilterMenu = ({
   filters,
   onFiltersChange,
   hasActiveFilters,
+  onExportToExcel,
 }: DesktopFilterMenuProps) => {
   const { data: users } = useUsers();
   const { tags } = useTags();
@@ -191,6 +194,17 @@ const DesktopFilterMenu = ({
           onOpen={(e) => setAnchorAssignedTo(e.currentTarget)}
           onClose={() => setAnchorAssignedTo(null)}
         />
+
+        <Button
+          variant="soft"
+          size="small"
+          color="success"
+          startIcon={<TableChart />}
+          onClick={onExportToExcel}
+          sx={{ whiteSpace: 'nowrap' }}
+        >
+          Exportar a Excel
+        </Button>
 
         <DesktopSearchBar filters={filters} onFiltersChange={onFiltersChange} />
 

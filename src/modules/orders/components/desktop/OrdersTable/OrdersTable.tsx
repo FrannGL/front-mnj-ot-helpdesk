@@ -1,5 +1,6 @@
 import type { Tag, Order } from 'src/modules/orders/interfaces';
 
+import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 
 import { Warning, MoreVert, SupportAgent } from '@mui/icons-material';
@@ -37,6 +38,7 @@ import {
   getStatusIcon,
   getPriorityIcon,
   statusChipColorMap,
+  exportOrdersToExcel,
   priorityChipColorMap,
 } from '../../../utils';
 
@@ -147,6 +149,31 @@ const OrdersTable = () => {
     });
   }, [orders, orderBy, orderDirection]);
 
+  const handleExportToExcel = async () => {
+    const toastId = toast.loading('Exportando órdenes a Excel...');
+
+    try {
+      const { fetchAllOrders } = await import('../../../services/order.service');
+
+      const queryParams: any = {
+        cliente: filters.cliente,
+        estado: filters.status,
+        prioridad: filters.priority,
+        agente: filters.assignedTo,
+        titulo_contains: filters.searchTerm,
+        tags: filters.tags,
+      };
+
+      const allOrders = await fetchAllOrders(queryParams);
+
+      exportOrdersToExcel(allOrders);
+      toast.success('Órdenes exportadas exitosamente', { id: toastId });
+    } catch (error) {
+      console.error('Error al exportar órdenes:', error);
+      toast.error('Error al exportar órdenes', { id: toastId });
+    }
+  };
+
   const renderAgentsCell = (agents: Order['agentes']) => {
     if (agents.length > 0) {
       return (
@@ -200,6 +227,7 @@ const OrdersTable = () => {
         filters={filters}
         onFiltersChange={handleFiltersChange}
         hasActiveFilters={hasActiveFilters}
+        onExportToExcel={handleExportToExcel}
       />
 
       {showLoading ? (

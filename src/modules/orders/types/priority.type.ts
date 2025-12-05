@@ -1,1 +1,1 @@
-export type PriorityType = 'Baja' | 'Media' | 'Alta' | 'Crítica';
+export type PriorityType = 'Baja' | 'Media' | 'Alta' | 'Urgente';
