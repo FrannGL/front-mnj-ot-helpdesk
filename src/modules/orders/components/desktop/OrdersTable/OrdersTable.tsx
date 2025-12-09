@@ -20,6 +20,7 @@ import {
   IconButton,
   Pagination,
   Typography,
+  useMediaQuery,
   TableContainer,
   CircularProgress,
 } from '@mui/material';
@@ -51,24 +52,30 @@ export type OrderTableColumn = {
   width?: string | number;
 };
 
-const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
-  { id: 'id', label: 'Código', width: '50px' },
-  { id: 'titulo', label: 'Título', width: '250px' },
-  { id: 'cliente', label: 'Solicitante' },
-  { id: 'edificio', label: 'Edificio', width: '250px' },
-  { id: 'sector', label: 'Sector' },
-  { id: 'estado', label: 'Estado', align: 'center' },
-  { id: 'prioridad', label: 'Prioridad', align: 'center' },
-  { id: 'agentes', label: 'Agentes Asignados' },
-  { id: 'tags', label: 'Categorías' },
-  {
-    id: 'created_at',
-    label: 'Fecha de Creación',
-    width: '190px',
-  },
-];
-
 const OrdersTable = () => {
+  const theme = useTheme();
+  const isLargeScreen = useMediaQuery('(min-width:1600px)');
+
+  const ORDERS_TABLE_COLUMNS: OrderTableColumn[] = [
+    { id: 'id', label: 'Código', width: '50px' },
+    { id: 'titulo', label: 'Título', width: '250px' },
+    { id: 'cliente', label: 'Solicitante' },
+    { id: 'edificio', label: 'Edificio', width: '250px' },
+    ...(isLargeScreen ? [{ id: 'sector', label: 'Sector' }] : []),
+    { id: 'estado', label: 'Estado', align: 'center' as const },
+    { id: 'prioridad', label: 'Prioridad', align: 'center' as const },
+    ...(isLargeScreen ? [{ id: 'agentes', label: 'Agentes Asignados' }] : []),
+    ...(isLargeScreen ? [{ id: 'tags', label: 'Categorías' }] : []),
+    ...(isLargeScreen
+      ? [
+          {
+            id: 'created_at',
+            label: 'Fecha de Creación',
+            width: '190px',
+          },
+        ]
+      : []),
+  ];
   const {
     orderBy,
     orderDirection,
@@ -103,7 +110,6 @@ const OrdersTable = () => {
   const [anchorActionsEl, setAnchorActionsEl] = useState<HTMLElement | null>(null);
   const [assignAgentsModalOpen, setAssignAgentsModalOpen] = useState(false);
 
-  const theme = useTheme();
   const open = Boolean(anchorActionsEl);
 
   const handleOpenActionsMenu = (event: React.MouseEvent<HTMLElement>, order: Order) => {
@@ -309,7 +315,7 @@ const OrdersTable = () => {
                           .filter(Boolean)
                           .join(' - ')}
                       </TableCell>
-                      <TableCell>{order.sector_display}</TableCell>
+                      {isLargeScreen && <TableCell>{order.sector_display}</TableCell>}
                       <TableCell>
                         <Chip
                           label={order.estado_display ?? 'N/A'}
@@ -328,11 +334,13 @@ const OrdersTable = () => {
                           variant="soft"
                         />
                       </TableCell>
-                      <TableCell>{renderAgentsCell(order.agentes)}</TableCell>
-                      <TableCell>{renderTagsCell(order.tags)}</TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
-                      </TableCell>
+                      {isLargeScreen && <TableCell>{renderAgentsCell(order.agentes)}</TableCell>}
+                      {isLargeScreen && <TableCell>{renderTagsCell(order.tags)}</TableCell>}
+                      {isLargeScreen && (
+                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                          {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
+                        </TableCell>
+                      )}
                       <TableCell>
                         <IconButton onClick={(e) => handleOpenActionsMenu(e, order)} size="small">
                           <MoreVert />

@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 
 export const generateOrderPdf = (order: {
   id: number;
-  cliente: { username: string };
+  cliente: { username: string; email: string };
   titulo: string;
   detalle?: string;
   estado_display: string;
@@ -10,6 +10,10 @@ export const generateOrderPdf = (order: {
   agentes: { username: string }[];
   tags: { tag: string }[];
   created_at: string;
+  edificio_display: string;
+  piso: number;
+  oficina: string;
+  sector_display: string;
 }) => {
   // eslint-disable-next-line new-cap
   const doc = new jsPDF();
@@ -41,10 +45,17 @@ export const generateOrderPdf = (order: {
   const col1Width = 50;
   const col2Width = 120;
 
+  // Concatenar edificio completo
+  const edificioCompleto = `${order.edificio_display}, Piso ${order.piso}, Oficina ${order.oficina}`;
+
   const rows = [
-    ['Fecha de solicitud', formatDate(order.created_at)],
-    ['Solicitante', order.cliente.username],
+    ['Fecha', formatDate(order.created_at)],
     ['Prioridad', order.prioridad_display],
+    ['Solicitante', order.cliente.username],
+    ['Email', order.cliente.email],
+    ['Edificio', edificioCompleto],
+    ['Sector', order.sector_display],
+    ['Estado', order.estado_display],
   ];
 
   // Categorías con splitTextToSize para no desbordar
@@ -81,11 +92,11 @@ export const generateOrderPdf = (order: {
   // ============================
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(15);
+  doc.setFontSize(12);
   doc.text('Título de la orden', startX, y);
   y += 7;
 
-  doc.setFontSize(10);
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'normal');
   const tituloLines = doc.splitTextToSize(order.titulo, 170);
   doc.text(tituloLines, startX, y);
@@ -128,6 +139,24 @@ export const generateOrderPdf = (order: {
     y += 6;
   });
 
+  y += 10;
+
+  // ============================
+  //   TAREAS/OBSERVACIONES
+  // ============================
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('Tareas/Observaciones:', startX, y);
+  y += 7;
+
+  // Espacio delineado para escritura manual
+  const observacionesHeight = 40;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.rect(startX, y, 170, observacionesHeight);
+  y += observacionesHeight + 10;
+
   // ============================
   //   FIRMAS
   // ============================
@@ -141,5 +170,5 @@ export const generateOrderPdf = (order: {
   doc.line(130, y + 15, 180, y + 15);
   doc.text('Firma del agente asignado', 130, y + 20);
 
-  doc.save(`Remito_OT${order.id}.pdf`);
+  doc.save(`Orden de trabajo #OT${order.id}.pdf`);
 };
