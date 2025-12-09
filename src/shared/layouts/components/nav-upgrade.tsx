@@ -10,8 +10,8 @@ import Typography from '@mui/material/Typography';
 
 import { paths } from 'src/config/paths';
 import { CONFIG } from 'src/config/config-global';
-import { Label } from 'src/shared/components/minimal/label';
 import { varAlpha } from 'src/shared/theme/styles';
+import { Label } from 'src/shared/components/minimal/label';
 
 // ----------------------------------------------------------------------
 

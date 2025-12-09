@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+
 import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 
 const isPublicRoute = createRouteMatcher(['/auth/(.*)', '/api/webhooks(.*)']);

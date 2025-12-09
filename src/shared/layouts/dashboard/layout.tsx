@@ -11,9 +11,9 @@ import { GlobalStyles } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { iconButtonClasses } from '@mui/material/IconButton';
 
-import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 import { varAlpha, stylesMode } from 'src/shared/theme/styles';
 import { useBoolean } from 'src/shared/hooks/minimal/use-boolean';
+import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 import { useSettingsContext } from 'src/shared/components/minimal/settings';
 import { bulletColor, type NavSectionProps } from 'src/shared/components/minimal/nav-section';
 
