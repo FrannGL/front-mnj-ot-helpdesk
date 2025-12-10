@@ -89,3 +89,9 @@ export async function sendMessageToOrder({ orderId, message }: SendMessagePayloa
   if (response.error) throw new Error(response.error);
   return response.data;
 }
+
+export async function deleteMessage(orderId: number, messageId: number) {
+  const response = await request(`ordenes/${orderId}/mensajes/${messageId}`, 'DELETE');
+  if (response.error) throw new Error(response.error);
+  return response;
+}

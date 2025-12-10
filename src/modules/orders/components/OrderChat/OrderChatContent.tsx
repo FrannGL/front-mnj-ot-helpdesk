@@ -1,9 +1,10 @@
 import type { User } from 'src/modules/users/interfaces';
 import type { Message } from 'src/modules/orders/interfaces';
 
+import { useUser } from '@clerk/nextjs';
 import { useRef, useState, useEffect } from 'react';
 
-import { Close, Download, AttachFile, SupportAgent } from '@mui/icons-material';
+import { Close, Delete, Download, AttachFile, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Grid,
@@ -26,8 +27,11 @@ import {
 import { CONFIG } from 'src/config';
 import { request } from 'src/services/request';
 import { fDate } from 'src/shared/utils/format-time';
+import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
+import ConfirmationModal from 'src/shared/components/custom/ConfirmationModal';
 
 import { useOrderById } from '../../hooks';
+import { deleteMessage } from '../../services/order.service';
 import {
   getStatusIcon,
   getPriorityIcon,
@@ -43,7 +47,8 @@ type Props = {
 };
 
 export function OrderChatContent({ orderId }: Props) {
-  const { data } = useOrderById(orderId);
+  const { data, refetch } = useOrderById(orderId);
+  const { user } = useUser();
 
   const order = data?.data;
 
@@ -56,6 +61,13 @@ export function OrderChatContent({ orderId }: Props) {
     name: string;
     messageId: number;
   } | null>(null);
+
+  const [messageToDelete, setMessageToDelete] = useState<number | null>(null);
+
+  const publicMetadata = user?.publicMetadata || {};
+  const admin = isAdmin(publicMetadata);
+  const superAdmin = isSuperAdmin(publicMetadata);
+  const canDeleteMessages = admin || superAdmin;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -88,6 +100,28 @@ export function OrderChatContent({ orderId }: Props) {
       URL.revokeObjectURL(previewFile.url);
     }
     setPreviewFile(null);
+  };
+
+  const handleDeleteMessage = (messageId: number) => {
+    setMessageToDelete(messageId);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!messageToDelete) return;
+
+    try {
+      await deleteMessage(orderId, messageToDelete);
+      refetch();
+      setMessageToDelete(null);
+    } catch (error) {
+      console.error('Error in handleConfirmDelete:', error);
+
+      setMessageToDelete(null);
+    }
+  };
+
+  const handleCancelDelete = () => {
+    setMessageToDelete(null);
   };
 
   if (!order) return null;
@@ -227,88 +261,117 @@ export function OrderChatContent({ orderId }: Props) {
                         </Avatar>
                       </Tooltip>
 
-                      <Box>
-                        <Paper
-                          elevation={1}
-                          sx={{
-                            p: 1.5,
-                            mt: 2,
-                            bgcolor: theme.vars.palette.background.neutral,
-                            color: theme.vars.palette.text.primary,
-                            borderRadius: 2,
-                            maxWidth: 400,
-                          }}
-                        >
-                          <Typography variant="body2">{msg.texto}</Typography>
+                      <Box
+                        sx={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 1 }}
+                      >
+                        <Box>
+                          <Paper
+                            elevation={1}
+                            sx={{
+                              p: 1.5,
+                              mt: 2,
+                              bgcolor: theme.vars.palette.background.neutral,
+                              color: theme.vars.palette.text.primary,
+                              borderRadius: 2,
+                              maxWidth: 400,
+                            }}
+                          >
+                            <Typography variant="body2">{msg.texto}</Typography>
 
-                          {msg.adjuntos && msg.adjuntos.length > 0 && (
-                            <Stack spacing={1} mt={2}>
-                              {msg.adjuntos.map((adjunto) => {
-                                const fileName = adjunto.archivo.split('/').pop();
-                                const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName || '');
+                            {msg.adjuntos && msg.adjuntos.length > 0 && (
+                              <Stack spacing={1} mt={2}>
+                                {msg.adjuntos.map((adjunto) => {
+                                  const fileName = adjunto.archivo.split('/').pop();
+                                  const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(
+                                    fileName || ''
+                                  );
 
-                                return (
-                                  <Box
-                                    key={`${msg.id}-adj-${adjunto.id}`}
-                                    onClick={() =>
-                                      handlePreview(adjunto.archivo, fileName!, msg.id)
-                                    }
-                                    sx={{
-                                      cursor: 'pointer',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 1,
-                                      p: 1,
-                                      bgcolor:
-                                        theme.palette.mode === 'dark' ? 'grey.800' : 'primary.main',
-                                      borderRadius: 1,
-                                      transition: 'all 0.2s',
-                                      '&:hover': {
-                                        bgcolor: 'grey.700',
-                                      },
-                                    }}
-                                  >
-                                    {isImage ? (
-                                      <Box
-                                        component="img"
-                                        src={`${CONFIG.site.serverJST}${adjunto.archivo}`}
-                                        alt={fileName}
-                                        sx={{
-                                          width: 100,
-                                          height: 100,
-                                          objectFit: 'cover',
-                                          borderRadius: 1,
-                                        }}
-                                      />
-                                    ) : (
-                                      <>
-                                        <AttachFile sx={{ fontSize: 20, color: '#fff' }} />
-                                        <Typography variant="caption" sx={{ color: '#fff' }} noWrap>
-                                          {fileName}
-                                        </Typography>
-                                      </>
-                                    )}
-                                  </Box>
-                                );
-                              })}
-                            </Stack>
-                          )}
-                        </Paper>
+                                  return (
+                                    <Box
+                                      key={`${msg.id}-adj-${adjunto.id}`}
+                                      onClick={() =>
+                                        handlePreview(adjunto.archivo, fileName!, msg.id)
+                                      }
+                                      sx={{
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 1,
+                                        p: 1,
+                                        bgcolor:
+                                          theme.palette.mode === 'dark'
+                                            ? 'grey.800'
+                                            : 'primary.main',
+                                        borderRadius: 1,
+                                        transition: 'all 0.2s',
+                                        '&:hover': {
+                                          bgcolor: 'grey.700',
+                                        },
+                                      }}
+                                    >
+                                      {isImage ? (
+                                        <Box
+                                          component="img"
+                                          src={`${CONFIG.site.serverJST}${adjunto.archivo}`}
+                                          alt={fileName}
+                                          sx={{
+                                            width: 100,
+                                            height: 100,
+                                            objectFit: 'cover',
+                                            borderRadius: 1,
+                                          }}
+                                        />
+                                      ) : (
+                                        <>
+                                          <AttachFile sx={{ fontSize: 20, color: '#fff' }} />
+                                          <Typography
+                                            variant="caption"
+                                            sx={{ color: '#fff' }}
+                                            noWrap
+                                          >
+                                            {fileName}
+                                          </Typography>
+                                        </>
+                                      )}
+                                    </Box>
+                                  );
+                                })}
+                              </Stack>
+                            )}
+                          </Paper>
 
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            mt: 1,
-                            pb: 2,
-                            ml: isClient ? 1 : 'auto',
-                            textAlign: 'right',
-                            display: 'block',
-                            fontSize: 10,
-                            color: theme.vars.palette.text.secondary,
-                          }}
-                        >
-                          {fDate(msg.created_at, 'DD-MM-YYYY h:mm a')}
-                        </Typography>
+                          <Typography
+                            variant="caption"
+                            sx={{
+                              mt: 1,
+                              pb: 2,
+                              ml: isClient ? 1 : 'auto',
+                              textAlign: 'right',
+                              display: 'block',
+                              fontSize: 10,
+                              color: theme.vars.palette.text.secondary,
+                            }}
+                          >
+                            {fDate(msg.created_at, 'DD-MM-YYYY h:mm a')}
+                          </Typography>
+                        </Box>
+
+                        {canDeleteMessages && (
+                          <Tooltip title="Eliminar mensaje" arrow>
+                            <IconButton
+                              size="small"
+                              onClick={() => handleDeleteMessage(msg.id)}
+                              sx={{
+                                color: 'error.main',
+                                '&:hover': {
+                                  bgcolor: 'error.lighter',
+                                },
+                              }}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </Tooltip>
+                        )}
                       </Box>
                     </Stack>
                   </Box>
@@ -369,6 +432,16 @@ export function OrderChatContent({ orderId }: Props) {
           </DialogActions>
         </Dialog>
       )}
+
+      <ConfirmationModal
+        open={Boolean(messageToDelete)}
+        onClose={handleCancelDelete}
+        onConfirm={handleConfirmDelete}
+        title="Eliminar mensaje"
+        content="¿Estás seguro de que deseas eliminar este mensaje? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+      />
     </>
   );
 }
