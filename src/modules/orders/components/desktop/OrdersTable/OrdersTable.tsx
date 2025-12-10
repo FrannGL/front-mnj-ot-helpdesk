@@ -3,7 +3,7 @@ import type { Tag, Order } from 'src/modules/orders/interfaces';
 import { toast } from 'sonner';
 import { useMemo, useState } from 'react';
 
-import { Warning, MoreVert, SupportAgent } from '@mui/icons-material';
+import { Warning, MoreVert, AttachFile, SupportAgent } from '@mui/icons-material';
 import {
   Box,
   Menu,
@@ -60,12 +60,12 @@ const OrdersTable = () => {
     { id: 'id', label: 'Código', width: '50px' },
     { id: 'titulo', label: 'Título', width: '250px' },
     { id: 'cliente', label: 'Solicitante' },
-    { id: 'edificio', label: 'Edificio', width: '250px' },
+    { id: 'edificio', label: 'Edificio', width: '200px' },
     ...(isLargeScreen ? [{ id: 'sector', label: 'Sector' }] : []),
     { id: 'estado', label: 'Estado', align: 'center' as const },
     { id: 'prioridad', label: 'Prioridad', align: 'center' as const },
     ...(isLargeScreen ? [{ id: 'agentes', label: 'Agentes Asignados' }] : []),
-    ...(isLargeScreen ? [{ id: 'tags', label: 'Categorías' }] : []),
+    ...(isLargeScreen ? [{ id: 'tags', label: 'Categorías', width: '200px' }] : []),
     ...(isLargeScreen
       ? [
           {
@@ -268,86 +268,129 @@ const OrdersTable = () => {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  sortedOrders.map((order) => (
-                    <TableRow
-                      key={order.id}
-                      sx={{
-                        '&:hover': {
-                          bgcolor: theme.palette.action.hover,
-                          cursor: 'pointer',
-                          transition: 'background-color 0.2s ease',
-                        },
-                      }}
-                    >
-                      <TableCell
-                        onClick={() => handleOpenChat(order)}
+                  sortedOrders.map((order) => {
+                    const hasAttachments = order.mensajes?.some(
+                      (mensaje) => mensaje.adjuntos && mensaje.adjuntos.length > 0
+                    );
+
+                    return (
+                      <TableRow
+                        key={order.id}
                         sx={{
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap',
-                          '& .title-text': {
-                            textDecoration: 'none',
-                            transition: 'text-decoration 0.2s ease',
-                          },
-                          '&:hover .title-text': {
-                            textDecoration: 'underline',
+                          '&:hover': {
+                            bgcolor: theme.palette.action.hover,
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s ease',
                           },
                         }}
                       >
-                        <Typography noWrap component="span" variant="body2" className="title-text">
-                          {`#OT${order.id}`}
-                        </Typography>
-                      </TableCell>
-                      <TableCell>
-                        <Tooltip title={order.titulo} arrow placement="top">
-                          <Typography noWrap component="span" className="title-text">
-                            {order.titulo}
+                        <TableCell
+                          onClick={() => handleOpenChat(order)}
+                          sx={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            '& .title-text': {
+                              textDecoration: 'none',
+                              transition: 'text-decoration 0.2s ease',
+                            },
+                            '&:hover .title-text': {
+                              textDecoration: 'underline',
+                            },
+                          }}
+                        >
+                          <Typography
+                            noWrap
+                            component="span"
+                            variant="body2"
+                            className="title-text"
+                          >
+                            {`#OT${order.id}`}
                           </Typography>
-                        </Tooltip>
-                      </TableCell>
-                      <TableCell>{order.cliente.username}</TableCell>
-                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                        {[
-                          order.edificio_display,
-                          order.piso != null ? `Piso ${order.piso}` : null,
-                          order.oficina ? `Oficina ${order.oficina}` : null,
-                        ]
-                          .filter(Boolean)
-                          .join(' - ')}
-                      </TableCell>
-                      {isLargeScreen && <TableCell>{order.sector_display}</TableCell>}
-                      <TableCell>
-                        <Chip
-                          label={order.estado_display ?? 'N/A'}
-                          color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
-                          icon={getStatusIcon(order.estado as OrderStatusEnum)}
-                          size="small"
-                          variant="soft"
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Chip
-                          label={order.prioridad_display}
-                          color={priorityChipColorMap[order.prioridad]}
-                          icon={getPriorityIcon(order.prioridad)}
-                          size="small"
-                          variant="soft"
-                        />
-                      </TableCell>
-                      {isLargeScreen && <TableCell>{renderAgentsCell(order.agentes)}</TableCell>}
-                      {isLargeScreen && <TableCell>{renderTagsCell(order.tags)}</TableCell>}
-                      {isLargeScreen && (
-                        <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                          {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
                         </TableCell>
-                      )}
-                      <TableCell>
-                        <IconButton onClick={(e) => handleOpenActionsMenu(e, order)} size="small">
-                          <MoreVert />
-                        </IconButton>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        <TableCell>
+                          <Stack direction="row" alignItems="center" justifyContent="space-between">
+                            <Tooltip title={order.titulo} arrow placement="top">
+                              <Typography noWrap component="span" className="title-text">
+                                {order.titulo}
+                              </Typography>
+                            </Tooltip>
+                            {hasAttachments && (
+                              <Tooltip title="Esta orden contiene archivos adjuntos">
+                                <AttachFile
+                                  sx={{
+                                    fontSize: 16,
+                                    color: 'text.secondary',
+                                    ml: 0.5,
+                                    transform: 'rotate(45deg)',
+                                  }}
+                                />
+                              </Tooltip>
+                            )}
+                          </Stack>
+                        </TableCell>
+                        <TableCell>{order.cliente.username}</TableCell>
+                        <TableCell
+                          sx={{
+                            whiteSpace: 'nowrap',
+                            maxWidth: '220px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                          }}
+                        >
+                          {[
+                            order.edificio_display,
+                            order.piso != null ? `Piso ${order.piso}` : null,
+                            order.oficina ? `Oficina ${order.oficina}` : null,
+                          ]
+                            .filter(Boolean)
+                            .join(' - ')}
+                        </TableCell>
+                        {isLargeScreen && <TableCell>{order.sector_display}</TableCell>}
+                        <TableCell>
+                          <Chip
+                            label={order.estado_display ?? 'N/A'}
+                            color={statusChipColorMap[order.estado as OrderStatusEnum] ?? 'default'}
+                            icon={getStatusIcon(order.estado as OrderStatusEnum)}
+                            size="small"
+                            variant="soft"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={order.prioridad_display}
+                            color={priorityChipColorMap[order.prioridad]}
+                            icon={getPriorityIcon(order.prioridad)}
+                            size="small"
+                            variant="soft"
+                          />
+                        </TableCell>
+                        {isLargeScreen && <TableCell>{renderAgentsCell(order.agentes)}</TableCell>}
+                        {isLargeScreen && (
+                          <TableCell
+                            sx={{
+                              whiteSpace: 'nowrap',
+                              maxWidth: '150px',
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                            }}
+                          >
+                            {renderTagsCell(order.tags)}
+                          </TableCell>
+                        )}
+                        {isLargeScreen && (
+                          <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                            {fDate(order.created_at, 'DD-MM-YYYY h:mm a')}
+                          </TableCell>
+                        )}
+                        <TableCell>
+                          <IconButton onClick={(e) => handleOpenActionsMenu(e, order)} size="small">
+                            <MoreVert />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
                 )}
               </TableBody>
             </Table>

@@ -1,6 +1,8 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { Fira_Sans } from 'next/font/google';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Close } from '@mui/icons-material';
 import {
@@ -34,12 +36,16 @@ type Props = {
 
 const OrderChat = ({ orderId, open, onClose }: Props) => {
   const { data } = useOrderById(orderId);
+  const router = useRouter();
+  const queryClient = useQueryClient();
 
   const order = data?.data;
 
   const isMobile = useMediaQuery('(max-width:600px)');
 
   const handleClose = () => {
+    queryClient.invalidateQueries({ queryKey: ['orders'] });
+    router.refresh();
     onClose();
   };
 
@@ -49,7 +55,7 @@ const OrderChat = ({ orderId, open, onClose }: Props) => {
     <Dialog open={open} onClose={handleClose} fullWidth maxWidth="md">
       <DialogTitle sx={{ pb: 0, pt: isMobile ? 3 : 2 }}>
         <IconButton
-          onClick={onClose}
+          onClick={handleClose}
           sx={{
             position: 'absolute',
             top: 8,

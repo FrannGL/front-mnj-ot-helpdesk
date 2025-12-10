@@ -32,6 +32,7 @@ export function useOrders(
   options?: UseOrdersOptions
 ) {
   const queryClient = useQueryClient();
+
   const { user } = useUser();
 
   const publicMetadata = user?.publicMetadata ?? {};
