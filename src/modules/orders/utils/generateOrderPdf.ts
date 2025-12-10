@@ -14,6 +14,7 @@ export const generateOrderPdf = (order: {
   piso: number;
   oficina: string;
   sector_display: string;
+  mensajes: { adjuntos: { archivo: string }[] }[];
 }) => {
   // eslint-disable-next-line new-cap
   const doc = new jsPDF();
@@ -48,20 +49,37 @@ export const generateOrderPdf = (order: {
   // Concatenar edificio completo
   const edificioCompleto = `${order.edificio_display}, Piso ${order.piso}, Oficina ${order.oficina}`;
 
-  const rows = [
+  const rows: [string, string][] = [
     ['Fecha', formatDate(order.created_at)],
     ['Prioridad', order.prioridad_display],
     ['Solicitante', order.cliente.username],
     ['Email', order.cliente.email],
     ['Edificio', edificioCompleto],
-    ['Sector', order.sector_display],
     ['Estado', order.estado_display],
   ];
+
+  // Solo agregar Sector si tiene valor
+  if (order.sector_display && order.sector_display.trim() !== '') {
+    rows.splice(5, 0, ['Sector', order.sector_display]); // Insertar antes de Estado
+  }
 
   // Categorías con splitTextToSize para no desbordar
   if (order.tags.length > 0) {
     const tagsText = order.tags.map((t) => t.tag).join(', ');
     rows.push(['Categoría', tagsText]);
+  }
+
+  // Adjuntos
+  const allAttachments = order.mensajes.flatMap((mensaje) =>
+    mensaje.adjuntos.map((adjunto) => {
+      const fileName = adjunto.archivo.split('/').pop() || 'archivo';
+      return fileName;
+    })
+  );
+
+  if (allAttachments.length > 0) {
+    const attachmentsText = allAttachments.join(', ');
+    rows.push(['Adjuntos', attachmentsText]);
   }
 
   rows.forEach(([label, value]) => {
@@ -142,33 +160,24 @@ export const generateOrderPdf = (order: {
   y += 10;
 
   // ============================
-  //   TAREAS/OBSERVACIONES
-  // ============================
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(12);
-  doc.text('Tareas/Observaciones:', startX, y);
-  y += 7;
-
-  // Espacio delineado para escritura manual
-  const observacionesHeight = 40;
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(10);
-  doc.rect(startX, y, 170, observacionesHeight);
-  y += observacionesHeight + 10;
-
-  // ============================
   //   FIRMAS
   // ============================
 
-  y += 40;
-  doc.setLineWidth(0.1);
+  y += 20; // Espacio adicional antes de las firmas
 
-  doc.line(30, y + 15, 80, y + 15);
-  doc.text('Firma del solicitante', 30, y + 20);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(11);
+  doc.setLineWidth(0.5);
 
-  doc.line(130, y + 15, 180, y + 15);
-  doc.text('Firma del agente asignado', 130, y + 20);
+  // Firma del solicitante (izquierda)
+  const leftX = 30;
+  doc.line(leftX, y, leftX + 60, y);
+  doc.text('Firma del solicitante', leftX, y + 6);
+
+  // Firma del agente asignado (derecha)
+  const rightX = 130;
+  doc.line(rightX, y, rightX + 60, y);
+  doc.text('Firma del agente asignado', rightX, y + 6);
 
   doc.save(`Orden de trabajo #OT${order.id}.pdf`);
 };
