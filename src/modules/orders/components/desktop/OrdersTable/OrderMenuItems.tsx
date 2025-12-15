@@ -34,7 +34,7 @@ import { downloadAttachment } from 'src/modules/orders/utils';
 import { isAdmin, isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 import { generateOrderPdf } from 'src/modules/orders/utils/generateOrderPdf';
 
-import type { OrderStatusEnum } from '../../../enums';
+import { OrderStatusEnum } from '../../../enums';
 
 type Props = {
   order: Order;
@@ -119,7 +119,7 @@ export const OrderMenuItems = ({
         </MenuItem>
       )}
 
-      {(admin || superAdmin) && (
+      {(admin || superAdmin) && order.estado === OrderStatusEnum.ABIERTO && (
         <MenuItem
           onClick={() => {
             onAssignAgents();
@@ -161,9 +161,11 @@ export const OrderMenuItems = ({
 
       {(admin || superAdmin) && (
         <>
-          <MenuItem onClick={() => onEdit()}>
-            <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
-          </MenuItem>
+          {order.estado === OrderStatusEnum.ABIERTO && (
+            <MenuItem onClick={() => onEdit()}>
+              <Edit fontSize="small" color="warning" sx={{ mr: 1 }} /> Editar
+            </MenuItem>
+          )}
           <MenuItem onClick={() => onDelete()}>
             <Delete fontSize="small" color="error" sx={{ mr: 1 }} /> Eliminar
           </MenuItem>

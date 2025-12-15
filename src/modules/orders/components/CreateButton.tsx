@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 
 import Fab from '@mui/material/Fab';
 import { Add as AddIcon } from '@mui/icons-material';
 
-import OrderForm from './OrderForm';
 import { UserModal } from '../../users/components/UserModal';
+
+const OrderForm = dynamic(() => import('./OrderForm'), {
+  loading: () => null,
+  ssr: false,
+});
 
 type ModalType = 'order' | 'user';
 
@@ -21,7 +26,7 @@ const CreateButton = ({ type, label = 'Crear' }: Props) => {
   const renderModal = () => {
     switch (type) {
       case 'order':
-        return <OrderForm open={open} onClose={handleClose} />;
+        return open ? <OrderForm open={open} onClose={handleClose} /> : null;
       case 'user':
         return <UserModal open={open} onClose={handleClose} type="post" disabled={false} />;
       default:

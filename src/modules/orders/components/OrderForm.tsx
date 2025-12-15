@@ -41,9 +41,9 @@ import {
   ListItemSecondaryAction,
 } from '@mui/material';
 
-import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { inputStyles } from 'src/shared/utils/shared-styles';
 import { useAllTags } from 'src/modules/tags/hooks/useAllTags';
+import { useAllUsers } from 'src/modules/users/hooks/useAllUsers';
 import { useSectores } from 'src/modules/sectores/hooks/useSectores';
 import { useAllEdificios } from 'src/modules/edificios/hooks/useAllEdificios';
 
@@ -61,7 +61,7 @@ interface OrderFormProps {
 }
 
 const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormProps) => {
-  const { data: users } = useUsers();
+  const { users } = useAllUsers();
   const { tags } = useAllTags();
   const { edificios } = useAllEdificios();
   const { sectores } = useSectores();
@@ -71,14 +71,14 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
   const { user } = useUser();
   const activeClerkId = user?.id;
 
-  const currentUser = users?.results.find((u) => u.clerk_id === activeClerkId);
+  const currentUser = users?.find((u) => u.clerk_id === activeClerkId);
 
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm<CreateOrderType>({
     resolver: zodResolver(createOrderSchema),
@@ -189,15 +189,15 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
                   <FormControl error={!!errors.cliente} fullWidth>
                     <Autocomplete
                       {...field}
-                      options={users?.results || []}
+                      options={users || []}
                       getOptionLabel={(option) => {
                         if (!option) return '';
                         if (typeof option === 'number') {
-                          return users?.results.find((u) => u.id === option)?.username || '';
+                          return users?.find((u) => u.id === option)?.username || '';
                         }
                         return option.username || '';
                       }}
-                      value={users?.results.find((u) => u.id === field.value) || null}
+                      value={users?.find((u) => u.id === field.value) || null}
                       onChange={(_, newValue) => field.onChange(newValue?.id || '')}
                       renderInput={(params) => (
                         <TextField
@@ -540,8 +540,8 @@ const OrderForm = ({ open, onClose, defaultValues, type, orderId }: OrderFormPro
           <Button onClick={handleClose} variant="outlined" color="inherit">
             Cancelar
           </Button>
-          <Button type="submit" variant="contained">
-            {type === 'edit' ? 'Editar' : 'Enviar'}
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
+            {isSubmitting ? 'Enviando...' : type === 'edit' ? 'Editar' : 'Enviar'}
           </Button>
         </DialogActions>
       </form>

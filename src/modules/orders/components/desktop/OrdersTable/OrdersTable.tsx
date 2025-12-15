@@ -1,6 +1,7 @@
 import type { Tag, Order } from 'src/modules/orders/interfaces';
 
 import { toast } from 'sonner';
+import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 
 import { Warning, MoreVert, AttachFile, SupportAgent } from '@mui/icons-material';
@@ -28,7 +29,6 @@ import {
 import { fDate } from 'src/shared/utils/format-time';
 import { ConfirmationModal } from 'src/shared/components/custom';
 
-import OrderForm from '../../OrderForm';
 import { OrderChat } from '../../OrderChat';
 import { DesktopFilterMenu } from '../Filters';
 import { useAdminOrders } from '../../../hooks';
@@ -44,6 +44,11 @@ import {
 } from '../../../utils';
 
 import type { OrderStatusEnum } from '../../../enums';
+
+const OrderForm = dynamic(() => import('../../OrderForm'), {
+  loading: () => null,
+  ssr: false,
+});
 
 export type OrderTableColumn = {
   id: string;
@@ -458,23 +463,25 @@ const OrdersTable = () => {
         isEditing={!!selectedOrder?.agentes?.length}
       />
 
-      <OrderForm
-        open={editModalOpen}
-        onClose={handleCloseEditModal}
-        type="edit"
-        orderId={selectedOrder?.id ?? 0}
-        defaultValues={{
-          cliente: selectedOrder?.cliente.id,
-          titulo: selectedOrder?.titulo,
-          estado: selectedOrder?.estado,
-          prioridad: selectedOrder?.prioridad,
-          edificio: selectedOrder?.edificio,
-          piso: selectedOrder?.piso,
-          oficina: selectedOrder?.oficina,
-          sector: selectedOrder?.sector,
-          tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
-        }}
-      />
+      {editModalOpen && (
+        <OrderForm
+          open={editModalOpen}
+          onClose={handleCloseEditModal}
+          type="edit"
+          orderId={selectedOrder?.id ?? 0}
+          defaultValues={{
+            cliente: selectedOrder?.cliente.id,
+            titulo: selectedOrder?.titulo,
+            estado: selectedOrder?.estado,
+            prioridad: selectedOrder?.prioridad,
+            edificio: selectedOrder?.edificio,
+            piso: selectedOrder?.piso,
+            oficina: selectedOrder?.oficina,
+            sector: selectedOrder?.sector,
+            tags: selectedOrder?.tags.map((tag) => tag.id) ?? [],
+          }}
+        />
+      )}
 
       <ConfirmationModal
         open={confirmationOpen}
