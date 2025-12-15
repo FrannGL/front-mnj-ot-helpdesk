@@ -18,7 +18,7 @@ import {
   InputAdornment,
 } from '@mui/material';
 
-import { useUsers } from 'src/modules/users/hooks/useUsers';
+import { useAllUsers } from 'src/modules/users/hooks/useAllUsers';
 
 const assignAgentsSchema = z.object({
   agentes: z.array(z.number()),
@@ -43,7 +43,7 @@ const AssignAgentsDialog = ({
   title = 'Asignar Agentes',
   isEditing = false,
 }: AssignAgentsDialogProps) => {
-  const { data: users } = useUsers();
+  const { users } = useAllUsers();
   const {
     control,
     handleSubmit,
@@ -86,15 +86,15 @@ const AssignAgentsDialog = ({
                       {...field}
                       multiple
                       disableCloseOnSelect
-                      options={users?.results || []}
+                      options={users || []}
                       getOptionLabel={(option) => {
                         if (!option) return '';
                         if (typeof option === 'number') {
-                          return users?.results.find((u) => u.id === option)?.username || '';
+                          return users?.find((u) => u.id === option)?.username || '';
                         }
                         return option.username || '';
                       }}
-                      value={users?.results.filter((user) => field.value?.includes(user.id)) || []}
+                      value={users?.filter((user) => field.value?.includes(user.id)) || []}
                       onChange={(_, newValue) => {
                         field.onChange(newValue.map((item) => item.id));
                       }}
