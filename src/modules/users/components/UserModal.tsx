@@ -76,19 +76,10 @@ export function UserModal({
   };
 
   const onSubmit = async (data: CreateUserType) => {
-    console.log('========== UserModal onSubmit ==========');
-    console.log('type:', type);
-    console.log('userId:', userId);
-    console.log('clerkId:', clerkId);
-    console.log('data:', JSON.stringify(data, null, 2));
-
     setIsSubmitting(true);
 
     try {
       if (type === 'edit' && userId !== undefined && clerkId) {
-        console.log('========== EDIT MODE ==========');
-        console.log('========== LLAMANDO simpleUpdateUser ==========');
-
         const result = await simpleUpdateUser(
           clerkId,
           data.firstName || '',
@@ -96,14 +87,12 @@ export function UserModal({
           data.username || ''
         );
 
-        console.log('simpleUpdateUser result:', result);
-
         if (result.success) {
-          toast.success('Usuario actualizado en Clerk.');
+          toast.success('Usuario actualizado exitosamente.');
           handleClose();
           onUserCreated?.();
         } else {
-          toast.error(result.error || 'Error al actualizar en Clerk');
+          toast.error(result.error || 'Error al actualizar el usuario');
         }
       } else {
         await createMutation.mutateAsync({
@@ -120,7 +109,6 @@ export function UserModal({
         handleClose();
       }
     } catch (error: any) {
-      console.error('Error:', error);
       toast.error(error.message || 'Ocurrió un error al guardar el usuario.');
     } finally {
       setIsSubmitting(false);

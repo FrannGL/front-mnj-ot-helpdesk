@@ -46,10 +46,6 @@ export async function POST(req: Request) {
   const { id: clerkId } = evt.data;
   const eventType = evt.type;
 
-  console.log('[WEBHOOK] ========== EVENTO RECIBIDO ==========');
-  console.log('[WEBHOOK] eventType:', eventType);
-  console.log('[WEBHOOK] clerkId:', clerkId);
-
   if (eventType === 'user.created') {
     const { email_addresses, username } = evt.data;
     const email = email_addresses[0]?.email_address;
@@ -87,16 +83,8 @@ export async function POST(req: Request) {
   }
 
   if (eventType === 'user.updated') {
-    console.log('[WEBHOOK] Entrando en user.updated...');
-    console.log('[WEBHOOK] evt.data:', JSON.stringify(evt.data, null, 2));
-
     const { email_addresses, username, first_name, last_name } = evt.data;
     const email = email_addresses[0]?.email_address;
-
-    console.log('[WEBHOOK] email:', email);
-    console.log('[WEBHOOK] username:', username);
-    console.log('[WEBHOOK] first_name:', first_name);
-    console.log('[WEBHOOK] last_name:', last_name);
 
     if (email) {
       try {
@@ -112,12 +100,11 @@ export async function POST(req: Request) {
             email !== existingUser.email;
 
           if (hasChanges) {
-            // Only update local database, NOT Clerk (since this webhook is triggered BY Clerk)
             const updatedUser = {
               username: username || existingUser.username,
               first_name: first_name || existingUser.first_name,
               last_name: last_name || existingUser.last_name,
-              email, // Always include email from Clerk since it's the source of truth
+              email,
             };
 
             const updateResponse = await request(

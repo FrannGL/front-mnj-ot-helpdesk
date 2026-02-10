@@ -2,28 +2,20 @@
 
 import { clerkClient } from '@clerk/nextjs/server';
 
-// Interface for Clerk user updates - only includes fields Clerk accepts
 export interface ClerkUserUpdate {
   firstName?: string;
   lastName?: string;
   username?: string;
 }
 
-// Simplified function for debugging
 export async function simpleUpdateUser(
   clerkId: string,
   firstName: string,
   lastName: string,
   username: string
 ) {
-  console.log('[simpleUpdateUser] ========== INICIO ==========');
-  console.log('[simpleUpdateUser] clerkId:', clerkId);
-  console.log('[simpleUpdateUser] params:', { firstName, lastName, username });
-
   try {
-    console.log('[simpleUpdateUser] Antes de clerkClient()');
     const client = await clerkClient();
-    console.log('[simpleUpdateUser] Despues de clerkClient()');
 
     const updateData = {
       firstName: String(firstName),
@@ -31,21 +23,12 @@ export async function simpleUpdateUser(
       username: String(username),
     };
 
-    console.log('[simpleUpdateUser] updateData:', JSON.stringify(updateData, null, 2));
-    console.log('[simpleUpdateUser] Antes de updateUser...');
-
-    const updatedUser = await client.users.updateUser(clerkId, updateData);
-
-    console.log('[simpleUpdateUser] Despues de updateUser');
-    console.log('[simpleUpdateUser] SUCCESS:', updatedUser.id);
+    await client.users.updateUser(clerkId, updateData);
 
     return { success: true };
   } catch (error: any) {
-    console.error('[simpleUpdateUser] CATCH ERROR:', JSON.stringify(error, null, 2));
-    return { success: false, error: error.message || 'Error' };
+    return { success: false, error: error.message || 'Error updating user in Clerk' };
   }
-
-  console.log('[simpleUpdateUser] FIN - nunca llega aquí');
 }
 
 export async function createUserInClerk(userData: {
@@ -81,8 +64,6 @@ export async function createUserInClerk(userData: {
 
     return { success: true, user: plainUser };
   } catch (error: any) {
-    console.error('Full Clerk error:', JSON.stringify(error, null, 2));
-
     if (error.errors && Array.isArray(error.errors)) {
       return {
         success: false,
@@ -100,64 +81,28 @@ export async function deleteUserFromClerk(clerkId: string) {
     await client.users.deleteUser(clerkId);
     return { success: true };
   } catch (error) {
-    console.error('Error deleting user from Clerk:', error);
     return { success: false, error: 'Error deleting user from Clerk' };
   }
 }
 
 export async function updateUserInClerk(clerkId: string, userData: ClerkUserUpdate) {
-  console.log('[updateUserInClerk] ========== INICIO ==========');
-  console.log('[updateUserInClerk] clerkId:', clerkId);
-  console.log('[updateUserInClerk] userData:', JSON.stringify(userData, null, 2));
-  console.log('[updateUserInClerk] userData keys:', Object.keys(userData));
-  console.log('[updateUserInClerk] userData has email?:', 'email' in userData);
-
   try {
     const client = await clerkClient();
-    console.log('[updateUserInClerk] Client initialized');
 
     const updateData: ClerkUserUpdate = {};
 
-    console.log('[updateUserInClerk] build updateData:');
-    console.log(
-      '[updateUserInClerk] userData.firstName:',
-      userData.firstName,
-      typeof userData.firstName
-    );
-    console.log(
-      '[updateUserInClerk] userData.lastName:',
-      userData.lastName,
-      typeof userData.lastName
-    );
-    console.log(
-      '[updateUserInClerk] userData.username:',
-      userData.username,
-      typeof userData.username
-    );
-
-    // Only include fields that are explicitly provided
     if (userData.firstName !== undefined) updateData.firstName = userData.firstName;
     if (userData.lastName !== undefined) updateData.lastName = userData.lastName;
     if (userData.username !== undefined) updateData.username = userData.username;
-
-    console.log('[updateUserInClerk] updateData built:', JSON.stringify(updateData, null, 2));
-    console.log('[updateUserInClerk] updateData type:', typeof updateData);
-    console.log('[updateUserInClerk] Array.isArray(updateData):', Array.isArray(updateData));
-    console.log('[updateUserInClerk] Object.keys(updateData):', Object.keys(updateData));
 
     if (Object.keys(updateData).length === 0) {
       return { success: true, user: null };
     }
 
-    console.log('[updateUserInClerk] Calling client.users.updateUser...');
     const updatedUser = await client.users.updateUser(clerkId, updateData);
 
     return { success: true, user: updatedUser };
   } catch (error: any) {
-    console.error('[Clerk] Full error:', JSON.stringify(error, null, 2));
-    console.error('[Clerk] Error code:', error?.errors?.[0]?.code);
-    console.error('[Clerk] Error meta:', error?.errors?.[0]?.meta);
-
     if (error.errors && Array.isArray(error.errors)) {
       const errorMessages = error.errors.map((e: any) => {
         if (e.code === 'form_identifier_exists') {
@@ -196,7 +141,6 @@ export async function toggleUserStatusInClerk(clerkId: string, isActive: boolean
 
     return { success: true };
   } catch (error) {
-    console.error('Error toggling user status in Clerk:', error);
     return { success: false, error: 'Error toggling user status in Clerk' };
   }
 }
