@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Lock, Email, Person } from '@mui/icons-material';
 import InputAdornment from '@mui/material/InputAdornment';
@@ -49,6 +50,7 @@ export function UserModal({
 }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { createMutation } = useUsersMutations();
+  const queryClient = useQueryClient();
 
   const schema = type === 'edit' ? updateUserSchema : createUserSchema;
 
@@ -88,6 +90,7 @@ export function UserModal({
         );
 
         if (result.success) {
+          queryClient.invalidateQueries({ queryKey: ['users'] });
           toast.success('Usuario actualizado exitosamente.');
           handleClose();
           onUserCreated?.();

@@ -1,6 +1,6 @@
 'use client';
 
-import { Edit, Block, Delete, Person, Person as AvatarIcon } from '@mui/icons-material';
+import { Edit, Delete, Person as AvatarIcon } from '@mui/icons-material';
 import {
   Box,
   Chip,
@@ -119,7 +119,7 @@ export function UsersTable({
                           </IconButton>
                         </Tooltip>
                       )}
-                      {onToggleStatus && (
+                      {/* {onToggleStatus && (
                         <Tooltip title={user.isActive !== false ? 'Desactivar' : 'Activar'}>
                           <IconButton
                             onClick={() => onToggleStatus(user.clerk_id, user.isActive !== false)}
@@ -130,7 +130,7 @@ export function UsersTable({
                             {user.isActive !== false ? <Block /> : <Person />}
                           </IconButton>
                         </Tooltip>
-                      )}
+                      )} */}
                       {onDelete && (
                         <Tooltip title="Eliminar usuario">
                           <IconButton
