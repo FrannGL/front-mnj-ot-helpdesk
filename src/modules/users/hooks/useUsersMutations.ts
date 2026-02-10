@@ -50,11 +50,21 @@ async function updateUser({
   clerkId: string;
   updatedUser: UpdateUserType;
 }): Promise<User> {
+  console.log('[useUsersMutations] updateUser called:');
+  console.log('[useUsersMutations] userId:', userId);
+  console.log('[useUsersMutations] clerkId:', clerkId);
+  console.log('[useUsersMutations] updatedUser:', JSON.stringify(updatedUser, null, 2));
+
   const clerkData = {
     username: updatedUser.username,
     firstName: updatedUser.firstName,
     lastName: updatedUser.lastName,
   };
+
+  console.log(
+    '[useUsersMutations] Calling updateUserClerk with:',
+    JSON.stringify(clerkData, null, 2)
+  );
 
   await updateUserClerk(clerkId, clerkData);
 
@@ -74,12 +84,22 @@ async function updateUser({
 }
 
 async function updateUserClerk(clerkId: string, userData: Partial<User>) {
+  console.log('[updateUserClerk] ========== INICIO ==========');
+  console.log('[updateUserClerk] clerkId:', clerkId);
+  console.log('[updateUserClerk] userData:', JSON.stringify(userData, null, 2));
+  console.log('[updateUserClerk] email in userData?:', 'email' in userData);
+
   // Only send Clerk-specific fields, exclude email and other non-updatable fields
   const clerkData = {
     firstName: userData.firstName,
     lastName: userData.lastName,
     username: userData.username,
   };
+
+  console.log(
+    '[updateUserClerk] Calling updateUserInClerk with:',
+    JSON.stringify(clerkData, null, 2)
+  );
 
   const result = await updateUserInClerk(clerkId, clerkData);
   if (!result.success) {

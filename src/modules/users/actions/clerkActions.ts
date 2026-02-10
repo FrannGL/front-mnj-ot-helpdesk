@@ -67,8 +67,15 @@ export async function deleteUserFromClerk(clerkId: string) {
 }
 
 export async function updateUserInClerk(clerkId: string, userData: ClerkUserUpdate) {
+  console.log('[updateUserInClerk] ========== INICIO ==========');
+  console.log('[updateUserInClerk] clerkId:', clerkId);
+  console.log('[updateUserInClerk] userData:', JSON.stringify(userData, null, 2));
+  console.log('[updateUserInClerk] userData keys:', Object.keys(userData));
+  console.log('[updateUserInClerk] userData has email?:', 'email' in userData);
+
   try {
     const client = await clerkClient();
+    console.log('[updateUserInClerk] Client initialized');
 
     const updateData: ClerkUserUpdate = {};
 

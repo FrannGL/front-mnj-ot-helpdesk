@@ -24,6 +24,7 @@ import {
   type CreateUserType,
   type UpdateUserType,
 } from '../schemas/user.schema';
+import { useUsersMutations } from '../hooks/useUsersMutations';
 
 interface Props {
   open: boolean;
@@ -47,6 +48,7 @@ export function UserModal({
   onUserCreated,
 }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { updateMutation, createMutation } = useUsersMutations();
 
   const schema = type === 'edit' ? updateUserSchema : createUserSchema;
 
@@ -78,44 +80,39 @@ export function UserModal({
 
     try {
       if (type === 'edit' && userId && clerkId) {
-        const clerkData = {
+        const updatedUser: UpdateUserType = {
+          username: data.username,
           firstName: data.firstName,
           lastName: data.lastName,
-          username: data.username,
+          groups: data.groups,
         };
 
-        const clerkResult = await updateUserInClerk(clerkId, clerkData);
-
-        if (!clerkResult.success) {
-          toast.error(clerkResult.error || 'Error al actualizar en Clerk');
-          setIsSubmitting(false);
-          return;
-        }
+        await updateMutation.mutateAsync({
+          userId,
+          clerkId,
+          updatedUser,
+        });
 
         toast.success('Usuario actualizado exitosamente.');
         handleClose();
+        onUserCreated?.();
       } else {
-        const clerkResult = await createUserInClerk({
+        await createMutation.mutateAsync({
           email: data.email,
           password: data.password,
           username: data.username,
           firstName: data.firstName,
           lastName: data.lastName,
+          groups: data.groups,
         });
-
-        if (!clerkResult.success) {
-          toast.error(clerkResult.error || 'Error al crear en Clerk');
-          setIsSubmitting(false);
-          return;
-        }
 
         toast.success('Usuario creado exitosamente.');
         onUserCreated?.();
         handleClose();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      toast.error('Ocurrió un error al guardar el usuario.');
+      toast.error(error.message || 'Ocurrió un error al guardar el usuario.');
     } finally {
       setIsSubmitting(false);
     }

@@ -95,16 +95,17 @@ export async function POST(req: Request) {
         if (existingUser) {
           const hasChanges =
             username !== existingUser.username ||
-            email !== existingUser.email ||
             first_name !== existingUser.first_name ||
-            last_name !== existingUser.last_name;
+            last_name !== existingUser.last_name ||
+            email !== existingUser.email;
 
           if (hasChanges) {
+            // Only update local database, NOT Clerk (since this webhook is triggered BY Clerk)
             const updatedUser = {
               username: username || existingUser.username,
-              email: email || existingUser.email,
               first_name: first_name || existingUser.first_name,
               last_name: last_name || existingUser.last_name,
+              email, // Always include email from Clerk since it's the source of truth
             };
 
             const updateResponse = await request(
