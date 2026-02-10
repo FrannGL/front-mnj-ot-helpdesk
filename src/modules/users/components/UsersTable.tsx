@@ -1,6 +1,6 @@
 'use client';
 
-import { Block, Delete, Person, Person as AvatarIcon } from '@mui/icons-material';
+import { Edit, Block, Delete, Person, Person as AvatarIcon } from '@mui/icons-material';
 import {
   Box,
   Chip,
@@ -68,7 +68,7 @@ export function UsersTable({
           <TableBody>
             {users.map((user) => (
               <TableRow
-                key={user.id}
+                key={user.clerk_id || user.id}
                 sx={{
                   '&:hover': {
                     bgcolor: theme.palette.action.hover,
@@ -107,7 +107,7 @@ export function UsersTable({
                 <TableCell>
                   {onEdit || onDelete || onToggleStatus ? (
                     <Stack direction="row" spacing={0.5}>
-                      {/* {onEdit && (
+                      {onEdit && (
                         <Tooltip title="Editar usuario">
                           <IconButton
                             onClick={() => onEdit(user)}
@@ -118,7 +118,7 @@ export function UsersTable({
                             <Edit />
                           </IconButton>
                         </Tooltip>
-                      )} */}
+                      )}
                       {onToggleStatus && (
                         <Tooltip title={user.isActive !== false ? 'Desactivar' : 'Activar'}>
                           <IconButton

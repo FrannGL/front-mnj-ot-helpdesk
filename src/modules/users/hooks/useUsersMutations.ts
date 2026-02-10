@@ -74,7 +74,14 @@ async function updateUser({
 }
 
 async function updateUserClerk(clerkId: string, userData: Partial<User>) {
-  const result = await updateUserInClerk(clerkId, userData);
+  // Only send Clerk-specific fields, exclude email and other non-updatable fields
+  const clerkData = {
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    username: userData.username,
+  };
+
+  const result = await updateUserInClerk(clerkId, clerkData);
   if (!result.success) {
     throw new Error(result.error || 'Error updating user in Clerk');
   }

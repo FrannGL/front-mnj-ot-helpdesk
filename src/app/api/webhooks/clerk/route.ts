@@ -93,18 +93,30 @@ export async function POST(req: Request) {
         const existingUser = Array.isArray(users) && users.length > 0 ? users[0] : null;
 
         if (existingUser) {
-          const updatedUser = {
-            username: username || existingUser.username,
-            email: email || existingUser.email,
-            first_name: first_name || existingUser.first_name,
-            last_name: last_name || existingUser.last_name,
-          };
+          const hasChanges =
+            username !== existingUser.username ||
+            email !== existingUser.email ||
+            first_name !== existingUser.first_name ||
+            last_name !== existingUser.last_name;
 
-          const updateResponse = await request(`usuarios/${existingUser.id}`, 'PATCH', updatedUser);
+          if (hasChanges) {
+            const updatedUser = {
+              username: username || existingUser.username,
+              email: email || existingUser.email,
+              first_name: first_name || existingUser.first_name,
+              last_name: last_name || existingUser.last_name,
+            };
 
-          if (updateResponse.status >= 400) {
-            console.error('Error updating user in DB:', updateResponse.error);
-            return new Response('Error updating user', { status: 500 });
+            const updateResponse = await request(
+              `usuarios/${existingUser.id}`,
+              'PATCH',
+              updatedUser
+            );
+
+            if (updateResponse.status >= 400) {
+              console.error('Error updating user in DB:', updateResponse.error);
+              return new Response('Error updating user', { status: 500 });
+            }
           }
         }
       } catch (error) {

@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
 import { Lock, Email, Person } from '@mui/icons-material';
+import InputAdornment from '@mui/material/InputAdornment';
 import {
   Grid,
   Button,
@@ -12,10 +13,8 @@ import {
   DialogTitle,
   DialogActions,
   DialogContent,
-  InputAdornment,
 } from '@mui/material';
 
-import { request } from 'src/services/request';
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
 import { createUserInClerk, updateUserInClerk } from '../actions/clerkActions';
@@ -34,6 +33,7 @@ interface Props {
   userId?: number;
   clerkId?: string;
   disabled: boolean;
+  onUserCreated?: () => void;
 }
 
 export function UserModal({
@@ -44,6 +44,7 @@ export function UserModal({
   userId,
   clerkId,
   disabled,
+  onUserCreated,
 }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -78,31 +79,15 @@ export function UserModal({
     try {
       if (type === 'edit' && userId && clerkId) {
         const clerkData = {
-          username: data.username,
           firstName: data.firstName,
           lastName: data.lastName,
+          username: data.username,
         };
 
         const clerkResult = await updateUserInClerk(clerkId, clerkData);
 
         if (!clerkResult.success) {
           toast.error(clerkResult.error || 'Error al actualizar en Clerk');
-          setIsSubmitting(false);
-          return;
-        }
-
-        const dataToSend = {
-          username: data.username,
-          email: data.email,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          groups: data.groups,
-        };
-
-        const response = await request(`usuarios/${userId}`, 'PATCH', dataToSend);
-
-        if (response.error) {
-          toast.error(response.error);
           setIsSubmitting(false);
           return;
         }
@@ -124,24 +109,8 @@ export function UserModal({
           return;
         }
 
-        const dataToSend = {
-          clerk_id: clerkResult.user?.id,
-          username: data.username,
-          email: data.email,
-          groups: data.groups,
-          firstName: data.firstName,
-          lastName: data.lastName,
-        };
-
-        const response = await request('usuarios', 'POST', dataToSend);
-
-        if (response.error) {
-          toast.error(response.error);
-          setIsSubmitting(false);
-          return;
-        }
-
         toast.success('Usuario creado exitosamente.');
+        onUserCreated?.();
         handleClose();
       }
     } catch (error) {

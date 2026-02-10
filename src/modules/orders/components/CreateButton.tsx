@@ -16,9 +16,10 @@ type ModalType = 'order' | 'user';
 interface Props {
   type: ModalType;
   label?: string;
+  onUserCreated?: () => void;
 }
 
-const CreateButton = ({ type, label = 'Crear' }: Props) => {
+const CreateButton = ({ type, label = 'Crear', onUserCreated }: Props) => {
   const [open, setOpen] = useState(false);
 
   const handleClose = () => setOpen(false);
@@ -28,7 +29,15 @@ const CreateButton = ({ type, label = 'Crear' }: Props) => {
       case 'order':
         return open ? <OrderForm open={open} onClose={handleClose} /> : null;
       case 'user':
-        return <UserModal open={open} onClose={handleClose} type="post" disabled={false} />;
+        return (
+          <UserModal
+            open={open}
+            onClose={handleClose}
+            type="post"
+            disabled={false}
+            onUserCreated={onUserCreated}
+          />
+        );
       default:
         return null;
     }

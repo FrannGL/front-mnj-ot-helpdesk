@@ -1,17 +1,16 @@
 'use client';
 
 import { toast } from 'sonner';
+import { useUser } from '@clerk/nextjs';
 import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
+import { isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 import { ConfirmationModal } from 'src/shared/components/custom';
 import CreateButton from 'src/modules/orders/components/CreateButton';
-
-import { useUser } from '@clerk/nextjs';
-
-import { isSuperAdmin } from 'src/shared/utils/verifyUserRole';
 
 import { Filters } from './Filters';
 import { UserModal } from './UserModal';
@@ -34,6 +33,7 @@ export function AdminUser({ initialData }: AdminUserProps) {
 
   const { user } = useUser();
   const publicMetadata = (user?.publicMetadata ?? {}) as { role?: string };
+  const queryClient = useQueryClient();
 
   const canManageUsers = isSuperAdmin(publicMetadata);
 
@@ -99,6 +99,10 @@ export function AdminUser({ initialData }: AdminUserProps) {
 
   const handlePageChange = (_: unknown, value: number) => setPage(value);
 
+  const handleUserCreated = () => {
+    queryClient.invalidateQueries({ queryKey: ['users'] });
+  };
+
   const filteredUsers = useMemo(() => {
     if (!data?.results) return [];
 
@@ -148,7 +152,7 @@ export function AdminUser({ initialData }: AdminUserProps) {
         onToggleStatus={canManageUsers ? handleToggleStatus : undefined}
         disableActions={!canManageUsers}
       />
-      {canManageUsers && <CreateButton type="user" />}
+      {canManageUsers && <CreateButton type="user" onUserCreated={handleUserCreated} />}
       <UserModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
