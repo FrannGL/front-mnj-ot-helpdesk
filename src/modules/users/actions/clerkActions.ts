@@ -9,6 +9,45 @@ export interface ClerkUserUpdate {
   username?: string;
 }
 
+// Simplified function for debugging
+export async function simpleUpdateUser(
+  clerkId: string,
+  firstName: string,
+  lastName: string,
+  username: string
+) {
+  console.log('[simpleUpdateUser] ========== INICIO ==========');
+  console.log('[simpleUpdateUser] clerkId:', clerkId);
+  console.log('[simpleUpdateUser] params:', { firstName, lastName, username });
+
+  try {
+    console.log('[simpleUpdateUser] Antes de clerkClient()');
+    const client = await clerkClient();
+    console.log('[simpleUpdateUser] Despues de clerkClient()');
+
+    const updateData = {
+      firstName: String(firstName),
+      lastName: String(lastName),
+      username: String(username),
+    };
+
+    console.log('[simpleUpdateUser] updateData:', JSON.stringify(updateData, null, 2));
+    console.log('[simpleUpdateUser] Antes de updateUser...');
+
+    const updatedUser = await client.users.updateUser(clerkId, updateData);
+
+    console.log('[simpleUpdateUser] Despues de updateUser');
+    console.log('[simpleUpdateUser] SUCCESS:', updatedUser.id);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error('[simpleUpdateUser] CATCH ERROR:', JSON.stringify(error, null, 2));
+    return { success: false, error: error.message || 'Error' };
+  }
+
+  console.log('[simpleUpdateUser] FIN - nunca llega aquí');
+}
+
 export async function createUserInClerk(userData: {
   email: string;
   password: string;
@@ -79,15 +118,38 @@ export async function updateUserInClerk(clerkId: string, userData: ClerkUserUpda
 
     const updateData: ClerkUserUpdate = {};
 
+    console.log('[updateUserInClerk] build updateData:');
+    console.log(
+      '[updateUserInClerk] userData.firstName:',
+      userData.firstName,
+      typeof userData.firstName
+    );
+    console.log(
+      '[updateUserInClerk] userData.lastName:',
+      userData.lastName,
+      typeof userData.lastName
+    );
+    console.log(
+      '[updateUserInClerk] userData.username:',
+      userData.username,
+      typeof userData.username
+    );
+
     // Only include fields that are explicitly provided
     if (userData.firstName !== undefined) updateData.firstName = userData.firstName;
     if (userData.lastName !== undefined) updateData.lastName = userData.lastName;
     if (userData.username !== undefined) updateData.username = userData.username;
 
+    console.log('[updateUserInClerk] updateData built:', JSON.stringify(updateData, null, 2));
+    console.log('[updateUserInClerk] updateData type:', typeof updateData);
+    console.log('[updateUserInClerk] Array.isArray(updateData):', Array.isArray(updateData));
+    console.log('[updateUserInClerk] Object.keys(updateData):', Object.keys(updateData));
+
     if (Object.keys(updateData).length === 0) {
       return { success: true, user: null };
     }
 
+    console.log('[updateUserInClerk] Calling client.users.updateUser...');
     const updatedUser = await client.users.updateUser(clerkId, updateData);
 
     return { success: true, user: updatedUser };

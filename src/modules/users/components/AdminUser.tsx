@@ -51,6 +51,8 @@ export function AdminUser({ initialData }: AdminUserProps) {
   const rowsPerPage = 10;
 
   const handleEdit = (u: User) => {
+    console.log('========== handleEdit ==========');
+    console.log('user:', JSON.stringify(u, null, 2));
     if (!canManageUsers) return;
     setSelectedUser(u);
     setEditModalOpen(true);

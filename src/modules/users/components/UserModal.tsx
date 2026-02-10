@@ -17,14 +17,14 @@ import {
 
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
-import { createUserInClerk, updateUserInClerk } from '../actions/clerkActions';
+import { simpleUpdateUser } from '../actions/clerkActions';
+import { useUsersMutations } from '../hooks/useUsersMutations';
 import {
   createUserSchema,
   updateUserSchema,
   type CreateUserType,
   type UpdateUserType,
 } from '../schemas/user.schema';
-import { useUsersMutations } from '../hooks/useUsersMutations';
 
 interface Props {
   open: boolean;
@@ -48,7 +48,7 @@ export function UserModal({
   onUserCreated,
 }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { updateMutation, createMutation } = useUsersMutations();
+  const { createMutation } = useUsersMutations();
 
   const schema = type === 'edit' ? updateUserSchema : createUserSchema;
 
@@ -76,26 +76,35 @@ export function UserModal({
   };
 
   const onSubmit = async (data: CreateUserType) => {
+    console.log('========== UserModal onSubmit ==========');
+    console.log('type:', type);
+    console.log('userId:', userId);
+    console.log('clerkId:', clerkId);
+    console.log('data:', JSON.stringify(data, null, 2));
+
     setIsSubmitting(true);
 
     try {
-      if (type === 'edit' && userId && clerkId) {
-        const updatedUser: UpdateUserType = {
-          username: data.username,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          groups: data.groups,
-        };
+      if (type === 'edit' && userId !== undefined && clerkId) {
+        console.log('========== EDIT MODE ==========');
+        console.log('========== LLAMANDO simpleUpdateUser ==========');
 
-        await updateMutation.mutateAsync({
-          userId,
+        const result = await simpleUpdateUser(
           clerkId,
-          updatedUser,
-        });
+          data.firstName || '',
+          data.lastName || '',
+          data.username || ''
+        );
 
-        toast.success('Usuario actualizado exitosamente.');
-        handleClose();
-        onUserCreated?.();
+        console.log('simpleUpdateUser result:', result);
+
+        if (result.success) {
+          toast.success('Usuario actualizado en Clerk.');
+          handleClose();
+          onUserCreated?.();
+        } else {
+          toast.error(result.error || 'Error al actualizar en Clerk');
+        }
       } else {
         await createMutation.mutateAsync({
           email: data.email,
