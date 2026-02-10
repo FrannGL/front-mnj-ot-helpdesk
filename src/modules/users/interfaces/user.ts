@@ -9,4 +9,10 @@ export interface User {
   email: string;
   groups: Group[];
   clerk_id: string;
+  firstName?: string;
+  lastName?: string;
+  imageUrl?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }

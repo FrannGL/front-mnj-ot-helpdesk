@@ -1,41 +1,53 @@
 import { toast } from 'sonner';
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 
-import { Email, Group, Person } from '@mui/icons-material';
+import { Lock, Email, Person } from '@mui/icons-material';
 import {
   Grid,
   Button,
   Dialog,
-  Select,
-  MenuItem,
   TextField,
-  InputLabel,
   DialogTitle,
-  FormControl,
   DialogActions,
   DialogContent,
-  FormHelperText,
   InputAdornment,
 } from '@mui/material';
 
+import { request } from 'src/services/request';
 import { inputStyles } from 'src/shared/utils/shared-styles';
 
-import { useUsersMutations } from '../hooks/useUsersMutations';
-import { createUserSchema, type CreateUserType } from '../schemas/user.schema';
+import { createUserInClerk, updateUserInClerk } from '../actions/clerkActions';
+import {
+  createUserSchema,
+  updateUserSchema,
+  type CreateUserType,
+  type UpdateUserType,
+} from '../schemas/user.schema';
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  defaultValues?: Partial<CreateUserType>;
+  defaultValues?: Partial<UpdateUserType>;
   type?: 'post' | 'edit';
   userId?: number;
+  clerkId?: string;
   disabled: boolean;
 }
 
-export function UserModal({ open, onClose, defaultValues, type, userId, disabled }: Props) {
-  const { updateMutation, createMutation } = useUsersMutations();
+export function UserModal({
+  open,
+  onClose,
+  defaultValues,
+  type,
+  userId,
+  clerkId,
+  disabled,
+}: Props) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const schema = type === 'edit' ? updateUserSchema : createUserSchema;
 
   const {
     control,
@@ -43,10 +55,13 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
     formState: { errors },
     reset,
   } = useForm<CreateUserType>({
-    resolver: zodResolver(createUserSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       username: '',
       email: '',
+      firstName: '',
+      lastName: '',
+      password: '',
       groups: [],
       ...defaultValues,
     },
@@ -58,18 +73,82 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
   };
 
   const onSubmit = async (data: CreateUserType) => {
+    setIsSubmitting(true);
+
     try {
-      if (type === 'edit' && userId) {
-        await updateMutation.mutateAsync({ userId, updatedUser: data });
+      if (type === 'edit' && userId && clerkId) {
+        const clerkData = {
+          username: data.username,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        };
+
+        const clerkResult = await updateUserInClerk(clerkId, clerkData);
+
+        if (!clerkResult.success) {
+          toast.error(clerkResult.error || 'Error al actualizar en Clerk');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const dataToSend = {
+          username: data.username,
+          email: data.email,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          groups: data.groups,
+        };
+
+        const response = await request(`usuarios/${userId}`, 'PATCH', dataToSend);
+
+        if (response.error) {
+          toast.error(response.error);
+          setIsSubmitting(false);
+          return;
+        }
+
         toast.success('Usuario actualizado exitosamente.');
+        handleClose();
       } else {
-        await createMutation.mutateAsync(data);
+        const clerkResult = await createUserInClerk({
+          email: data.email,
+          password: data.password,
+          username: data.username,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        });
+
+        if (!clerkResult.success) {
+          toast.error(clerkResult.error || 'Error al crear en Clerk');
+          setIsSubmitting(false);
+          return;
+        }
+
+        const dataToSend = {
+          clerk_id: clerkResult.user?.id,
+          username: data.username,
+          email: data.email,
+          groups: data.groups,
+          firstName: data.firstName,
+          lastName: data.lastName,
+        };
+
+        const response = await request('usuarios', 'POST', dataToSend);
+
+        if (response.error) {
+          toast.error(response.error);
+          setIsSubmitting(false);
+          return;
+        }
+
         toast.success('Usuario creado exitosamente.');
+        handleClose();
       }
-      handleClose();
     } catch (error) {
       console.error('Error:', error);
       toast.error('Ocurrió un error al guardar el usuario.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -78,6 +157,8 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
       reset({
         username: '',
         email: '',
+        firstName: '',
+        lastName: '',
         groups: [],
         ...defaultValues,
       });
@@ -87,11 +168,61 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
   return (
     <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ pb: 3 }}>
-        {type === 'edit' ? 'Editar Usuario' : 'Crear Nuevo Usuario'}{' '}
+        {type === 'edit' ? 'Editar Usuario' : 'Crear Nuevo Usuario'}
       </DialogTitle>
       <form onSubmit={handleSubmit(onSubmit)}>
         <DialogContent>
           <Grid container spacing={2} sx={{ pt: 1 }}>
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="firstName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Nombre"
+                    error={!!errors.firstName}
+                    helperText={errors.firstName?.message}
+                    sx={inputStyles}
+                    placeholder="Ingrese el nombre"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+
+            <Grid item xs={12} sm={6}>
+              <Controller
+                name="lastName"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    fullWidth
+                    label="Apellido"
+                    error={!!errors.lastName}
+                    helperText={errors.lastName?.message}
+                    sx={inputStyles}
+                    placeholder="Ingrese el apellido"
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Person />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+
             <Grid item xs={12}>
               <Controller
                 name="username"
@@ -131,6 +262,7 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
                     sx={inputStyles}
                     placeholder="Ingrese el email"
                     type="email"
+                    disabled={type === 'edit'}
                     InputProps={{
                       startAdornment: (
                         <InputAdornment position="start">
@@ -143,41 +275,40 @@ export function UserModal({ open, onClose, defaultValues, type, userId, disabled
               />
             </Grid>
 
-            <Grid item xs={12}>
-              <Controller
-                name="groups"
-                control={control}
-                disabled={disabled}
-                render={({ field }) => (
-                  <FormControl error={!!errors.groups} fullWidth>
-                    <InputLabel>Roles</InputLabel>
-                    <Select
+            {type === 'post' && (
+              <Grid item xs={12}>
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
                       {...field}
-                      multiple
-                      label="Roles"
-                      placeholder="Seleccione roles"
-                      startAdornment={
-                        <InputAdornment position="start">
-                          <Group />
-                        </InputAdornment>
-                      }
-                    >
-                      <MenuItem value={1}>Administrador</MenuItem>
-                      <MenuItem value={2}>Agente</MenuItem>
-                      <MenuItem value={3}>Cliente</MenuItem>
-                    </Select>
-                    {errors.groups && <FormHelperText>{errors.groups.message}</FormHelperText>}
-                  </FormControl>
-                )}
-              />
-            </Grid>
+                      fullWidth
+                      label="Contraseña"
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      sx={inputStyles}
+                      placeholder="Ingrese la contraseña"
+                      type="password"
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <Lock />
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  )}
+                />
+              </Grid>
+            )}
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
-          <Button onClick={handleClose} variant="outlined" color="inherit">
+          <Button onClick={handleClose} variant="outlined" color="inherit" disabled={isSubmitting}>
             Cancelar
           </Button>
-          <Button type="submit" variant="contained">
+          <Button type="submit" variant="contained" disabled={isSubmitting}>
             {type === 'edit' ? 'Actualizar' : 'Crear'}
           </Button>
         </DialogActions>

@@ -7,7 +7,7 @@ import { Box, Stack, Typography, CircularProgress } from '@mui/material';
 
 import { useUsers } from 'src/modules/users/hooks/useUsers';
 import { ConfirmationModal } from 'src/shared/components/custom';
-// import CreateButton from 'src/modules/orders/components/CreateButton';
+import CreateButton from 'src/modules/orders/components/CreateButton';
 
 import { useUser } from '@clerk/nextjs';
 
@@ -28,7 +28,7 @@ interface AdminUserProps {
 export function AdminUser({ initialData }: AdminUserProps) {
   const [page, setPage] = useState(1);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedClerkId, setSelectedClerkId] = useState<string | null>(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
@@ -41,7 +41,7 @@ export function AdminUser({ initialData }: AdminUserProps) {
     initialData: page === 1 ? initialData : undefined,
   });
 
-  const { deleteMutation } = useUsersMutations();
+  const { deleteClerkMutation, toggleStatusMutation } = useUsersMutations();
 
   const [filters, setFilters] = useState({
     group: '' as unknown as UserGroups | '',
@@ -56,23 +56,45 @@ export function AdminUser({ initialData }: AdminUserProps) {
     setEditModalOpen(true);
   };
 
-  const handleDelete = (userId: number) => {
+  const handleDelete = (userToDelete: User) => {
     if (!canManageUsers) return;
-    setSelectedUserId(userId);
+    setSelectedClerkId(userToDelete.clerk_id);
     setConfirmationOpen(true);
   };
 
   const handleConfirmDelete = () => {
     if (!canManageUsers) return;
 
-    if (selectedUserId) {
-      deleteMutation.mutate(selectedUserId, {
+    if (selectedClerkId) {
+      deleteClerkMutation.mutate(selectedClerkId, {
         onSuccess: () => {
           toast.success('Usuario eliminado exitosamente');
           setConfirmationOpen(false);
+          setSelectedClerkId(null);
+        },
+        onError: (error) => {
+          toast.error('Error al eliminar usuario');
+          console.error('Error deleting user:', error);
         },
       });
     }
+  };
+
+  const handleToggleStatus = (clerkId: string, isActive: boolean) => {
+    if (!canManageUsers) return;
+
+    toggleStatusMutation.mutate(
+      { clerkId, isActive: !isActive },
+      {
+        onSuccess: () => {
+          toast.success(`Usuario ${!isActive ? 'activado' : 'desactivado'} exitosamente`);
+        },
+        onError: (error) => {
+          toast.error('Error al cambiar estado del usuario');
+          console.error('Error toggling user status:', error);
+        },
+      }
+    );
   };
 
   const handlePageChange = (_: unknown, value: number) => setPage(value);
@@ -81,8 +103,7 @@ export function AdminUser({ initialData }: AdminUserProps) {
     if (!data?.results) return [];
 
     return data.results.filter((u) => {
-      const matchesGroup =
-        !filters.group || u.groups.some((group) => group.id === filters.group);
+      const matchesGroup = !filters.group || u.groups.some((group) => group.id === filters.group);
 
       const matchesSearch =
         !filters.searchTerm ||
@@ -124,18 +145,22 @@ export function AdminUser({ initialData }: AdminUserProps) {
         onPageChange={handlePageChange}
         onEdit={canManageUsers ? handleEdit : undefined}
         onDelete={canManageUsers ? handleDelete : undefined}
+        onToggleStatus={canManageUsers ? handleToggleStatus : undefined}
         disableActions={!canManageUsers}
       />
-      {/* {canManageUsers && <CreateButton type="user" />} */}
+      {canManageUsers && <CreateButton type="user" />}
       <UserModal
         open={editModalOpen}
         onClose={() => setEditModalOpen(false)}
         type="edit"
         userId={selectedUser?.id}
+        clerkId={selectedUser?.clerk_id}
         disabled={!canManageUsers}
         defaultValues={{
           username: selectedUser?.username,
           email: selectedUser?.email,
+          firstName: selectedUser?.firstName,
+          lastName: selectedUser?.lastName,
           groups: selectedUser?.groups?.map((group) => group.id),
         }}
       />

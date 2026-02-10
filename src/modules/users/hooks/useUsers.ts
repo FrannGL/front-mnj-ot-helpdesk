@@ -2,26 +2,16 @@ import type { ServerResponse } from 'src/modules/users/interfaces';
 
 import { useQuery, keepPreviousData } from '@tanstack/react-query';
 
-import { request } from 'src/services/request';
+import { fetchUsersServer } from 'src/modules/users/actions/fetchUsers';
 
 interface UseUsersOptions {
   initialData?: ServerResponse;
 }
 
-async function fetchUsers(page: number): Promise<ServerResponse> {
-  const response = await request(`usuarios/?is_active=true&page=${page}`, 'GET');
-
-  if (response.error || response.status >= 400) {
-    throw new Error(response.error || `Error ${response.status}`);
-  }
-
-  return response.data;
-}
-
 export function useUsers(page: number = 1, options?: UseUsersOptions) {
   const { data, isLoading, error } = useQuery({
     queryKey: ['users', page],
-    queryFn: () => fetchUsers(page),
+    queryFn: () => fetchUsersServer(page),
     placeholderData: keepPreviousData,
     initialData: options?.initialData,
     staleTime: 1000 * 60 * 5,

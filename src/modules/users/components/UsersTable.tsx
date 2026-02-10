@@ -1,12 +1,14 @@
 'use client';
 
-import { Edit, Delete, Person } from '@mui/icons-material';
+import { Block, Delete, Person, Person as AvatarIcon } from '@mui/icons-material';
 import {
   Box,
   Chip,
   Stack,
   Paper,
   Table,
+  Avatar,
+  Tooltip,
   TableRow,
   useTheme,
   TableHead,
@@ -26,7 +28,8 @@ interface UsersTableProps {
   totalPages: number;
   onPageChange: (event: React.ChangeEvent<unknown>, value: number) => void;
   onEdit?: (user: User) => void;
-  onDelete?: (userId: number) => void;
+  onDelete?: (user: User) => void;
+  onToggleStatus?: (clerkId: string, isActive: boolean) => void;
   disableActions?: boolean;
 }
 
@@ -37,9 +40,17 @@ export function UsersTable({
   onPageChange,
   onEdit,
   onDelete,
+  onToggleStatus,
   disableActions,
 }: UsersTableProps) {
   const theme = useTheme();
+
+  const formatFullName = (user: User) => {
+    if (user.firstName || user.lastName) {
+      return `${user.firstName || ''} ${user.lastName || ''}`.trim();
+    }
+    return user.username;
+  };
 
   return (
     <>
@@ -48,8 +59,9 @@ export function UsersTable({
           <TableHead>
             <TableRow>
               <TableCell>Usuario</TableCell>
+              <TableCell>Nombre Completo</TableCell>
               <TableCell>Email</TableCell>
-              <TableCell>Roles</TableCell>
+              <TableCell>Estado</TableCell>
               <TableCell>Acciones</TableCell>
             </TableRow>
           </TableHead>
@@ -65,50 +77,71 @@ export function UsersTable({
                   },
                 }}
               >
-                <TableCell>{user.username}</TableCell>
                 <TableCell>
-                  {user.email || <Typography variant="caption">Sin email</Typography>}
-                </TableCell>
-                <TableCell>
-                  <Stack direction="row" spacing={0.5} flexWrap="wrap">
-                    {user.groups.length ? (
-                      user.groups.map((group) => (
-                        <Chip
-                          key={group.id}
-                          label={group.name}
-                          size="small"
-                          variant="soft"
-                          color="primary"
-                          icon={<Person />}
-                        />
-                      ))
-                    ) : (
-                      <Typography variant="caption">Sin roles</Typography>
-                    )}
+                  <Stack direction="row" spacing={1} alignItems="center">
+                    <Avatar src={user.imageUrl} alt={user.username} sx={{ width: 32, height: 32 }}>
+                      <AvatarIcon />
+                    </Avatar>
+                    <Typography variant="body2" fontWeight="medium">
+                      {user.username}
+                    </Typography>
                   </Stack>
                 </TableCell>
                 <TableCell>
-                  {onEdit || onDelete ? (
+                  <Typography variant="body2">{formatFullName(user) || 'Sin nombre'}</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography variant="body2">
+                    {user.email || <Typography variant="caption">Sin email</Typography>}
+                  </Typography>
+                </TableCell>
+                <TableCell>
+                  <Chip
+                    label={user.isActive !== false ? 'Activo' : 'Inactivo'}
+                    size="small"
+                    color={user.isActive !== false ? 'success' : 'error'}
+                    variant="outlined"
+                  />
+                </TableCell>
+
+                <TableCell>
+                  {onEdit || onDelete || onToggleStatus ? (
                     <Stack direction="row" spacing={0.5}>
-                      {onEdit && (
-                        <IconButton
-                          onClick={() => onEdit(user)}
-                          size="small"
-                          color="primary"
-                          disabled={disableActions}
-                        >
-                          <Edit />
-                        </IconButton>
+                      {/* {onEdit && (
+                        <Tooltip title="Editar usuario">
+                          <IconButton
+                            onClick={() => onEdit(user)}
+                            size="small"
+                            color="primary"
+                            disabled={disableActions}
+                          >
+                            <Edit />
+                          </IconButton>
+                        </Tooltip>
+                      )} */}
+                      {onToggleStatus && (
+                        <Tooltip title={user.isActive !== false ? 'Desactivar' : 'Activar'}>
+                          <IconButton
+                            onClick={() => onToggleStatus(user.clerk_id, user.isActive !== false)}
+                            size="small"
+                            color={user.isActive !== false ? 'warning' : 'success'}
+                            disabled={disableActions}
+                          >
+                            {user.isActive !== false ? <Block /> : <Person />}
+                          </IconButton>
+                        </Tooltip>
                       )}
                       {onDelete && (
-                        <IconButton
-                          onClick={() => onDelete(user.id)}
-                          size="small"
-                          color="error"
-                          disabled={disableActions}
-                        >
-                          <Delete />
-                        </IconButton>
+                        <Tooltip title="Eliminar usuario">
+                          <IconButton
+                            onClick={() => onDelete(user)}
+                            size="small"
+                            color="error"
+                            disabled={disableActions}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </Tooltip>
                       )}
                     </Stack>
                   ) : null}

@@ -58,8 +58,6 @@ export async function POST(req: Request) {
         const userExists = Array.isArray(users) && users.length > 0;
 
         if (!userExists) {
-          // console.log(`User with email ${email} not found, creating...`);
-
           const finalUsername = username || email.split('@')[0];
 
           const newUser = {
@@ -76,16 +74,63 @@ export async function POST(req: Request) {
             console.error('Error creating user in DB:', createResponse.error);
             return new Response('Error creating user', { status: 500 });
           }
-
-          // console.log('User created successfully in DB:', createResponse.data);
         }
-        // } else {
-        //   console.log(`User with email ${email} already exists.`);
-        // }
       } catch (error) {
         console.error('Error syncing user:', error);
         return new Response('Error syncing user', { status: 500 });
       }
+    }
+  }
+
+  if (eventType === 'user.updated') {
+    const { email_addresses, username, first_name, last_name } = evt.data;
+    const email = email_addresses[0]?.email_address;
+
+    if (email) {
+      try {
+        const checkResponse = await request(`usuarios?clerk_id=${clerkId}`, 'GET');
+        const users = checkResponse.data?.results || checkResponse.data || [];
+        const existingUser = Array.isArray(users) && users.length > 0 ? users[0] : null;
+
+        if (existingUser) {
+          const updatedUser = {
+            username: username || existingUser.username,
+            email: email || existingUser.email,
+            first_name: first_name || existingUser.first_name,
+            last_name: last_name || existingUser.last_name,
+          };
+
+          const updateResponse = await request(`usuarios/${existingUser.id}`, 'PATCH', updatedUser);
+
+          if (updateResponse.status >= 400) {
+            console.error('Error updating user in DB:', updateResponse.error);
+            return new Response('Error updating user', { status: 500 });
+          }
+        }
+      } catch (error) {
+        console.error('Error updating user:', error);
+        return new Response('Error updating user', { status: 500 });
+      }
+    }
+  }
+
+  if (eventType === 'user.deleted') {
+    try {
+      const checkResponse = await request(`usuarios?clerk_id=${clerkId}`, 'GET');
+      const users = checkResponse.data?.results || checkResponse.data || [];
+      const existingUser = Array.isArray(users) && users.length > 0 ? users[0] : null;
+
+      if (existingUser) {
+        const deleteResponse = await request(`usuarios/${existingUser.id}`, 'DELETE');
+
+        if (deleteResponse.status >= 400) {
+          console.error('Error deleting user from DB:', deleteResponse.error);
+          return new Response('Error deleting user', { status: 500 });
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      return new Response('Error deleting user', { status: 500 });
     }
   }
 
