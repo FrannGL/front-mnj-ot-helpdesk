@@ -3,191 +3,160 @@ import type { ApexOptions } from 'apexcharts';
 import { useMemo } from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-import { Box, useTheme, Typography } from '@mui/material';
+import { Box, Card, useTheme, CardHeader, Typography } from '@mui/material';
 
 import { useAllTags } from 'src/modules/tags/hooks';
+import { useAllOrders } from 'src/modules/orders/hooks';
+
+// ----------------------------------------------------------------------
 
 export function MantenimientoCategoriasChart() {
   const theme = useTheme();
-  const { tags, isLoading } = useAllTags();
+  const { tags, isLoading: isLoadingTags } = useAllTags();
+  const { data: orders, isLoading: isLoadingOrders } = useAllOrders();
 
-  // Contar cuántas órdenes hay por cada tag
-  const tagCounts = useMemo(() => {
+  const isLoading = isLoadingTags || isLoadingOrders;
+
+  const chartData = useMemo(() => {
     if (!tags || tags.length === 0) return [];
+    if (!orders) return [];
 
     return tags
       .map((tag) => ({
-        name: tag.nombre,
-        count: 0, // Por ahora mostramos todos los tags con conteo 0 hasta tener la relación con órdenes
+        label: tag.nombre,
+        value: orders.filter((order: any) => order.tags?.some((t: any) => t.id === tag.id)).length,
       }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10); // Top 10 tags más usados
-  }, [tags]);
+      .filter((item) => item.value > 0)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 10);
+  }, [tags, orders]);
 
-  const series = useMemo(
-    () => [
-      {
-        name: 'Órdenes',
-        data: tagCounts.map((tag) => tag.count),
-      },
-    ],
-    [tagCounts]
-  );
-
-  const categories = useMemo(() => tagCounts.map((tag) => tag.name), [tagCounts]);
+  const chartSeries = chartData.map((i) => i.value);
+  const chartLabels = chartData.map((i) => i.label);
 
   const chartOptions = useMemo<ApexOptions>(
     () => ({
       chart: {
-        type: 'bar',
-        height: 350,
-        toolbar: {
-          show: false,
-          tools: {
-            download: true,
-            zoom: false,
-            pan: false,
-            reset: false,
-          },
-        },
-        foreColor: theme.palette.text.primary,
+        background: 'transparent',
+        type: 'donut',
       },
-      plotOptions: {
-        bar: {
-          horizontal: true,
-          dataLabels: {
-            position: 'right',
-          },
-        },
-      },
+      labels: chartLabels,
       stroke: {
-        width: 1,
         colors: [theme.palette.background.paper],
+        width: 3,
       },
-      xaxis: {
-        categories,
+      colors: [
+        '#3f51b5',
+        '#f50057',
+        '#ff9800',
+        '#4caf50',
+        '#2196f3',
+        '#9c27b0',
+        '#ff5722',
+        '#795548',
+        '#607d8b',
+        '#e91e63',
+      ],
+      legend: {
+        position: 'bottom',
+        offsetY: 0,
         labels: {
-          style: {
-            colors: theme.palette.text.secondary,
-            fontSize: '12px',
-          },
+          colors: theme.palette.text.primary,
         },
-        axisBorder: {
-          show: true,
-          color: theme.palette.divider,
-        },
-        axisTicks: {
-          color: theme.palette.divider,
+        itemMargin: {
+          horizontal: 10,
+          vertical: 5,
         },
       },
-      yaxis: {
-        labels: {
-          style: {
-            colors: theme.palette.text.secondary,
-          },
+      dataLabels: {
+        enabled: true,
+        dropShadow: {
+          enabled: false,
         },
       },
       tooltip: {
+        fillSeriesColor: false,
         y: {
-          formatter: (val) => `${val} órdenes`,
+          formatter: (value: number) => `${value} órdenes`,
+          title: {
+            formatter: (seriesName: string) => `${seriesName}`,
+          },
         },
         theme: theme.palette.mode,
       },
-      fill: {
-        opacity: 1,
-        colors: [
-          '#3f51b5',
-          '#f50057',
-          '#ff9800',
-          '#4caf50',
-          '#2196f3',
-          '#9c27b0',
-          '#ff5722',
-          '#795548',
-          '#607d8b',
-          '#e91e63',
-        ],
-      },
-      legend: {
-        show: false,
-      },
-      grid: {
-        borderColor: theme.palette.divider,
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '65%',
+            labels: {
+              show: true,
+              value: {
+                offsetY: 8,
+                color: theme.palette.text.primary,
+                fontSize: '24px',
+                fontWeight: 700,
+                formatter: (val) => `${val}`,
+              },
+              total: {
+                show: true,
+                label: 'Total',
+                color: theme.palette.text.secondary,
+                fontSize: '12px',
+                fontWeight: 600,
+                formatter: (w) => {
+                  const total = w.globals.seriesTotals.reduce((a: number, b: number) => a + b, 0);
+                  return `${total}`;
+                },
+              },
+            },
+          },
+        },
       },
       responsive: [
         {
           breakpoint: 480,
           options: {
             chart: {
-              height: 200,
+              width: 300,
             },
-            plotOptions: {
-              bar: {
-                dataLabels: {
-                  total: {
-                    style: {
-                      fontSize: '10px',
-                      fontWeight: 700,
-                    },
-                  },
-                },
-              },
-            },
-            xaxis: {
-              labels: {
-                style: {
-                  fontSize: '10px',
-                  colors: theme.palette.text.secondary,
-                },
-              },
-            },
-            yaxis: {
-              labels: {
-                style: {
-                  fontSize: '10px',
-                  colors: theme.palette.text.secondary,
-                },
-              },
+            legend: {
+              position: 'bottom',
             },
           },
         },
       ],
     }),
-    [theme, categories]
+    [theme, chartLabels]
   );
 
   if (isLoading) {
     return (
-      <Box
-        sx={{ p: 3, height: 350, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Typography>Cargando categorías...</Typography>
-      </Box>
+      <Card sx={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography>Cargando datos...</Typography>
+      </Card>
     );
   }
 
-  if (!tags || tags.length === 0) {
+  if (chartData.length === 0) {
     return (
-      <Box
-        sx={{ p: 3, height: 350, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-      >
-        <Typography>No hay categorías disponibles</Typography>
-      </Box>
+      <Card sx={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography>No hay datos disponibles</Typography>
+      </Card>
     );
   }
 
   return (
-    <Box sx={{ p: 3, pl: 1, height: { xs: 280, sm: 350 } }}>
-      <Typography variant="h6" sx={{ my: 1, pl: 2 }}>
-        Top 10 Categorías más usadas
-      </Typography>
-      <ReactApexChart
-        options={chartOptions}
-        series={series}
-        type="bar"
-        height={chartOptions.chart?.height}
-        key={theme.palette.mode}
-      />
-    </Box>
+    <Card>
+      <CardHeader title="Categorías más demandadas" />
+      <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+        <ReactApexChart
+          type="donut"
+          series={chartSeries}
+          options={chartOptions}
+          height={360}
+          width="100%"
+        />
+      </Box>
+    </Card>
   );
 }

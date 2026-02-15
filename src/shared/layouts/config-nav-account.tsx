@@ -1,13 +1,15 @@
 import SvgIcon from '@mui/material/SvgIcon';
 
+import { paths } from 'src/config/paths';
+
 import { Iconify } from '../components/minimal/iconify';
 
 // ----------------------------------------------------------------------
 
 export const _account = [
   {
-    label: 'Home',
-    href: '/',
+    label: 'Dashboard',
+    href: paths.dashboard.root,
     icon: <Iconify icon="solar:home-angle-bold-duotone" />,
   },
   {

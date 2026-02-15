@@ -42,6 +42,16 @@ const ICONS = {
 
 export const navData = [
   {
+    subheader: 'General',
+    items: [
+      {
+        title: 'Dashboard',
+        path: paths.dashboard.root,
+        icon: ICONS.dashboard,
+      },
+    ],
+  },
+  {
     subheader: 'Ordenes de Trabajo',
     items: [
       {
