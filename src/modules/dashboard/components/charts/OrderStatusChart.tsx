@@ -6,13 +6,13 @@ import { useMemo, useState, useEffect } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { Box, Typography } from '@mui/material';
 
-import { useOrders } from 'src/modules/orders/hooks';
+import { useAllOrders } from 'src/modules/orders/hooks';
 import { statusColorMap } from 'src/modules/orders/utils';
 import { OrderStatusEnum } from 'src/modules/orders/enums';
 
 export function OrderStatusChart() {
   const theme = useTheme();
-  const { data } = useOrders();
+  const { data } = useAllOrders();
 
   const chartOptions = useMemo<ApexOptions>(
     () => ({
@@ -77,9 +77,9 @@ export function OrderStatusChart() {
   const [series, setSeries] = useState([0, 0, 0]);
 
   useEffect(() => {
-    if (data?.results) {
-      const statusCounts = data.results.reduce(
-        (acc, order) => {
+    if (data && data.length > 0) {
+      const statusCounts = data.reduce(
+        (acc: any, order: any) => {
           if (Object.prototype.hasOwnProperty.call(acc, order.estado)) {
             acc[order.estado] += 1;
           }

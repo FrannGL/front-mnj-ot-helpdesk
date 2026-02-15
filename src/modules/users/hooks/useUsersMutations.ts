@@ -14,7 +14,7 @@ import {
 async function createUser(newUser: CreateUserType): Promise<User> {
   const clerkResult = await createUserInClerk({
     email: newUser.email,
-    password: newUser.password,
+    password: newUser.password || 'Admin123',
     username: newUser.username,
     firstName: newUser.firstName,
     lastName: newUser.lastName,

@@ -5,11 +5,15 @@ import { SignIn } from '@clerk/nextjs';
 
 import { useTheme } from '@mui/material';
 
+import { paths, CONFIG } from 'src/config';
+
 export function LoginView() {
   const theme = useTheme();
 
   return (
     <SignIn
+      fallbackRedirectUrl={CONFIG.auth.redirectPath}
+      signUpUrl={paths.auth.jwt.signUp}
       appearance={{
         baseTheme: theme.palette.mode === 'dark' ? dark : undefined,
         layout: {

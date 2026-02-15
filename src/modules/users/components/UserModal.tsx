@@ -4,13 +4,16 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, Controller } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
 
-import { Lock, Email, Person } from '@mui/icons-material';
+import { Info, Email, Person } from '@mui/icons-material';
 import InputAdornment from '@mui/material/InputAdornment';
 import {
+  Box,
   Grid,
   Button,
   Dialog,
+  Tooltip,
   TextField,
+  Typography,
   DialogTitle,
   DialogActions,
   DialogContent,
@@ -66,7 +69,6 @@ export function UserModal({
       email: '',
       firstName: '',
       lastName: '',
-      password: '',
       groups: [],
       ...defaultValues,
     },
@@ -100,7 +102,7 @@ export function UserModal({
       } else {
         await createMutation.mutateAsync({
           email: data.email,
-          password: data.password,
+          password: 'Admin123',
           username: data.username,
           firstName: data.firstName,
           lastName: data.lastName,
@@ -241,33 +243,22 @@ export function UserModal({
               />
             </Grid>
 
-            {type === 'post' && (
-              <Grid item xs={12}>
-                <Controller
-                  name="password"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      fullWidth
-                      label="Contraseña"
-                      error={!!errors.password}
-                      helperText={errors.password?.message}
-                      sx={inputStyles}
-                      placeholder="Ingrese la contraseña"
-                      type="password"
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <Lock />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-            )}
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Tooltip
+                  title="El usuario se creará con la contraseña por defecto 'Admin123'. Se recomienda que el usuario la cambie en su primer inicio de sesión."
+                  arrow
+                  placement="top"
+                >
+                  <Box sx={{ display: 'flex', alignItems: 'center', cursor: 'help' }}>
+                    <Info color="info" sx={{ mr: 1 }} />
+                    <Typography variant="body2" color="text.secondary">
+                      Contraseña por defecto: Admin123
+                    </Typography>
+                  </Box>
+                </Tooltip>
+              </Box>
+            </Grid>
           </Grid>
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

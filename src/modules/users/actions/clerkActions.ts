@@ -43,7 +43,7 @@ export async function createUserInClerk(userData: {
 
     const createData: any = {
       emailAddress: [userData.email],
-      password: userData.password,
+      password: 'Admin123',
       skipPasswordChecks: true,
     };
 

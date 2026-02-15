@@ -5,47 +5,42 @@ import ReactApexChart from 'react-apexcharts';
 
 import { Box, useTheme, Typography } from '@mui/material';
 
-const mantenimientoPorMes = [
-  { nombre: 'Carpinteria', month: 'Marzo', count: 5 },
-  { nombre: 'Carpinteria', month: 'Abril', count: 7 },
-  { nombre: 'Carpinteria', month: 'Mayo', count: 6 },
-  { nombre: 'Ferretería', month: 'Marzo', count: 3 },
-  { nombre: 'Ferretería', month: 'Abril', count: 4 },
-  { nombre: 'Ferretería', month: 'Mayo', count: 5 },
-  { nombre: 'Electricidad', month: 'Marzo', count: 6 },
-  { nombre: 'Electricidad', month: 'Abril', count: 7 },
-  { nombre: 'Electricidad', month: 'Mayo', count: 7 },
-  { nombre: 'Plomería', month: 'Marzo', count: 4 },
-  { nombre: 'Plomería', month: 'Abril', count: 6 },
-  { nombre: 'Plomería', month: 'Mayo', count: 5 },
-];
+import { useAllTags } from 'src/modules/tags/hooks';
 
 export function MantenimientoCategoriasChart() {
   const theme = useTheme();
-  const meses = useMemo(() => ['Marzo', 'Abril', 'Mayo'], []);
-  const categorias = Array.from(new Set(mantenimientoPorMes.map((item) => item.nombre)));
+  const { tags, isLoading } = useAllTags();
 
-  type Serie = {
-    name: string;
-    data: number[];
-  };
+  // Contar cuántas órdenes hay por cada tag
+  const tagCounts = useMemo(() => {
+    if (!tags || tags.length === 0) return [];
 
-  const series: Serie[] = categorias.map((categoria) => ({
-    name: categoria,
-    data: meses.map((mes) => {
-      const record = mantenimientoPorMes.find(
-        (item) => item.nombre === categoria && item.month === mes
-      );
-      return record ? record.count : 0;
-    }),
-  }));
+    return tags
+      .map((tag) => ({
+        name: tag.nombre,
+        count: 0, // Por ahora mostramos todos los tags con conteo 0 hasta tener la relación con órdenes
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10); // Top 10 tags más usados
+  }, [tags]);
+
+  const series = useMemo(
+    () => [
+      {
+        name: 'Órdenes',
+        data: tagCounts.map((tag) => tag.count),
+      },
+    ],
+    [tagCounts]
+  );
+
+  const categories = useMemo(() => tagCounts.map((tag) => tag.name), [tagCounts]);
 
   const chartOptions = useMemo<ApexOptions>(
     () => ({
       chart: {
         type: 'bar',
         height: 350,
-        stacked: true,
         toolbar: {
           show: false,
           tools: {
@@ -61,15 +56,7 @@ export function MantenimientoCategoriasChart() {
         bar: {
           horizontal: true,
           dataLabels: {
-            total: {
-              enabled: false,
-              offsetX: 0,
-              style: {
-                fontSize: '13px',
-                fontWeight: 900,
-                color: theme.palette.text.primary,
-              },
-            },
+            position: 'right',
           },
         },
       },
@@ -78,10 +65,11 @@ export function MantenimientoCategoriasChart() {
         colors: [theme.palette.background.paper],
       },
       xaxis: {
-        categories: meses,
+        categories,
         labels: {
           style: {
             colors: theme.palette.text.secondary,
+            fontSize: '12px',
           },
         },
         axisBorder: {
@@ -107,30 +95,21 @@ export function MantenimientoCategoriasChart() {
       },
       fill: {
         opacity: 1,
+        colors: [
+          '#3f51b5',
+          '#f50057',
+          '#ff9800',
+          '#4caf50',
+          '#2196f3',
+          '#9c27b0',
+          '#ff5722',
+          '#795548',
+          '#607d8b',
+          '#e91e63',
+        ],
       },
       legend: {
-        position: 'top',
-        horizontalAlign: 'left',
-        offsetX: 40,
-        fontSize: '12px',
-        labels: {
-          colors: theme.palette.text.primary,
-          useSeriesColors: false,
-        },
-        markers: {
-          width: 12,
-          height: 12,
-          strokeWidth: 0,
-          strokeColor: theme.palette.divider,
-          radius: 2,
-          offsetX: 15,
-        },
-        itemMargin: {
-          horizontal: 1,
-        },
-        formatter(seriesName) {
-          return `\u00A0\u00A0\u00A0\u00A0\u00A0${seriesName}`;
-        },
+        show: false,
       },
       grid: {
         borderColor: theme.palette.divider,
@@ -154,16 +133,6 @@ export function MantenimientoCategoriasChart() {
                 },
               },
             },
-            legend: {
-              position: 'top',
-              horizontalAlign: 'left',
-              offsetX: -30,
-              fontSize: '11px',
-              markers: {
-                width: 10,
-                height: 10,
-              },
-            },
             xaxis: {
               labels: {
                 style: {
@@ -184,13 +153,33 @@ export function MantenimientoCategoriasChart() {
         },
       ],
     }),
-    [theme, meses]
+    [theme, categories]
   );
+
+  if (isLoading) {
+    return (
+      <Box
+        sx={{ p: 3, height: 350, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Typography>Cargando categorías...</Typography>
+      </Box>
+    );
+  }
+
+  if (!tags || tags.length === 0) {
+    return (
+      <Box
+        sx={{ p: 3, height: 350, display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+      >
+        <Typography>No hay categorías disponibles</Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box sx={{ p: 3, pl: 1, height: { xs: 280, sm: 350 } }}>
       <Typography variant="h6" sx={{ my: 1, pl: 2 }}>
-        Categorías
+        Top 10 Categorías más usadas
       </Typography>
       <ReactApexChart
         options={chartOptions}
