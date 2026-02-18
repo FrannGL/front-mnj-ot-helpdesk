@@ -138,11 +138,7 @@ export function MantenimientoCategoriasChart() {
   }
 
   if (chartData.length === 0) {
-    return (
-      <Card sx={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography>No hay datos disponibles</Typography>
-      </Card>
-    );
+    return null;
   }
 
   return (

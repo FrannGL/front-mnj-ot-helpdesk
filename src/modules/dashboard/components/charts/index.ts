@@ -1,3 +1,4 @@
+export * from './TrendsChart';
 export * from './CategoriesChart';
 export * from './UsersCountChart';
 export * from './OrderStatusChart';

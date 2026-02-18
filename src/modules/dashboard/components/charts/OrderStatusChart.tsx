@@ -4,7 +4,7 @@ import ReactApexChart from 'react-apexcharts';
 import { useMemo, useState, useEffect } from 'react';
 
 import { useTheme } from '@mui/material/styles';
-import { Box, Typography } from '@mui/material';
+import { Box, Card, CardHeader } from '@mui/material';
 
 import { useAllOrders } from 'src/modules/orders/hooks';
 import { statusColorMap } from 'src/modules/orders/utils';
@@ -100,16 +100,23 @@ export function OrderStatusChart() {
     }
   }, [data]);
 
+  if (data && data.length === 0) {
+    return null;
+  }
+
   return (
-    <Box sx={{ p: 3, height: 300 }}>
-      <Typography variant="h6">Ordenes</Typography>
-      <ReactApexChart
-        options={chartOptions}
-        series={series}
-        type="radialBar"
-        height={300}
-        key={theme.palette.mode}
-      />
-    </Box>
+    <Card>
+      <CardHeader title="Estado de Órdenes" />
+      <Box sx={{ p: 3, pb: 1 }} dir="ltr">
+        <ReactApexChart
+          options={chartOptions}
+          series={series}
+          type="radialBar"
+          height={360}
+          width="100%"
+          key={theme.palette.mode}
+        />
+      </Box>
+    </Card>
   );
 }
